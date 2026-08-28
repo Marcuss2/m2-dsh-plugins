@@ -179,6 +179,9 @@ head2 "7. Kit files applied"
 cmp -s "$KIT/plugins/agent-browser-skill/SKILL.md" "$DSH_HOME/skills/agent-browser/SKILL.md" \
   && ok "skills/agent-browser/SKILL.md" "matches kit" \
   || bad "skills/agent-browser/SKILL.md" "missing or differs from kit copy"
+cmp -s "$KIT/plugins/machine-wide-ptc/cordis.patch.yml" "$DSH_HOME/cordis.patch.yml" \
+  && ok "home cordis.patch.yml" "matches kit (Code Mode on every profile)" \
+  || bad "home cordis.patch.yml" "missing or differs from kit copy — see plugins/machine-wide-ptc/"
 [ -f "$DSH_HOME/AGENTS.md" ] && ok "user-global AGENTS.md" "present" \
   || warn "user-global AGENTS.md" "missing (RESTORE.md step 3 is optional here)"
 
@@ -208,6 +211,7 @@ if [ "$FULL" = 1 ]; then
   note "hindsight tools" "call hindsight_recall / hindsight_retain in a session"
   note "mcp__* tools" "call mcp__ast-grep__ast_grep_version, mcp__ddg-search__search, mcp__web-fetch__fetch, mcp__markitdown__convert_to_markdown"
   note "hashline read/edit" "read any file in a NEW session: lines are HASH│content"
+  note "code mode (PTC)" "new session post-restart: tool surface is run_code + the generated TypeScript SDK"
 fi
 
 if [ -f "$KIT/setup/versions.txt" ] && [ -n "${DUMP:-}" ]; then

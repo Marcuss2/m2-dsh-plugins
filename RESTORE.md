@@ -31,7 +31,8 @@ entry can be applied before they verify.
 | 6 | hindsight-coding-agents (Hindsight memory) | `plugins/hindsight-coding-agents/` | live |
 | 7 | tier1-plugins (debugger, LSP, checkpoints, fallbacks, web+AST) | `plugins/tier1-plugins/` | live |
 | 8 | dsh-better-reasoning-effort (reasoning levels for custom providers) | `plugins/dsh-better-reasoning-effort/` | live |
-| 9 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
+| 9 | machine-wide PTC home patch (Code Mode on every profile) | `plugins/machine-wide-ptc/` | live |
+| 10 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
 
 ## Step 1 — Read the kit
 
@@ -90,7 +91,18 @@ install steps, verification). Machine-level dependencies are tracked centrally i
 `dsh --profile web` — bundle layers compose at boot, so nothing is active in
 running sessions until then.
 
-## Step 5 — Settings (advisory)
+## Step 5 — Machine-wide Code Mode (PTC) home patch
+
+Target: `$DSH_HOME/cordis.patch.yml` — the home-level patch layer the launcher
+applies to **every** profile, ranked above each profile's own layers. Follow
+`plugins/machine-wide-ptc/`: copy its verbatim `cordis.patch.yml` artifact to
+the target when absent, or merge into an existing file without disturbing the
+user's rows. Nothing is installed (Code Mode ships inside stock `dsh`). The
+Step 4 restart — or one of your own afterwards — activates it: `dsh
+--profile web --dump-config` then shows the composed `tools` row at
+`mode: code` with the home file named in its provenance header.
+
+## Step 6 — Settings (advisory)
 
 Review `setup/settings.yaml.excerpt` and compare against the target's
 `$DSH_HOME/settings.yaml`. Apply only what makes sense on the target machine:
@@ -115,7 +127,10 @@ with the user when in doubt.
       user informed).
 - [ ] In a NEW session after the restart: `read` prints `HASH│content`, the
       hindsight/debug/LSP/checkpoint tools are registered, and `mcp__*` tools
-      answer.
+answer.
+- [ ] In a NEW session after the home-patch restart: the model works through
+      `run_code` (`tools.*()` bindings); a direct native tool call is refused
+      as `UNKNOWN_TOOL` — by design, not a breakage.
 - [ ] Settings reviewed; machine-specific values adapted.
 
 ## Maintenance contract

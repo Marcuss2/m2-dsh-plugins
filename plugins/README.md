@@ -35,6 +35,11 @@ Entries must be applied in the order listed here:
 6. `dsh-better-reasoning-effort/` — reasoning-effort and input-modality
    declarations for custom (`llm-pi-ai`) provider models, edited inside the
    official Models page (profile-bundle plugin; dsh restart).
+7. `machine-wide-ptc/` — machine-wide Code Mode (PTC): writes the home-level
+   `$DSH_HOME/cordis.patch.yml` that flips the deployment default tool
+   presentation to the built-in `run_code` + generated TypeScript SDK surface
+   for every profile. Not an npm bundle — the machinery ships inside stock
+   `dsh`; apply before the final restart so one boot activates everything.
 
 ## How the npm bundles get installed
 

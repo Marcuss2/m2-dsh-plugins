@@ -67,6 +67,7 @@ install steps, sources and verification live in each `plugins/*/README.md`.
 | `hindsight-coding-agents` | Long-term repository memory (needs a Hindsight server) |
 | `tier1-plugins` | Capability pack: DAP debugger, LSP actions, checkpoint/rewind, LLM fallback chains, web-search failover, and four MCP servers (ast-grep, DuckDuckGo, fetch, markitdown) |
 | `dsh-better-reasoning-effort` | Reasoning-effort + modality declarations for custom provider models |
+| `machine-wide-ptc` | Builtin Code Mode (PTC) as the machine-wide default via `$DSH_HOME/cordis.patch.yml`: `run_code` + generated TypeScript SDK on every profile |
 
 Plus the user-global system prompt (`setup/user-global-AGENTS.md`), an
 advisory settings excerpt (`setup/settings.yaml.excerpt`), and a verification

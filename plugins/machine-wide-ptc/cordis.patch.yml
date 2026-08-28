@@ -1,0 +1,47 @@
+# cordis.patch.yml — DSH home-level patch layer.
+#
+# Verbatim artifact: this file is copied to `$DSH_HOME/cordis.patch.yml` (the
+# launcher reads it for EVERY profile, applying it after that profile's bundle
+# layers and own patch list, before explicit `--patch` overlays). One file
+# therefore turns on builtin Code Mode (PTC — programmatic tool calling)
+# machine-wide instead of per session.
+#
+# What the two rows do:
+#
+#   id: tools → mode: code
+#     The deployment default presentation for every agent that declares none
+#     (shipped `dsh-tools`). `code` collapses the model-facing tool surface to
+#     the reserved `run_code` transport plus a generated TypeScript SDK: the
+#     model writes one program that calls `await tools.<name>({...})` for any
+#     catalogued tool instead of one round trip per call. Direct native calls
+#     naming any other tool resolve to UNKNOWN_TOOL before policy runs — that
+#     is the point: announced surface == callable surface. Use `both` to keep
+#     native schemas alongside `run_code` (safer fallback for models that
+#     write weak TypeScript, at a higher fixed prompt cost).
+#     This outranks the TEMPORARY `DSH_TOOLS_MODE` env seam that
+#     `@deepseek-ai/dsh-web-app` puts on the same row (its value is evaluated
+#     in a lower layer).
+#
+#   insert: code-runtime
+#     Non-native modes require a `ctx.codeRuntime` provider with a registered
+#     SDK renderer. The stock install ships `@deepseek-ai/dsh-code-runtime-
+#     worker-thread` (bundled with `dsh` — nothing is installed here), and
+#     `dsh-web-app` / `dsh-headless` already insert it under this exact row id,
+#     so this insert *replaces* their identical row when composing those
+#     profiles and supplies the row to any custom profile that mounts neither
+#     (without it, prompt assembly fails loudly on such profiles).
+#
+# Approvals are NOT bypassed: every SDK binding call re-enters the full
+# pre-execute → guards → execute → post-execute pipeline, so `ask` policies
+# still gate risky tools — just mid-program.
+#
+# Takes effect when the profile process (re)boots: bundle/config layers
+# compose at start, running sessions keep their tools until then.
+
+- insert:
+    - id: code-runtime
+      name: '@deepseek-ai/dsh-code-runtime-worker-thread'
+
+- id: tools
+  config:
+    mode: code
