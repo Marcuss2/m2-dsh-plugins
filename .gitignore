@@ -1,0 +1,18 @@
+# Third-party research clones — large upstream repos fetched for analysis,
+# not part of the reproduction kit. Keep only hand-written *.md notes there.
+.research/oh-my-pi/
+.research/dsh-dbg-inspect/
+
+# Plugin working state (dsh-better-edit hash store)
+.dsh_better_edit/
+
+# Scratch files
+test-hashline-edit.txt
+
+# Generic noise
+node_modules/
+dist/
+*.log
+.env
+.env.*
+.DS_Store

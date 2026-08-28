@@ -1,0 +1,61 @@
+# cordis.patch.yml.example — the tier-1 MCP rows for a dsh web profile.
+#
+# Materialize against the target profile (replace the placeholder with the real
+# absolute path; YAML does not expand variables):
+#
+#   T="$DSH_HOME/profiles/web/cordis.patch.yml"
+#   sed "s|__PROFILE__|$DSH_HOME/profiles/web|g" \
+#       "$KIT/plugins/tier1-plugins/cordis.patch.yml.example" > /tmp/mcp.yml
+#   # pristine target is comments + `[]`: strip that `[]`, then append the block.
+#   sed -i '/^\[\]$/d' "$T" && cat /tmp/mcp.yml >> "$T"   # verified recipe
+#
+# The two npm servers are installed as PROFILE dependencies (their binaries are
+# built by postinstall, which pnpm blocks unless approved — see README), so the
+# rows point at the profile's own .bin instead of relying on the npx cache.
+# Your patch layer for this dsh profile, applied after every bundle layer:
+# a top-level YAML array of loader patch entries (id-targeted config
+# overrides, disables, and insert lists; `!!js` expressions allowed).
+# --- MCP servers via @deepseek-ai/dsh-mcp-client (tier-1 gap closure) ---
+- insert:
+    # Structural code search + gated rewrites over ast-grep (profile-installed bin, no npx)
+    - id: mcp-ast-grep
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: ast-grep
+        transport: stdio
+        command: __PROFILE__/node_modules/.bin/ast-grep-mcp
+        args: []
+        # The wrapper resolves its binary from AST_GREP_BIN, then PATH, then a
+        # sibling node_modules/.bin — which pnpm's hoisted layout does not
+        # provide, so without this the row answers binary_resolution_failed.
+        env:
+          AST_GREP_BIN: __PROFILE__/node_modules/@ast-grep/cli/ast-grep
+        toolCallTimeoutMs: 120000
+
+    # Keyless web search (DuckDuckGo): search, search_and_crawl, research, fetch
+    # (profile-installed bin with its postinstall-built native binary, no npx)
+    - id: mcp-ddg-search
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: ddg-search
+        transport: stdio
+        command: __PROFILE__/node_modules/.bin/duckduckgo-mcp
+        args: []
+
+    # URL -> markdown via Mozilla Readability (official MCP reference server)
+    - id: mcp-web-fetch
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: web-fetch
+        transport: stdio
+        command: uvx
+        args: ['mcp-server-fetch']
+
+    # PDF/DOCX/PPTX/XLSX -> structured markdown (markitdown-mcp wraps Microsoft markitdown)
+    - id: mcp-markitdown
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: markitdown
+        transport: stdio
+        command: uvx
+        args: ['--from', 'markitdown-mcp', 'markitdown-mcp']

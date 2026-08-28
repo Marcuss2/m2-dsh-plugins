@@ -1,0 +1,6 @@
+{
+  "_comment": "Copy to ~/.hindsight/coding-agent.json and fill real values. Machine-specific: never commit real apiUrl/apiToken to the repo. apiToken is a secret - prefer env var HINDSIGHT_API_TOKEN (the plugin reads env as a fallback). Env fallbacks: HINDSIGHT_API_URL, HINDSIGHT_SERVER_MODE.",
+  "serverMode": "self-hosted",
+  "apiUrl": "https://your.hindsight.server",
+  "apiToken": "REPLACE_WITH_API_TOKEN_OR_USE_ENV_HINDSIGHT_API_TOKEN"
+}

@@ -1,0 +1,11 @@
+@vectorize-io/hindsight-coding-agents@0.4.3
+ast-grep-mcp@0.0.2
+dsh-better-edit@0.4.1
+dsh-better-reasoning-effort@0.2.3
+dsh-checkpoint-rewind@0.6.1
+dsh-debugger-dap@0.1.8
+dsh-llm-fallbacks@0.3.5
+dsh-lsp-actions@0.4.0
+dsh-search-failover@0.3.9
+dshmarket@1.33.0
+mcp-duckduckgo@3.1.0

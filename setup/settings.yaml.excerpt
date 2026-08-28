@@ -1,0 +1,26 @@
+# Excerpt of $DSH_HOME/settings.yaml relevant to reproducing this setup.
+# Advisory on restore: machine-specific values (API-key env vars, model
+# availability) must be adapted on the target install. Merge key by key;
+# never blind-overwrite an existing settings.yaml.
+#
+# Keys intentionally NOT recorded here:
+#   ui-onboarding.welcomeNoticeVersion — bookkeeping, not part of the setup.
+
+# Default agent preset for new sessions. `cordis` ships with DSH, so a
+# baseline install already provides it; this line just pins it as default.
+agent-presets:
+  default: cordis
+
+# Default model selection. The provider `qwen-token-plan` is registered by the
+# `llm-pi-ai` block below and expects its API key in the environment variable
+# named there — that variable must exist on the target machine.
+agent-default-model:
+  provider: qwen-token-plan
+  model: qwen3.8-max-preview
+  reasoningEffort: medium
+
+# LLM provider registration (via the llm-pi-ai package).
+llm-pi-ai:
+  providers:
+    qwen-token-plan:
+      apiKeyEnv: QWEN_TOKEN_PLAN_API_KEY
