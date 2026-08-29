@@ -2,8 +2,8 @@
 
 ## What it is
 
-Two composition rows in the DSH **home-level patch layer**
-(`$DSH_HOME/cordis.patch.yml`) that switch the whole machine's deployment
+One composition row in the DSH **home-level patch layer**
+(`$DSH_HOME/cordis.patch.yml`) that switches the whole machine's deployment
 default from native function calling to **Code Mode** (PTC — programmatic tool
 calling), the capability already shipped inside stock `dsh`:
 
@@ -14,11 +14,20 @@ calling), the capability already shipped inside stock `dsh`:
   tool pipeline (so sandboxing and `ask` approvals still gate risky calls,
   just mid-program). Under `code`, calling any other tool directly resolves
   to `UNKNOWN_TOOL` by design.
-- `insert: code-runtime` — guarantees the `@deepseek-ai/dsh-code-runtime-
-  worker-thread` provider (the Code Mode worker) for **every** profile. The
-  `web` and `headless` bundles insert the identical row themselves (patch
-  composition keys rows by `id`, so no duplicate instance); a custom profile
-  mounting neither would otherwise fail prompt assembly in non-native modes.
+
+The `code-runtime` worker row is deliberately **not** inserted here. Both
+shipped surface bundles — `@deepseek-ai/dsh-web-app` and
+`@deepseek-ai/dsh-headless` — already insert the identical
+`@deepseek-ai/dsh-code-runtime-worker-thread` row, and in dsh 0.1.1-rc.2 an
+`insert:` from the home layer is *concatenated* onto the composed entry list
+(`dsh-app-boot` `applyEntryPatches`), so a home-layer insert collides with the
+bundle's row and the loader throws `duplicate loader entry id: code-runtime`,
+refusing to boot the profile. (Inserts are keyed by nothing; only override
+patches target rows by `id`.) A CUSTOM profile that mounts **neither** bundle
+MUST insert `- id: code-runtime / name:
+'@deepseek-ai/dsh-code-runtime-worker-thread'` in its **own**
+`cordis.patch.yml` (or mount `dsh-headless`), otherwise prompt assembly fails
+loudly in non-native modes.
 
 The full definition is the verbatim artifact
 [`cordis.patch.yml`](cordis.patch.yml) in this directory.
@@ -61,8 +70,10 @@ applicable).
 2. If the target does not exist: copy
    `$KIT/plugins/machine-wide-ptc/cordis.patch.yml` verbatim.
 3. If the target exists: it is user-authored home-layer content — merge.
-   Ensure the `insert:` block carries the `code-runtime` row and the
-   `id: tools` row resolves to `mode: code`, preserving every other user row.
+   Ensure the `id: tools` row resolves to `mode: code`, preserving every
+   other user row. Do NOT merge an `insert: code-runtime` block from an
+   older kit copy: on dsh 0.1.1-rc.2 it collides with the surface bundles'
+   identical insert and refuses to boot (`duplicate loader entry id`).
 4. Do NOT write this into a profile's own `cordis.patch.yml`: that only
    covers one profile and loses the point.
 
@@ -77,11 +88,10 @@ then, so piggyback this restart on the Step 4 plugin restart in
 
 1. `setup/verify.sh` section 7 compares the live file against the kit copy.
 2. `dsh --profile web --dump-config`: the composed `- id: tools` row shows
-   `mode: code` under a provenance header naming `$DSH_HOME/cordis.patch.yml`,
-   and the home layer's own section lists the inserted `code-runtime` row.
-   Patch composition keys rows by `id`, so the home insert replaces the
-   bundle's identical row — one worker instance at runtime, one listing per
-   contributing layer in the dump.
+   `mode: code` under a provenance header naming `$DSH_HOME/cordis.patch.yml`.
+   The `code-runtime` row appears exactly once, contributed by the
+   `dsh-web-app` bundle layer (not the home layer — see What it is above).
+   `dsh --profile web` boots without the duplicate-entry error.
 3. Functional (after the restart, in a NEW session): the tool catalog offers
    `run_code` with a TypeScript SDK section; ask for something two-tool-deep
    (e.g. "list the top-level files and report how many are markdown") and the

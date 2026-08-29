@@ -6,7 +6,7 @@
 # therefore turns on builtin Code Mode (PTC — programmatic tool calling)
 # machine-wide instead of per session.
 #
-# What the two rows do:
+# What the row does:
 #
 #   id: tools → mode: code
 #     The deployment default presentation for every agent that declares none
@@ -22,14 +22,21 @@
 #     `@deepseek-ai/dsh-web-app` puts on the same row (its value is evaluated
 #     in a lower layer).
 #
-#   insert: code-runtime
+#   The `code-runtime` provider row is deliberately NOT inserted here.
 #     Non-native modes require a `ctx.codeRuntime` provider with a registered
-#     SDK renderer. The stock install ships `@deepseek-ai/dsh-code-runtime-
-#     worker-thread` (bundled with `dsh` — nothing is installed here), and
-#     `dsh-web-app` / `dsh-headless` already insert it under this exact row id,
-#     so this insert *replaces* their identical row when composing those
-#     profiles and supplies the row to any custom profile that mounts neither
-#     (without it, prompt assembly fails loudly on such profiles).
+#     SDK renderer. In dsh 0.1.1-rc.2 an `insert:` in this layer is
+#     concatenated onto the composed entry list (`dsh-app-boot`
+#     `applyEntryPatches`), and the loader throws `duplicate loader entry id:
+#     code-runtime` because BOTH shipped surface bundles already insert the
+#     identical row — `@deepseek-ai/dsh-web-app/cordis.patch.yml` and
+#     `@deepseek-ai/dsh-headless/cordis.patch.yml`. Rows are keyed by id only
+#     for override patches, not for inserts. Any profile built on either of
+#     those bundles (i.e. every stock profile) gets the worker from its
+#     bundle. A CUSTOM profile that mounts neither bundle MUST insert
+#     `- id: code-runtime
+#        name: '@deepseek-ai/dsh-code-runtime-worker-thread'`
+#     in its OWN cordis.patch.yml (or mount `dsh-headless`), otherwise prompt
+#     assembly fails loudly in non-native modes.
 #
 # Approvals are NOT bypassed: every SDK binding call re-enters the full
 # pre-execute → guards → execute → post-execute pipeline, so `ask` policies
@@ -37,10 +44,6 @@
 #
 # Takes effect when the profile process (re)boots: bundle/config layers
 # compose at start, running sessions keep their tools until then.
-
-- insert:
-    - id: code-runtime
-      name: '@deepseek-ai/dsh-code-runtime-worker-thread'
 
 - id: tools
   config:
