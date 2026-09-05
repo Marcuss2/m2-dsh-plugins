@@ -6,6 +6,11 @@
 # Plugin working state (dsh-better-edit hash store)
 .dsh_better_edit/
 
+# Raw dshmarket Backup & Restore exports (browser downloads): they carry
+# absolute home paths and whatever secrets the profile holds. Commit only the
+# stripped canonical copy — see plugins/dshmarket/README.md.
+dsh-dshmarket-backup-*.json
+
 # Scratch files
 test-hashline-edit.txt
 
@@ -16,3 +21,4 @@ dist/
 .env
 .env.*
 .DS_Store
+.probe/
