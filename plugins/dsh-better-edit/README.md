@@ -1,10 +1,19 @@
 # dsh-better-edit
 
+> **REMOVED 2026-09-05.** Superseded by [`../better-dsh/`](../better-dsh/)
+> (Dashr), which re-wires the same hashline lineage natively: its own
+> `read`/`write`/`edit`/`undo_last_edit` register on each agent's scope layer
+> and shadow the stock tools by nearest-layer-wins, and its `read` also
+> resolves `skill://`/`ctx://`/`agent://`/`dvc://`/`http(s)://` URLs. Upstream
+> test reports record deployments running without this plugin as intended.
+> Uninstalled with `dsh plugin --profile web remove dsh-better-edit`; the
+> text below stays accurate as the rollback recipe.
+
 ## What it is
 
 Hashline editing for DSH agents: the community plugin `dsh-better-edit`
-(npm, Rianico/dsh-better-edit, v0.3.1 at record time; **0.4.1 installed** on
-the 2026-08-28 restore) replaces the stock
+(npm, Rianico/dsh-better-edit, v0.3.1 at record time; **0.6.1 installed** on
+2026-09-04, up from 0.4.1 at the 2026-08-28 restore) replaces the stock
 `read`/`edit` tool behavior with the **hashline** algorithm from the
 oh-my-pi (omp) ecosystem — every line is addressed by a 3-char content hash,
 edits target hash ranges, stale/unseen anchors are hard-rejected with fresh

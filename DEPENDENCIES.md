@@ -12,7 +12,8 @@ and verify — only then apply kit entries.
 |----|------------|--------|-------------|
 | `nodejs-npm` | Node.js + npm (`^22.19.0 \|\| >=24.0.0` for current DSH plugins) | `node --version && npm --version` | everything (baseline for global npm tools) |
 | `agent-browser` | agent-browser CLI + a Chromium it can drive | `agent-browser --version` | `plugins/agent-browser-skill/` |
-| `dsh-better-edit` | hashline editing plugin installed as profile bundle | `grep dsh-better-edit "$DSH_HOME/profiles/web/package.json"` | `plugins/dsh-better-edit/` |
+| `better-dsh` | Dashr bundle (persistent IPython kernel + native hashline editing) installed as profile bundle | `grep better-dsh "$DSH_HOME/profiles/web/package.json"` | `plugins/better-dsh/` |
+| `dashr-kernel-env` | Python kernel env with `ipykernel` + `dill` (auto-provisioned managed venv, or `DASHR_KERNEL_PYTHON`) | `ls "$DSH_HOME/profiles/web/node_modules/better-dsh/.venv-kernel/bin/python"` | `plugins/better-dsh/` |
 | `hindsight-server` | reachable Hindsight memory server (self-hosted here) | `curl -s <apiUrl>/version` | `plugins/hindsight-coding-agents/` |
 | `uv` | `uv`/`uvx` Python package runner for MCP servers | `uvx --version` | `plugins/tier1-plugins/` |
 | `pnpm-build-approval` | pnpm ≥10 blocks dependency build scripts unless approved | `grep -A4 'allowBuilds\|onlyBuiltDependencies' "$DSH_HOME/profiles/web/pnpm-workspace.yaml"` | `plugins/tier1-plugins/` (npm MCP servers) |
@@ -108,20 +109,24 @@ Browser-automation CLI for AI agents (Chromium/Chrome over CDP), backing the
   ```
   must print the page title (`Example Domain`).
 
-## dsh-better-edit
+## better-dsh
 
-Hashline editing plugin for DSH agents (see `plugins/dsh-better-edit/`).
+Dashr — persistent IPython-kernel REPL + native hashline editing, installed as
+a profile bundle (see `plugins/better-dsh/`). Replaces the former
+`dsh-better-edit` and `dsh-ptc-plus` rows.
 
-- **Detect:** `grep dsh-better-edit "$DSH_HOME/profiles/web/package.json"`
+- **Detect:** `grep better-dsh "$DSH_HOME/profiles/web/package.json"`
   (must appear in both `dependencies` and `dsh.profile.bundles`).
-- **Install:** `dsh plugin --profile web add dsh-better-edit` — use the
-  deployment's own `dsh` binary if `dsh` is not on PATH (e.g.
-  `<dsh-install>/bin/dsh`), else `npx @deepseek-ai/dsh plugin --profile web
-  add dsh-better-edit`. The command installs the package AND registers the
-  profile bundle; no manual composition edits.
-- **Verify:** `dsh --profile web --dump-config` contains a
-  `# == dsh-better-edit` layer; a NEW session's `read` tool returns
-  `HASH│content` lines.
+- **Install:** `PATH=/usr/bin:$PATH dsh plugin --profile web add --config.auto-install-peers=false better-dsh@0.2.2-b`
+  — the peers flag is MANDATORY (auto-installed peers would hoist a second
+  copy of cordis/dsh core into the profile). Then ensure `allowBuilds:
+  zeromq: true` in the profile's `pnpm-workspace.yaml` and re-run
+  `pnpm install`; afterwards check `dsh.profile.bundles` does NOT contain
+  `dshmarket` (the add command may re-insert it).
+- **Verify:** `dsh --profile web --dump-config` contains a `# == better-dsh`
+  layer with an `id: dashr-repl` row; a NEW session offers `eval` with an
+  optional `timeout` parameter, and its `read` tool returns `HASH│content`
+  lines while mentioning `scheme://` URLs.
 
 ## hindsight-server
 

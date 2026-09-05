@@ -25,14 +25,19 @@ entry can be applied before they verify.
 |---|-------|--------------|--------|
 | 1 | Machine dependencies | `DEPENDENCIES.md` | live |
 | 2 | User-global system prompt | `setup/user-global-AGENTS.md` | live |
-| 3 | dshmarket (plugin-market UI in Settings) | `plugins/dshmarket/` | live |
+| 3 | dshmarket (plugin-market UI in Settings; dependency-only on desktop ≥0.3.8; its Backup & Restore JSON is the canonical profile-state record) | `plugins/dshmarket/` | live |
 | 4 | agent-browser skill (browser automation) | `plugins/agent-browser-skill/` | live |
-| 5 | dsh-better-edit (hashline editing) | `plugins/dsh-better-edit/` | live |
+| 5 | dsh-better-edit (hashline editing) | `plugins/dsh-better-edit/` | **removed 2026-09-05** — superseded by better-dsh (entry 10); README kept as rollback recipe |
 | 6 | hindsight-coding-agents (Hindsight memory) | `plugins/hindsight-coding-agents/` | live |
 | 7 | tier1-plugins (debugger, LSP, checkpoints, fallbacks, web+AST) | `plugins/tier1-plugins/` | live |
 | 8 | dsh-better-reasoning-effort (reasoning levels for custom providers) | `plugins/dsh-better-reasoning-effort/` | live |
-| 9 | machine-wide PTC home patch (Code Mode on every profile) | `plugins/machine-wide-ptc/` | live |
-| 10 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
+| 9 | machine-wide PTC home patch (Code Mode **and** native tools) | `plugins/machine-wide-ptc/` | live |
+| 10 | better-dsh / Dashr (persistent IPython-kernel `eval` REPL with model-settable per-call timeouts + native hashline editing; replaces entries 5 and the former ptc-plus) | `plugins/better-dsh/` | live |
+| 10a | dsh-ptc-plus (session-bound persistent REPL for `run_code`) | `plugins/dsh-ptc-plus/` | **removed 2026-09-05** — superseded by better-dsh; README kept as rollback recipe |
+| 11 | dsh-better-sidebar (Web GUI sidebar workbench; registerTab face for occupants) | `plugins/dsh-better-sidebar/` | live |
+| 12 | dsh-ui-subagent-monitor (subagent monitoring mounted on that sidebar) | `plugins/dsh-ui-subagent-monitor/` | live |
+| 13 | subagent-model-routing (agent preset pinning children to a cheaper model) | `plugins/subagent-model-routing/` | live |
+| 14 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
 
 ## Step 1 — Read the kit
 
@@ -65,18 +70,34 @@ Target: `$DSH_HOME/AGENTS.md` (normally `~/.dsh/AGENTS.md`).
 
 Two rules, then the entries.
 
-**Install the npm bundles in one batched call, one at a time.** All nine custom
+**Install the npm bundles in one batched call, one at a time.** Eleven custom
 bundles are added by a single `dsh plugin --profile web add …` (see
 `plugins/README.md`, "How the npm bundles get installed"), with the profile
 quiescent — no other session running `dsh plugin` at the same time. Concurrent
-`pnpm add` calls in one project both report success while the last writer wins,
-so a dependency and its bundle entry can vanish silently. Parallel installs are
-therefore never faster than batching, and not correct.
+`pnpm add` processes in one project both exit 0 while the last writer wins,
+silently dropping the other's dependency *and* its bundle entry — so parallel
+installs are neither faster nor correct. The install must run under the pnpm
+major that wrote the profile store (system pnpm v11 here — prefix
+`PATH=/usr/bin:$PATH`; the desktop AppImage's bundled pnpm v10 exits
+`ERR_PNPM_UNEXPECTED_STORE`). `dsh-better-sidebar` additionally needs
+`allowBuilds: node-pty: true` in `$DSH_HOME/profiles/web/pnpm-workspace.yaml`
+plus a `pnpm install` there, or its terminal tab never builds. `dshmarket` is a
+twelfth entry but is installed **dependency-only** (never in
+`dsh.profile.bundles`): the desktop launcher (≥0.3.8) mounts the market through
+its own `--patch` overlay, and a bundle layer would insert a second
+`id: dsh-market` row that kills every boot with `duplicate loader entry id:
+dsh-market`. See `plugins/dshmarket/README.md`.
+Once dshmarket is installed, its **Backup & Restore** import of
+`$KIT/profile-backup.stripped.json` (placeholders re-pointed to the target
+paths first) is the standard way to land or reconcile the recorded profile
+state — including this kit's patch-layer rows and `pnpm-workspace.yaml` pins —
+instead of hand-editing each file.
 
 **Check dependency hygiene before trusting any plugin.** The profile installs
 with pnpm's `nodeLinker: hoisted`, so a plugin that declares `@deepseek-ai/*`
 core packages as *regular* dependencies (instead of `peerDependencies`, the way
-`dsh-better-edit` does) hoists a second copy of the harness's own modules into
+the removed `dsh-better-edit` did) hoists a second copy of the harness's own
+modules into
 `$DSH_HOME/profiles/web/node_modules/@deepseek-ai/`. The profile then shadows the
 installation and core singletons — the tool-runtime scheduler symbol most
 importantly — stop matching, which breaks **every tool call in every session**
@@ -91,7 +112,7 @@ install steps, verification). Machine-level dependencies are tracked centrally i
 `dsh --profile web` — bundle layers compose at boot, so nothing is active in
 running sessions until then.
 
-## Step 5 — Machine-wide Code Mode (PTC) home patch
+## Step 5 — Machine-wide Code Mode + native tools (PTC) home patch
 
 Target: `$DSH_HOME/cordis.patch.yml` — the home-level patch layer the launcher
 applies to **every** profile, ranked above each profile's own layers. Follow
@@ -100,7 +121,10 @@ the target when absent, or merge into an existing file without disturbing the
 user's rows. Nothing is installed (Code Mode ships inside stock `dsh`). The
 Step 4 restart — or one of your own afterwards — activates it: `dsh
 --profile web --dump-config` then shows the composed `tools` row at
-`mode: code` with the home file named in its provenance header.
+`mode: both` with the home file named in its provenance header. (`mode: code`
+forces every call through `run_code`; this kit deliberately runs `both` so
+native single-tool calls stay available beside the SDK — and so Dashr's `eval`
+surface from Step 4 composes with it instead of rejecting them.)
 
 ## Step 6 — Settings (advisory)
 
@@ -123,6 +147,9 @@ with the user when in doubt.
 - [ ] Version drift is reviewed (`setup/versions.txt` vs live); refresh with
       `setup/verify.sh --record` and update the affected entry README in the
       same task.
+- [ ] `profile-backup.stripped.json` reflects the final profile state (its §3
+      check matches every recorded spec — a plugin added without refreshing it
+      shows up as a WARN). Re-export + strip per `plugins/dshmarket/README.md`.
 - [ ] `$DSH_HOME/AGENTS.md` matches the kit copy (or was merged, with the
       user informed).
 - [ ] In a NEW session after the restart: `read` prints `HASH│content`, the
@@ -139,4 +166,9 @@ Whenever the live setup changes — a plugin, preset, setting, or ground rule is
 added, changed, or removed — the corresponding kit entry must be updated **in
 the same task**. An out-of-date kit defeats its purpose. Any entry that needs
 machine-level software must also add a row and section to `DEPENDENCIES.md`
-in the same task.
+in the same task. Every plugin add or remove is by definition a profile-wide
+change: it lands in the dshmarket Backup & Restore export's manifest, so it
+additionally requires re-exporting via
+Settings → Plugin Market → Advanced → Backup & Restore, stripping per
+`plugins/dshmarket/README.md`, and replacing `profile-backup.stripped.json`
+— in that same task.

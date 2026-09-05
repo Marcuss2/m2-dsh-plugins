@@ -41,17 +41,26 @@ this checkout.
 
 ### The core step, if you prefer the CLI
 
-All nine custom bundles land in **one** batched command (one resolution pass,
+The eleven custom bundles land in **one** batched command (one resolution pass,
 one atomic write — never run concurrent `dsh plugin` calls against the same
-profile):
+profile; prefix `PATH=/usr/bin:$PATH` so pnpm's major matches the profile
+store). `dshmarket` is another entry installed **dependency-only** — never
+via `dsh plugin add`, which would register it as a bundle and make the
+desktop (≥0.3.8) boot die on `duplicate loader entry id: dsh-market`. Its
+Backup & Restore export, stripped of private paths, is the kit's canonical
+record of the whole profile state (`profile-backup.stripped.json`).
 
 ```sh
 dsh plugin --profile web add \
-  dshmarket dsh-better-edit @vectorize-io/hindsight-coding-agents \
-  dsh-checkpoint-rewind dsh-debugger-dap dsh-llm-fallbacks \
-  dsh-lsp-actions dsh-search-failover \
-  dsh-better-reasoning-effort@0.2.3
+  '@vectorize-io/hindsight-coding-agents' dsh-checkpoint-rewind \
+  dsh-debugger-dap dsh-llm-fallbacks dsh-lsp-actions dsh-search-failover \
+  dsh-better-reasoning-effort@0.2.3 better-dsh@0.2.2-b \
+  dsh-better-sidebar@0.18.0 @leetoners/dsh-ui-subagent-monitor@0.2.0
 ```
+
+Or skip the hand work once dshmarket is up: its **Backup & Restore** import
+of `profile-backup.stripped.json` (placeholders re-pointed first) restores the
+entire recorded profile in one pass — see `plugins/dshmarket/README.md`.
 
 Then run `setup/verify.sh` and restart `dsh --profile web` — bundle layers
 compose at boot, so nothing is active in running sessions until then. Per-entry
@@ -61,14 +70,15 @@ install steps, sources and verification live in each `plugins/*/README.md`.
 
 | Entry | What it adds |
 |---|---|
-| `dshmarket` | Plugin-market UI inside Settings (browse/upgrade from the GUI) |
+| `dshmarket` | Plugin-market UI inside Settings (browse/upgrade from the GUI) + Backup & Restore (the kit's canonical profile-state record); dependency-only on desktop ≥0.3.8 — the AppImage mounts it via its own overlay |
 | `agent-browser-skill` | Browser automation skill driving Chromium via the `agent-browser` CLI |
-| `dsh-better-edit` | Hashline read/edit tools replacing stock ones |
 | `hindsight-coding-agents` | Long-term repository memory (needs a Hindsight server) |
 | `tier1-plugins` | Capability pack: DAP debugger, LSP actions, checkpoint/rewind, LLM fallback chains, web-search failover, and four MCP servers (ast-grep, DuckDuckGo, fetch, markitdown) |
 | `dsh-better-reasoning-effort` | Reasoning-effort + modality declarations for custom provider models |
 | `machine-wide-ptc` | Builtin Code Mode (PTC) as the machine-wide default via `$DSH_HOME/cordis.patch.yml`: `run_code` + generated TypeScript SDK on every profile |
-
+| `better-dsh` (Dashr) | Persistent IPython-kernel REPL (`eval`, model-settable per-call timeout + full budget config), native hashline read/write/edit/undo replacing the stock tools, URL-scheme reads, LLM failover — replaces the former `dsh-ptc-plus` + `dsh-better-edit` entries |
+| `dsh-better-sidebar` | Web GUI sidebar workbench: explorer/editor/terminal/Git tabs + a `registerTab` face other plugins mount into |
+| `dsh-ui-subagent-monitor` | Subagent monitoring mounted on that sidebar: live per-child run cards (running/elapsed/outcome), jump-to-child and back |
 Plus the user-global system prompt (`setup/user-global-AGENTS.md`), an
 advisory settings excerpt (`setup/settings.yaml.excerpt`), and a verification
 suite (`setup/verify.sh`, `--full` also probes the MCP servers over stdio).
@@ -107,11 +117,18 @@ DEPENDENCIES.md      machine-level dependency manifest + per-dep install/verify
 plugins/             one directory per customization (source, install, verify)
 setup/               user-global prompt, settings excerpt, verify.sh, versions
 .research/*.md       research notes referenced by plugin READMEs
+profile-backup.stripped.json
+                     canonical profile-state record (dshmarket export, stripped)
 ```
+
+Raw `dsh-dshmarket-backup-*.json` exports are gitignored — commit only the
+stripped canonical copy.
 
 ## Maintenance
 
 The kit is a living contract: whenever the live setup changes (plugin, preset,
 setting, ground rule), the corresponding entry is updated **in the same task**,
-and `setup/verify.sh --record` refreshes `setup/versions.txt`. See
+and `setup/verify.sh --record` refreshes `setup/versions.txt`. Profile-wide
+state changes additionally re-export + strip a fresh
+dshmarket Backup & Restore JSON over `profile-backup.stripped.json`. See
 `RESTORE.md` → Maintenance contract.

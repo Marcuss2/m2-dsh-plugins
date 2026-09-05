@@ -39,8 +39,6 @@ jsonget() { node -e "try{const j=require(process.argv[1]);const v=process.argv[2
 
 # Bundles the kit installs (shipped baseline excluded).
 BUNDLES=(
-  dshmarket
-  dsh-better-edit
   '@vectorize-io/hindsight-coding-agents'
   dsh-checkpoint-rewind
   dsh-debugger-dap
@@ -48,7 +46,17 @@ BUNDLES=(
   dsh-lsp-actions
   dsh-search-failover
   dsh-better-reasoning-effort
+  dsh-better-sidebar
+  '@leetoners/dsh-ui-subagent-monitor'
+  better-dsh
 )
+# dshmarket is DEPENDENCY-ONLY since DeepSeek Harness desktop 0.3.8: the
+# desktop launcher always appends its own `--patch` overlay inserting
+# `id: dsh-market` (config/plugin-market.patch.yml in the AppImage). A bundle
+# layer would insert a second row with the same id and boot dies on
+# "duplicate loader entry id: dsh-market" — see plugins/dshmarket/README.md.
+
+
 # MCP rows the kit adds to cordis.patch.yml.
 MCP_ROWS=(mcp-ast-grep mcp-ddg-search mcp-web-fetch mcp-markitdown)
 # Profile-installed npm MCP servers and the binaries their postinstall builds.
@@ -111,17 +119,80 @@ for b in "${BUNDLES[@]}"; do
   if [ "$inb" != "true" ]; then bad "$b" "dep $ind — MISSING from dsh.profile.bundles"; continue; fi
   if [ -d "$NM/$b" ]; then ok "$b" "$ind"; else bad "$b" "declared $ind but not in node_modules"; fi
 done
+# dshmarket: dependency-only (see the block comment above BUNDLES). The row
+# itself is NOT checked in the section-4 dump: the desktop overlay that mounts
+# it is passed only by the AppImage launcher, not by this script's `dsh` call.
+dmv=$(jsonget "$PROFILE/package.json" "dependencies.dshmarket")
+dmb=$(node -e "try{const j=require(process.argv[1]);process.stdout.write(String((j.dsh.profile.bundles||[]).includes('dshmarket')))}catch(e){}" "$PROFILE/package.json")
+if [ -z "$dmv" ]; then
+  bad dshmarket "not a dependency — desktop ≥0.3.8 resolves its market overlay against the profile"
+elif [ "$dmb" = "true" ]; then
+  bad dshmarket "$dmv — IN dsh.profile.bundles: its layer inserts a 2nd 'id: dsh-market' and the desktop boot dies on 'duplicate loader entry id'"
+elif [ -d "$NM/dshmarket" ]; then
+  ok dshmarket "$dmv (dependency-only; mounted by the desktop's own overlay)"
+else
+  bad dshmarket "declared $dmv but not in node_modules"
+fi
+# The kit's canonical profile-state record: a stripped dshmarket Backup &
+# Restore export. If it exists, its recorded dshmarket spec should match the
+# live profile (drift = re-export + strip per plugins/dshmarket/README.md).
+if [ -f "$KIT/profile-backup.stripped.json" ]; then
+  bkdm=$(jsonget "$KIT/profile-backup.stripped.json" "files")
+  bkdm=$(node -e "try{const b=require(process.argv[1]);const m=b.files.find(f=>f.path==='package.json');process.stdout.write(String(m?.json?.dependencies?.dshmarket??''))}catch(e){}" "$KIT/profile-backup.stripped.json")
+  if [ "$bkdm" = "$dmv" ]; then
+    ok "profile-backup.stripped.json" "dshmarket spec matches live ($bkdm)"
+  else
+    warn "profile-backup.stripped.json" "records dshmarket $bkdm, live is $dmv — re-export + strip"
+  fi
+else
+  note "profile-backup.stripped.json" "absent — see plugins/dshmarket/README.md (Backup & Restore standard)"
+fi
+
+# better-dsh (Dashr) — replaces the old dsh-ptc-plus qwencloud patch check. The
+# qwencloud provider rejects ROOT-level oneOf/anyOf in tool parameter schemas;
+# Dashr's edit.path uses a NESTED oneOf, which is accepted (probed 2026-09-05).
+# What must hold: the bundle installed, zeromq build-approved, and NO leftover
+# ptc-plus patch registration (it breaks every later `dsh plugin` run with
+# ERR_PNPM_UNUSED_PATCH). See plugins/better-dsh/README.md.
+if [ ! -f "$NM/better-dsh/package.json" ]; then
+  bad "better-dsh bundle" "missing from node_modules — dsh plugin --profile web add --config.auto-install-peers=false better-dsh"
+elif grep -q 'dsh-ptc-plus@' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null; then
+  bad "better-dsh workspace hygiene" "stale dsh-ptc-plus entries in pnpm-workspace.yaml (patchedDependencies / minimumReleaseAgeExclude) — remove them or pnpm removals fail"
+else
+  ok "better-dsh bundle" "installed $(jsonget "$NM/better-dsh/package.json" version)"
+  grep -qE '^\s*zeromq:\s*true' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null \
+    && ok "zeromq build approval" "allowBuilds zeromq: true" \
+    || bad "zeromq build approval" "not in allowBuilds — kernel bridge cannot load its native addon"
+fi
 
 head2 "4. Composition (dsh --profile web --dump-config)"
-DUMP=$(timeout 120 dsh --profile web --dump-config 2>/dev/null)
-if [ -z "$DUMP" ]; then bad dump-config "no output (dsh not on PATH?)"
+DUMP_ERR=$(mktemp)
+DUMP=$(timeout 120 dsh --profile web --dump-config 2>"$DUMP_ERR")
+# Empty output is rarely a missing binary: the launcher relinks a symlink under $DSH_HOME
+# at boot, which throws EROFS when the home tree is read-only — e.g. when this script runs
+# inside an agent's workspace-write sandbox. Report the real cause instead of guessing.
+REASON=$(grep -qiE 'erofs|read-only file system' "$DUMP_ERR" \
+  && echo "read-only $DSH_HOME — dsh's boot self-heal needs write access to the home tree" \
+  || { printf '%s ' "$(head -c 140 "$DUMP_ERR" | tr '\n' ' ')"; command -v dsh >/dev/null || echo "dsh not on PATH"; })
+rm -f "$DUMP_ERR"
+if [ -z "$DUMP" ]; then bad dump-config "no output — ${REASON:-stderr empty}"
 else
   for b in "${BUNDLES[@]}"; do
-    printf '%s' "$DUMP" | grep -qF "# == $b" && ok "layer $b" || bad "layer $b" "absent — bundle has no patch or failed to compose"
+    if printf '%s' "$DUMP" | grep -qF "# == $b"; then ok "layer $b"
+    # Fallback for bundles that contribute only `insert:` rows: match the row's
+    # `name:` instead. (Verified 2026-09-05: every bundle layer DOES get a
+    # "# == better-dsh" provenance header, so the primary branch catches them.)
+    elif printf '%s' "$DUMP" | grep -qF "name: '$b'"; then ok "layer $b" "matched via row name"
+    else bad "layer $b" "absent — bundle has no patch or failed to compose"; fi
   done
   for r in "${MCP_ROWS[@]}"; do
     printf '%s' "$DUMP" | grep -qF "id: $r" && ok "row $r" || bad "row $r" "absent from $PATCH"
   done
+  # The kit's own presentation row: `both` = native schemas AND run_code.
+  TMODE=$(printf '%s' "$DUMP" | grep -A3 '^- id: tools$' | sed -n 's/^[[:space:]]*mode:[[:space:]]*\([a-z]*\).*/\1/p' | tail -1)
+  if [ "$TMODE" = "both" ]; then ok "tools mode" "both — native schemas + run_code"
+  elif [ -z "$TMODE" ]; then bad "tools mode" "no mode key on the composed '- id: tools' row (home patch not applied?)"
+  else warn "tools mode" "$TMODE — kit default is both (native schemas + run_code)"; fi
   # Dependency hygiene: no hoisted copy of a core module may shadow the install.
   mapfile -t HOISTED < <(find "$NM/@deepseek-ai" -maxdepth 1 -mindepth 1 \( -type d -o -type l \) 2>/dev/null)
   if [ "${#HOISTED[@]}" = 0 ]; then
@@ -234,10 +305,31 @@ if [ -f "$KIT/setup/versions.txt" ] && [ -n "${DUMP:-}" ]; then
     [ -z "$have" ] && continue
     grep -qxF "$have" "$KIT/setup/versions.txt" || { warn "unrecorded" "$have (run setup/verify.sh --record)"; drift=1; }
   done < /tmp/verify-live.$$.txt
+  # Upstream drift: installed vs npm latest. WARN only — pinning an older version is
+  # sometimes deliberate (market `install` specs are unpinned, so the index always
+  # advertises latest; this kit pins, which is exactly how a version goes stale).
+  if command -v npm >/dev/null 2>&1; then
+    behind=0; checked=0
+    while read -r pkg; do
+      [ -z "$pkg" ] && continue
+      nm="${pkg%@*}"; cur="${pkg##*@}"
+      lat=$(npm view "$nm" version 2>/dev/null | tail -1)
+      [ -z "$lat" ] && continue                       # unlisted/private: skip quietly
+      checked=$((checked+1))
+      [ "$cur" = "$lat" ] && continue
+      if [ "$(printf '%s\n%s\n' "$cur" "$lat" | sort -V | tail -1)" = "$lat" ]; then
+        warn "upstream $nm" "live $cur → npm latest $lat (--record after upgrading)"; behind=1
+      else
+        warn "upstream $nm" "live $cur is ahead of npm latest $lat"
+      fi
+    done < /tmp/verify-live.$$.txt
+    [ "$behind" = 0 ] && [ "$checked" -gt 0 ] \
+      && ok "upstream" "$checked npm packages checked, none behind latest"
+  fi
   rm -f /tmp/verify-live.$$.txt
   [ "$drift" = 0 ] && ok "versions.txt" "in sync with the live profile"
 fi
 
 printf '\n\033[1m%s\033[0m\n' "Summary: $PASS pass, $WARNED warn, $FAILED fail ($NOTED notes)"
-printf 'Note: bundle layers mount at boot — a restart of `dsh --profile web` is\nrequired after any add/remove, and running sessions keep their tools.\n'
+printf 'Note: bundle layers mount at boot — restart `dsh --profile web` after any\nadd/remove. After that restart existing sessions pick the bundle up on their next\nrequest; only a first-time mount needs the boot (a version bump of an already-mounted\nbundle lands on the next worker respawn, at the cost of the live in-memory scope).\n'
 [ "$FAILED" = 0 ] || exit 1
