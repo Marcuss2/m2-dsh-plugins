@@ -8,16 +8,26 @@
 #
 # What the row does:
 #
-#   id: tools → mode: code
+#   id: tools → mode: both
 #     The deployment default presentation for every agent that declares none
-#     (shipped `dsh-tools`). `code` collapses the model-facing tool surface to
-#     the reserved `run_code` transport plus a generated TypeScript SDK: the
-#     model writes one program that calls `await tools.<name>({...})` for any
-#     catalogued tool instead of one round trip per call. Direct native calls
-#     naming any other tool resolve to UNKNOWN_TOOL before policy runs — that
-#     is the point: announced surface == callable surface. Use `both` to keep
-#     native schemas alongside `run_code` (safer fallback for models that
-#     write weak TypeScript, at a higher fixed prompt cost).
+#     (shipped `dsh-tools`). Three modes exist; two matter here:
+#     (shipped `dsh-tools`). Two modes matter here:
+#       `code`  collapses the model-facing surface to the reserved `run_code`
+#               transport plus a generated TypeScript SDK; the model writes one
+#               program calling `await tools.<name>({...})` instead of one round
+#               trip per call. Direct native calls naming any other tool resolve
+#               to UNKNOWN_TOOL before policy runs — announced surface ==
+#               callable surface. Forces EVERYTHING through run_code.
+#       `both`  keeps the native per-tool schemas AND exposes `run_code`. The model
+#               picks either path per step. Costs more fixed prompt tokens than
+#               `code` and is the mode this kit now runs: it lets a program drive
+#               the SDK while still allowing direct single tool calls. Caveat:
+#               dsh-ptc-plus registers `edit_run_code` only under `code`, so `both`
+#               buys native calls at the price of the in-place cell-repair transport.
+#     `native` (no run_code at all) is the incompatible one: dsh-ptc-plus
+#     assembles as native-only, so `both` is the widest surface that keeps the
+#     REPL plugin happy (see plugins/dsh-ptc-plus/README.md).
+
 #     This outranks the TEMPORARY `DSH_TOOLS_MODE` env seam that
 #     `@deepseek-ai/dsh-web-app` puts on the same row (its value is evaluated
 #     in a lower layer).
@@ -47,4 +57,4 @@
 
 - id: tools
   config:
-    mode: code
+    mode: both

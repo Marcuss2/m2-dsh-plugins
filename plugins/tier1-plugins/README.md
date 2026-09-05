@@ -58,8 +58,9 @@ were intentionally **not** included — the built-in `ptc` covers that.
 
    The resulting `$DSH_HOME/profiles/web/package.json` must list all five in
    both `dependencies` and `dsh.profile.bundles` (after the existing
-   `dshmarket` / `dsh-better-edit` / `@vectorize-io/hindsight-coding-agents`
-   entries):
+   `dsh-better-edit` / `@vectorize-io/hindsight-coding-agents` entries;
+   `dshmarket` is dependency-only on desktop ≥0.3.8 and must NOT appear here —
+   see `../dshmarket/README.md`):
 
    ```json
    "dsh": {
@@ -67,7 +68,6 @@ were intentionally **not** included — the built-in `ptc` covers that.
        "bundles": [
          "@deepseek-ai/dsh-base",
          "@deepseek-ai/dsh-web-app",
-         "dshmarket",
          "dsh-better-edit",
          "@vectorize-io/hindsight-coding-agents",
          "dsh-checkpoint-rewind",
@@ -172,7 +172,8 @@ already reflect the corrections.
   mount and dump-config composes fine. Worth re-checking after a DSH upgrade.
 - **`dshmarket` is installed first, before this pack** — see `../dshmarket/`
   for what it is and why it leads the order. It is not part of this entry; the
-  snippet above is the full bundle list with it in its first custom slot. After a
+  snippet above is the full bundle list (on desktop ≥0.3.8 `dshmarket` is
+  dependency-only and its market row comes from the desktop's own overlay). After a
   restart its **Settings → Plugin Market** panel is the human (or browser-driven)
   alternative to `dsh plugin add`: on this machine it rendered Discover / Themes /
   Installed / Advanced / Tasks tabs and counted the installed bundles correctly,

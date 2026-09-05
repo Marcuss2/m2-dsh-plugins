@@ -1,0 +1,3 @@
+name: Code (subagents on qwen3.8-flash)
+description: Same as the shipped `code` preset, but every subagent/subagent_fork child runs on qwencloud/qwen3.8-flash while the root keeps its own model.
+order: 3

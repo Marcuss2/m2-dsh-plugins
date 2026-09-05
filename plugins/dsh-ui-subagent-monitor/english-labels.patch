@@ -1,0 +1,176 @@
+diff --git a/lib/client.js b/lib/client.js
+index 22bbdbea0a7ac09613eb75a9e57a1a20030925df..9289724dcdc976c5c50a01e16ff8df801fc3e667 100644
+--- a/lib/client.js
++++ b/lib/client.js
+@@ -55,32 +55,32 @@ window.__ModuleLoader__.load({
+ 		}
+ 		const UNKNOWN = {
+ 			cls: "smn-dot-off",
+-			label: "已结束"
++			label: "ended"
+ 		};
+ 		const STATUS = {
+ 			running: {
+ 				cls: "smn-dot-running",
+-				label: "运行中"
++				label: "running"
+ 			},
+ 			completed: {
+ 				cls: "smn-dot-ok",
+-				label: "完成"
++				label: "done"
+ 			},
+ 			error: {
+ 				cls: "smn-dot-error",
+-				label: "失败"
++				label: "failed"
+ 			},
+ 			aborted: {
+ 				cls: "smn-dot-warn",
+-				label: "已打断"
++				label: "interrupted"
+ 			},
+ 			"max-tokens": {
+ 				cls: "smn-dot-warn",
+-				label: "令牌上限"
++				label: "token limit"
+ 			},
+ 			refusal: {
+ 				cls: "smn-dot-warn",
+-				label: "已拒绝"
++				label: "rejected"
+ 			}
+ 		};
+ 		/** Outer 3x3 matrix cells (2px pixels on a 10px grid), clockwise from top-left. */
+@@ -131,8 +131,8 @@ window.__ModuleLoader__.load({
+ 		const shortId = (id) => id === void 0 || id.length <= 8 ? id ?? "—" : id.slice(0, 8);
+ 		function rowLabel(row) {
+ 			if (typeof row.label === "string" && row.label !== "") return row.label;
+-			if (typeof row.provider === "string" && row.provider !== "") return `[${row.provider}] 子代理`;
+-			return `子代理 ${shortId(row.id)}`;
++			if (typeof row.provider === "string" && row.provider !== "") return `[${row.provider}] subagent`;
++			return `subagent ${shortId(row.id)}`;
+ 		}
+ 		const MOBILE_QUERY = "(max-width: 768px)";
+ 		const POSITION_KEY = "dsh-smn.panel-position.v1";
+@@ -280,11 +280,11 @@ window.__ModuleLoader__.load({
+ 			return /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("button", {
+ 				className: "smn-trigger",
+ 				type: "button",
+-				title: "运行中的子代理",
++				title: "Subagents running",
+ 				onClick: () => commit({ open: !state.open }),
+ 				children: [/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 					className: "smn-trigger-label",
+-					children: "子代理"
++					children: "subagent"
+ 				}), running > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 					className: "smn-trigger-badge",
+ 					children: running
+@@ -398,7 +398,7 @@ window.__ModuleLoader__.load({
+ 				children: [
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 						className: "smn-grip-v",
+-						title: "拖动调整位置 · 双击复位",
++						title: "Drag to move · double-click to reset",
+ 						"aria-hidden": "true",
+ 						onPointerDown: onMoveGripDown,
+ 						onDoubleClick: resetPosition,
+@@ -418,14 +418,14 @@ window.__ModuleLoader__.load({
+ 					}),
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 						className: "smn-panel-title",
+-						children: "运行中的子代理"
++						children: "Subagents running"
+ 					}),
+ 					subagentParent !== void 0 && sessionsSvc !== void 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 						className: "smn-btn smn-back",
+ 						type: "button",
+-						title: "返回主会话",
++						title: "Back to main session",
+ 						onClick: () => sessionsSvc?.open(subagentParent),
+-						children: "← 主会话"
++						children: "← Main session"
+ 					}) : null,
+ 					running > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 						className: "smn-panel-running",
+@@ -435,14 +435,14 @@ window.__ModuleLoader__.load({
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 						className: "smn-btn",
+ 						type: "button",
+-						title: monitor.minimized ? "展开面板" : "收起面板",
++						title: monitor.minimized ? "Expand panel" : "Collapse panel",
+ 						onClick: () => commit({ minimized: !state.minimized }),
+-						children: monitor.minimized ? "展开 ▾" : "收起 ▴"
++						children: monitor.minimized ? "Expand ▾" : "Collapse ▴"
+ 					}),
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 						className: "smn-btn",
+ 						type: "button",
+-						title: "关闭",
++						title: "Close",
+ 						onClick: () => commit({ open: false }),
+ 						children: "✕"
+ 					})
+@@ -456,7 +456,7 @@ window.__ModuleLoader__.load({
+ 			});
+ 			const rowsEl = visible.length === 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 				className: "smn-empty",
+-				children: sessionId === void 0 ? "尚未选择会话" : "本会话暂无子代理活动"
++				children: sessionId === void 0 ? "No session selected" : "No subagent activity in this session yet"
+ 			}) : /* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 				className: "smn-rows",
+ 				children: visible.map((row) => {
+@@ -464,7 +464,7 @@ window.__ModuleLoader__.load({
+ 					const elapsed = row.status === "running" ? fmtDuration(row.startedAt, state.now) : fmtDuration(row.startedAt, row.endedAt);
+ 					const depth = typeof row.depth === "number" ? row.depth : 1;
+ 					const indent = Math.max(0, depth - 1) * 14;
+-					const modeText = row.mode === "continuable" ? "连续对话" : row.mode === "one-shot" ? "一次性" : "";
++					const modeText = row.mode === "continuable" ? "continuable" : row.mode === "one-shot" ? "one-shot" : "";
+ 					const metaLine = [
+ 						row.provider,
+ 						modeText,
+@@ -486,7 +486,7 @@ window.__ModuleLoader__.load({
+ 									className: "smn-btn smn-row-open",
+ 									type: "button",
+ 									onClick: () => openChild(row),
+-									children: "打开对话"
++									children: "Open chat"
+ 								}) : null
+ 							]
+ 						}), /* @__PURE__ */ (0, react_jsx_runtime.jsxs)("div", {
+@@ -507,14 +507,14 @@ window.__ModuleLoader__.load({
+ 				children: [
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", {
+ 						className: "smn-panel-stats",
+-						children: `运行 ${running} · 完成 ${done} · 异常 ${failed}`
++						children: `Running ${running} · done ${done} · failed ${failed}`
+ 					}),
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("span", { className: "smn-panel-spacer" }),
+ 					monitor.hidden.length > 0 ? /* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 						className: "smn-btn",
+ 						type: "button",
+ 						onClick: () => commit({ hidden: [] }),
+-						children: `显示已隐藏 ${monitor.hidden.length}`
++						children: `Show hidden ${monitor.hidden.length}`
+ 					}) : null,
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("button", {
+ 						className: "smn-btn",
+@@ -524,7 +524,7 @@ window.__ModuleLoader__.load({
+ 							for (const row of state.rows) if (row.status !== "running" && !hidden.includes(row.id)) hidden.push(row.id);
+ 							commit({ hidden });
+ 						},
+-						children: "清空已完成"
++						children: "Clear done"
+ 					})
+ 				]
+ 			});
+@@ -538,7 +538,7 @@ window.__ModuleLoader__.load({
+ 					footer,
+ 					/* @__PURE__ */ (0, react_jsx_runtime.jsx)("div", {
+ 						className: "smn-grip-h",
+-						title: "拖动调整高度 · 双击复位",
++						title: "Drag to resize · double-click to reset",
+ 						"aria-hidden": "true",
+ 						onPointerDown: onResizeGripDown,
+ 						onDoubleClick: resetHeight,

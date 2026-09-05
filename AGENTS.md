@@ -62,3 +62,9 @@ one project both exit 0 while the last writer wins, silently dropping the other'
 dependency *and* its bundle entry — so parallel installs are neither faster nor
 correct. Afterwards run `setup/verify.sh` (`--record` refreshes
 `setup/versions.txt`; `--full` also probes the MCP servers over stdio).
+
+**Every plugin add (or removal) also refreshes the canonical profile-state
+record:** re-export via Settings → Plugin Market → Advanced → Backup & Restore
+→ Export backup, strip per `plugins/dshmarket/README.md`, and replace
+`profile-backup.stripped.json` in the same task as the install and the
+verification.

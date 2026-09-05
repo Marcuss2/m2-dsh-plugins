@@ -11,16 +11,42 @@
 agent-presets:
   default: cordis
 
-# Default model selection. The provider `qwen-token-plan` is registered by the
+# Default model selection. The provider `qwencloud` is registered by the
 # `llm-pi-ai` block below and expects its API key in the environment variable
-# named there — that variable must exist on the target machine.
+# named there — that variable must exist on the target machine (on the source
+# machine the key lives in ~/.dsh/.credentials.yaml refs).
 agent-default-model:
-  provider: qwen-token-plan
-  model: qwen3.8-max-preview
-  reasoningEffort: medium
+  provider: qwencloud
+  model: qwen3.8-flash
 
-# LLM provider registration (via the llm-pi-ai package).
+# LLM provider registration (via the llm-pi-ai package). api: openai-responses
+# drives the OpenAI Responses protocol against the Alibaba MaaS compatible-mode
+# endpoint. That endpoint's tool-schema validator rejects ROOT-LEVEL oneOf/anyOf
+# (nested is fine) — the dsh-ptc-plus qwencloud patch exists for exactly this
+# reason; see plugins/dsh-ptc-plus/README.md.
 llm-pi-ai:
   providers:
-    qwen-token-plan:
-      apiKeyEnv: QWEN_TOKEN_PLAN_API_KEY
+    qwencloud:
+      displayName: qwencloud
+      apiKeyEnv: QWENCLOUD_API_KEY
+      api: openai-responses
+      baseURL: https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1
+      models:
+        - id: qwen3.8-max
+          reasoningEfforts:
+            off: null
+            low: low
+            medium: medium
+            xhigh: xhigh
+          input:
+            - text
+            - image
+        - id: qwen3.8-flash
+          reasoningEfforts:
+            off: null
+            low: low
+            medium: medium
+            xhigh: xhigh
+          input:
+            - text
+            - image
