@@ -50,7 +50,8 @@ tool schema. Reuse-before-reinvention held throughout:
   `dsh-ptc-cordis-preset`, `dsh-agent-preset-router`,
   `dsh-code-runtime-container`, `dsh-fail-logger`); every one assumes Code Mode
   already exists, so nothing is installable *for the mode itself*. One of those
-  extensions is now installed on top of this row: `../dsh-ptc-plus/`.
+  extensions is now installed on top of this row: `../better-dsh/` (Dashr;
+  it replaced the former `../dsh-ptc-plus/` companion on 2026-09-05).
 - The stock install already ships the **`code` agent preset** (roster name
   "PTC 模式") for a per-session switch, and `dsh-web-app` carries a
   TEMPORARY `DSH_TOOLS_MODE` env seam — both are per-something; the home
@@ -66,7 +67,7 @@ None beyond a stock DSH install: `dsh-tools`, the `code` preset, and
 `@deepseek-ai/dsh-code-runtime-worker-thread` all ride inside the global `dsh`
 package. No profile bundle, no pnpm, no machine software — `DEPENDENCIES.md`
 is untouched, and nothing can hoist a core duplicate (ground rule 2 not
-applicable). The companion entry `../dsh-ptc-plus/` *does* install an npm
+applicable). The companion entry `../better-dsh/` *does* install an npm
 bundle; this row itself needs none.
 
 ## Install
@@ -98,16 +99,19 @@ Two different activation points, both measured on 2026-08-30:
   which the session's own teardown around 12:46 explains at least as well as a
   hot re-read. The mechanism is unresolved, so the observation is recorded here
   rather than relied on.
-- **Bundle layers need a boot; a session's catalog does not.** ptc-plus only mounted
-  after a full harness restart (12:47, again at 19:32), but the *same* session that
+- **Bundle layers need a boot; a session's catalog does not.** The REPL
+  companion (back then `dsh-ptc-plus`) only mounted after a full harness restart
+  (12:47, again at 19:32), but the *same* session that
   predated the install came back with its runtime — cross-cell bindings persisted
   and `run_code` carried the plugin's description. The surface is recomposed per
   request, so no new session is needed once the process has restarted.
 - **`edit_run_code` does not appear in this setup at all.** It registers only under
-  `mode: code` — every `ensureInstalled` site in `internal/direct-surface-owner.js` is so
-  gated (225/238/264 in 0.2.3; 238/251/276 in 0.3.2, under the renamed `ptc` label), so
-  choosing `both`
-  means rejected cells are resent whole. See `../dsh-ptc-plus/README.md`.
+- **`edit_run_code` was a ptc-plus-era artifact** (it registered only under
+  `mode: code`, gated at every `ensureInstalled` site in its
+  `internal/direct-surface-owner.js`), so it never appeared under this kit's
+  `both`. Its successor Dashr sidesteps the whole question: `eval` registers as
+  an ordinary tool row in any mode, and in-place cell repair is native to the
+  persistent kernel. See `../better-dsh/README.md`.
 
 So: flip `mode`, then restart — piggybacking on the Step 4 plugin restart in
 `RESTORE.md`. One boot then covers the row and any bundle added alongside it.
@@ -130,9 +134,8 @@ So: flip `mode`, then restart — piggybacking on the Step 4 plugin restart in
    `mode: code`, (b) was structurally impossible.
 4. Rollback: set `mode: code` to force everything through `run_code`, or
    `mode: native` (or delete the `tools` row) to drop Code Mode entirely, and
-   restart. `mode: native` is **not** compatible with the installed
-   `dsh-ptc-plus` bundle while `run_code` is still exposed — see
-   `../dsh-ptc-plus/README.md`.
+`mode: native` remains compatible with Dashr (its `eval` is an ordinary
+   tool row) but drops the built-in TypeScript SDK surface entirely.
 
 ## Interacts with
 
@@ -143,5 +146,6 @@ So: flip `mode`, then restart — piggybacking on the Step 4 plugin restart in
   `minimal` and `cordis` declare none, so this home-layer row governs them.
   Subagent/workflow children bind to their parent's composition.
 - Market extensions install on top of this row *after* it is active. The one in
-  use here, `../dsh-ptc-plus/`, adapts to the mode: it rejects direct native
-  calls only when the composition is `code`, so `both` keeps both paths open.
+  use here, `../better-dsh/`, is mode-agnostic: its `eval` registers as an
+  ordinary tool row under any mode (the retired `../dsh-ptc-plus/` rejected
+  direct native calls only when the composition was `code`).

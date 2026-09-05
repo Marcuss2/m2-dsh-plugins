@@ -11,7 +11,6 @@
 #   id: tools → mode: both
 #     The deployment default presentation for every agent that declares none
 #     (shipped `dsh-tools`). Three modes exist; two matter here:
-#     (shipped `dsh-tools`). Two modes matter here:
 #       `code`  collapses the model-facing surface to the reserved `run_code`
 #               transport plus a generated TypeScript SDK; the model writes one
 #               program calling `await tools.<name>({...})` instead of one round
@@ -20,14 +19,16 @@
 #               callable surface. Forces EVERYTHING through run_code.
 #       `both`  keeps the native per-tool schemas AND exposes `run_code`. The model
 #               picks either path per step. Costs more fixed prompt tokens than
-#               `code` and is the mode this kit now runs: it lets a program drive
-#               the SDK while still allowing direct single tool calls. Caveat:
-#               dsh-ptc-plus registers `edit_run_code` only under `code`, so `both`
-#               buys native calls at the price of the in-place cell-repair transport.
-#     `native` (no run_code at all) is the incompatible one: dsh-ptc-plus
-#     assembles as native-only, so `both` is the widest surface that keeps the
-#     REPL plugin happy (see plugins/dsh-ptc-plus/README.md).
-
+#               `code` and is the mode this kit runs: a program can drive the SDK
+#               while direct single tool calls stay available. It is also what the
+#               companion REPL bundle needs — better-dsh/Dashr (`plugins/better-dsh/`,
+#               whose `eval` cells ride their own transport) composes with native
+#               calls under `both`; the retired dsh-ptc-plus additionally rejected
+#               direct native calls outright, which made `both` mandatory for it.
+#     `native` (no run_code at all) stays compatible with Dashr — its `eval` is
+#     an ordinary tool row — but drops the built-in TypeScript SDK surface, so
+#     this kit does not use it.
+#
 #     This outranks the TEMPORARY `DSH_TOOLS_MODE` env seam that
 #     `@deepseek-ai/dsh-web-app` puts on the same row (its value is evaluated
 #     in a lower layer).
