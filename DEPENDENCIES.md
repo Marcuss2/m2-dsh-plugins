@@ -9,7 +9,7 @@ and verify — only then apply kit entries.
 ## Manifest
 
 | ID | Dependency | Detect | Required by |
-|----|------------|--------|-------------|
+| ---- | ------------ | -------- | ------------- |
 | `nodejs-npm` | Node.js + npm (`^22.19.0 \|\| >=24.0.0` for current DSH plugins) | `node --version && npm --version` | everything (baseline for global npm tools) |
 | `agent-browser` | agent-browser CLI + a Chromium it can drive | `agent-browser --version` | `plugins/agent-browser-skill/` |
 | `better-dsh` | Dashr bundle (persistent IPython kernel + native hashline editing) installed as profile bundle | `grep better-dsh "$DSH_HOME/profiles/web/package.json"` | `plugins/better-dsh/` |
@@ -58,11 +58,13 @@ the same way.
 - **Install:** after pnpm's first blocked install it writes an `allowBuilds:`
   stub into the workspace file with `set this to true or false` placeholders —
   replace them with `true`, or add the list yourself:
+
   ```yaml
   allowBuilds:
     '@ast-grep/cli': true
     mcp-duckduckgo: true
   ```
+
   then `pnpm install` in `$DSH_HOME/profiles/web` to run the builds (first run
   downloads ~60 MB; allow ~30 s).
 - **Verify:** the built binaries exist and are executable —
@@ -79,11 +81,13 @@ them — install only what the target's languages need.
 - **Detect:** `setup/verify.sh` section 6 probes `codelldb`, `lldb-dap`, `dlv`,
   `netcoredbg`, `rdbg`, python `debugpy`, and the common language servers.
 - **Install (per language):**
+
   ```sh
   python3 -m pip install debugpy                        # Python
   go install github.com/go-delve/delve/cmd/dlv@latest    # Go
   npm i -g typescript-language-server typescript         # TS/JS
   ```
+
 - **Verify:** in a session, `debug` → action `sessions` should answer without
   error, then launch a real target and confirm a breakpoint stops; for LSP, open
   a file in an installed language and call `lsp_diagnostics`.
@@ -104,9 +108,11 @@ Browser-automation CLI for AI agents (Chromium/Chrome over CDP), backing the
 - **Other systems:** follow `agent-browser install` output; the CLI's own
   quickstart (`agent-browser skills get core`) covers platform variants.
 - **Verify (functional, not just version):**
+
   ```bash
   export AGENT_BROWSER_SESSION=dsh-depcheck && agent-browser open https://example.com && agent-browser get title && agent-browser close
   ```
+
   must print the page title (`Example Domain`).
 
 ## better-dsh

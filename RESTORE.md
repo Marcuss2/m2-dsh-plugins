@@ -22,7 +22,7 @@ entry can be applied before they verify.
 ## Order of application
 
 | # | Entry | Kit location | Status |
-|---|-------|--------------|--------|
+| --- | ------- | -------------- | -------- |
 | 1 | Machine dependencies | `DEPENDENCIES.md` | live |
 | 2 | User-global system prompt | `setup/user-global-AGENTS.md` | live |
 | 3 | dshmarket (plugin-market UI in Settings; dependency-only on desktop ≥0.3.8; its Backup & Restore JSON is the canonical profile-state record) | `plugins/dshmarket/` | live |
