@@ -71,13 +71,26 @@ Entries must be applied in the order listed here:
    entry at the sidebar foot (`sidebar.footer.action`) and a live card panel
    (`shell.overlay`) showing every child run of the current session; jump into
    any child conversation and back (profile bundle; dsh restart).
+10. `dsh-ui-subagent-monitor/` — **subagent monitoring as an additional plugin
+    for that sidebar**: `@leetoners/dsh-ui-subagent-monitor` mounts a Subagents
+    entry at the sidebar foot (`sidebar.footer.action`) and a live card panel
+    (`shell.overlay`) showing every child run of the current session; jump into
+    any child conversation and back (profile bundle; dsh restart).
 11. `subagent-model-routing/` — powerful root + cheap coding model for
-   delegated children, via an **agent preset** (materialized at
-   `$DSH_HOME/.agent-presets/code-subagent-flash/`, a copy of the shipped
-   `code` preset): delegation-tool `agentOptions.{provider,model}` override the
-   parent-inherited route per tool row. Not an npm bundle; select it at
-   Settings → General → Agent preset (or the new-session hero chip).
-
+    delegated children, via an **agent preset** (materialized at
+    `$DSH_HOME/.agent-presets/code-subagent-flash/`, a copy of the shipped
+    `code` preset): delegation-tool `agentOptions.{provider,model}` override the
+    parent-inherited route per tool row. Not an npm bundle; select it at
+    Settings → General → Agent preset (or the new-session hero chip).
+12. `dsh-subagent-router/` — **model-routed subagent delegation** with a
+    **Settings UI card** (npm profile bundle `dsh-subagent-router@0.4.0`):
+    three tools (`subagent_model`, `subagent_models`, `subagent_recommend`)
+    for per-call provider/model/max_tokens overrides, a read-only catalog with
+    derived metadata and health status, and a built-in `model: "auto"` routing
+    policy with task-tier classification, failure escalation, and provider
+    rerouting. Complements entry 11's preset (preset = floor, this = dynamic
+    override). All config fields are live-editable in Settings → Plugin
+    Configuration without restart.
 ## How the npm bundles get installed
 
 All profile bundles land in **one** batched command — one resolution pass, one
@@ -93,7 +106,8 @@ dsh plugin --profile web add \
   '@vectorize-io/hindsight-coding-agents' dsh-checkpoint-rewind@0.6.1 \
   dsh-debugger-dap dsh-llm-fallbacks@0.3.5 dsh-lsp-actions@0.4.0 \
   dsh-search-failover dsh-better-reasoning-effort@0.2.3 better-dsh@0.2.2-b \
-  dsh-better-sidebar@0.18.0 @leetoners/dsh-ui-subagent-monitor@0.2.0
+  dsh-better-sidebar@0.18.0 @leetoners/dsh-ui-subagent-monitor@0.2.0 \
+  dsh-subagent-router@0.4.0
 ```
 
 `dshmarket` is handled **separately** as a dependency-only entry (its README's

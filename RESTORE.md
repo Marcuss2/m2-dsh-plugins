@@ -37,6 +37,8 @@ entry can be applied before they verify.
 | 11 | dsh-better-sidebar (Web GUI sidebar workbench; registerTab face for occupants) | `plugins/dsh-better-sidebar/` | live |
 | 12 | dsh-ui-subagent-monitor (subagent monitoring mounted on that sidebar) | `plugins/dsh-ui-subagent-monitor/` | live |
 | 13 | subagent-model-routing (agent preset pinning children to a cheaper model) | `plugins/subagent-model-routing/` | live |
+| 14 | dsh-subagent-router (model-routed subagent delegation with Settings UI card; complements entry 13) | `plugins/dsh-subagent-router/` | live |
+| 15 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
 | 14 | Settings excerpt | `setup/settings.yaml.excerpt` | advisory |
 
 ## Step 1 — Read the kit

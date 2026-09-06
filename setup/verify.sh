@@ -69,6 +69,7 @@ BUNDLES=(
   dsh-better-sidebar
   '@leetoners/dsh-ui-subagent-monitor'
   better-dsh
+  dsh-subagent-router
 )
 # dshmarket is DEPENDENCY-ONLY since DeepSeek Harness desktop 0.3.8: the
 # desktop launcher always appends its own `--patch` overlay inserting
