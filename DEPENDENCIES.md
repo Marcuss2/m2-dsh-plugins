@@ -119,7 +119,7 @@ Browser-automation CLI for AI agents (Chromium/Chrome over CDP), backing the
 
 Dashr — persistent IPython-kernel REPL + native hashline editing, installed as
 a profile bundle (see `plugins/better-dsh/`). Replaces the former
-`dsh-better-edit` and `dsh-ptc-plus` rows.
+`dsh-better-edit` row.
 
 - **Detect:** `grep better-dsh "$DSH_HOME/profiles/web/package.json"`
   (must appear in both `dependencies` and `dsh.profile.bundles`).

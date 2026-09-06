@@ -76,7 +76,7 @@ install steps, sources and verification live in each `plugins/*/README.md`.
 | `tier1-plugins` | Capability pack: DAP debugger, LSP actions, checkpoint/rewind, LLM fallback chains, web-search failover, and four MCP servers (ast-grep, DuckDuckGo, fetch, markitdown) |
 | `dsh-better-reasoning-effort` | Reasoning-effort + modality declarations for custom provider models |
 | `machine-wide-ptc` | Builtin Code Mode (PTC) as the machine-wide default via `$DSH_HOME/cordis.patch.yml`: `run_code` + generated TypeScript SDK on every profile |
-| `better-dsh` (Dashr) | Persistent IPython-kernel REPL (`eval`, model-settable per-call timeout + full budget config), native hashline read/write/edit/undo replacing the stock tools, URL-scheme reads, LLM failover — replaces the former `dsh-ptc-plus` + `dsh-better-edit` entries |
+| `better-dsh` (Dashr) | Persistent IPython-kernel REPL (`eval`, model-settable per-call timeout + full budget config), native hashline read/write/edit/undo replacing the stock tools, URL-scheme reads, LLM failover — replaces the former `dsh-better-edit` entry |
 | `dsh-better-sidebar` | Web GUI sidebar workbench: explorer/editor/terminal/Git tabs + a `registerTab` face other plugins mount into |
 | `dsh-ui-subagent-monitor` | Subagent monitoring mounted on that sidebar: live per-child run cards (running/elapsed/outcome), jump-to-child and back |
 Plus the user-global system prompt (`setup/user-global-AGENTS.md`), an

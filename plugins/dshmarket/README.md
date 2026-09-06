@@ -67,8 +67,7 @@ verbatim (`cordis.patch.yml`, `cordis.yml`, `pnpm-workspace.yaml`), the parsed
 `package.json` manifest — dependencies and `dsh.profile.bundles` included — and,
 since the 18:01 export on 2026-09-04, even `patches/` files
 (a restore re-materializes registered pnpm patches with no manual copy; the
-2026-09-05 record carries only the subagent-monitor patch — the ptc-plus one
-retired with its plugin). Since 2026-09-04 this export is the kit's
+2026-09-05 record carries only the subagent-monitor patch). Since 2026-09-04 this export is the kit's
 canonical record of the live profile state:
 
 - **Canonical artifact:** [`../../profile-backup.stripped.json`](../../profile-backup.stripped.json)
@@ -116,8 +115,7 @@ quiescent per ground rule 3):
 The export records `patchedDependencies` in `pnpm-workspace.yaml` and
 carries every registered patch as a `files[]` entry, so the restore
 re-applies them with no manual copy (current record:
-`patches/@leetoners__dsh-ui-subagent-monitor@0.2.0.patch`; the retired
-`dsh-ptc-plus` patch is documented in `../dsh-ptc-plus/README.md`).
+`patches/@leetoners__dsh-ui-subagent-monitor@0.2.0.patch`).
 
 3. What the restore does (verified against dshmarket 1.41.0 source, worth
    knowing before clicking):

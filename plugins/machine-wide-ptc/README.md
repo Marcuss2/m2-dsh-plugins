@@ -46,12 +46,11 @@ tool schema. Reuse-before-reinvention held throughout:
 - **No plugin provides PTC itself** — the 2026-08-29 sweep of the dshmarket
   index (`https://awesome-dsh-plugin.com/plugins.json`, 2495 entries on
   2026-08-29, 2628 on 2026-08-30, plus npm) found only *extensions* of the
-  builtin (`dsh-ptc-plus` persistent REPL, `dsh-minimal-ptc` preset,
+  builtin (`dsh-minimal-ptc` preset,
   `dsh-ptc-cordis-preset`, `dsh-agent-preset-router`,
   `dsh-code-runtime-container`, `dsh-fail-logger`); every one assumes Code Mode
   already exists, so nothing is installable *for the mode itself*. One of those
-  extensions is now installed on top of this row: `../better-dsh/` (Dashr;
-  it replaced the former `../dsh-ptc-plus/` companion on 2026-09-05).
+  extensions is now installed on top of this row: `../better-dsh/` (Dashr).
 - The stock install already ships the **`code` agent preset** (roster name
   "PTC 模式") for a per-session switch, and `dsh-web-app` carries a
   TEMPORARY `DSH_TOOLS_MODE` env seam — both are per-something; the home
@@ -100,18 +99,16 @@ Two different activation points, both measured on 2026-08-30:
   hot re-read. The mechanism is unresolved, so the observation is recorded here
   rather than relied on.
 - **Bundle layers need a boot; a session's catalog does not.** The REPL
-  companion (back then `dsh-ptc-plus`) only mounted after a full harness restart
-  (12:47, again at 19:32), but the *same* session that
+  companion only mounts after a full harness restart, but the *same* session that
   predated the install came back with its runtime — cross-cell bindings persisted
   and `run_code` carried the plugin's description. The surface is recomposed per
   request, so no new session is needed once the process has restarted.
 - **`edit_run_code` does not appear in this setup at all.** It registers only under
-- **`edit_run_code` was a ptc-plus-era artifact** (it registered only under
-  `mode: code`, gated at every `ensureInstalled` site in its
-  `internal/direct-surface-owner.js`), so it never appeared under this kit's
-  `both`. Its successor Dashr sidesteps the whole question: `eval` registers as
-  an ordinary tool row in any mode, and in-place cell repair is native to the
-  persistent kernel. See `../better-dsh/README.md`.
+- **`edit_run_code` does not appear in this setup at all.** It was a
+  ptc-plus-era artifact that registered only under `mode: code`. Its successor
+  Dashr sidesteps the whole question: `eval` registers as an ordinary tool row
+  in any mode, and in-place cell repair is native to the persistent kernel.
+  See `../better-dsh/README.md`.
 
 So: flip `mode`, then restart — piggybacking on the Step 4 plugin restart in
 `RESTORE.md`. One boot then covers the row and any bundle added alongside it.
@@ -147,5 +144,4 @@ So: flip `mode`, then restart — piggybacking on the Step 4 plugin restart in
   Subagent/workflow children bind to their parent's composition.
 - Market extensions install on top of this row *after* it is active. The one in
   use here, `../better-dsh/`, is mode-agnostic: its `eval` registers as an
-  ordinary tool row under any mode (the retired `../dsh-ptc-plus/` rejected
-  direct native calls only when the composition was `code`).
+  ordinary tool row under any mode.

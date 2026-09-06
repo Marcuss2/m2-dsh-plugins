@@ -32,8 +32,7 @@ entry can be applied before they verify.
 | 7 | tier1-plugins (debugger, LSP, checkpoints, fallbacks, web+AST) | `plugins/tier1-plugins/` | live |
 | 8 | dsh-better-reasoning-effort (reasoning levels for custom providers) | `plugins/dsh-better-reasoning-effort/` | live |
 | 9 | machine-wide PTC home patch (Code Mode **and** native tools) | `plugins/machine-wide-ptc/` | live |
-| 10 | better-dsh / Dashr (persistent IPython-kernel `eval` REPL with model-settable per-call timeouts + native hashline editing; replaces entries 5 and the former ptc-plus; carries a kit pnpm patch so its web client tolerates the 0.1.1-rc.2 kernel) | `plugins/better-dsh/` | live |
-| 10a | dsh-ptc-plus (session-bound persistent REPL for `run_code`) | `plugins/dsh-ptc-plus/` | **removed 2026-09-05** — superseded by better-dsh; README kept as rollback recipe |
+| 10 | better-dsh / Dashr (persistent IPython-kernel `eval` REPL with model-settable per-call timeouts + native hashline editing; replaces entries 5 and the former dsh-ptc-plus (removed 2026-09-06); carries a kit pnpm patch so its web client tolerates the 0.1.1-rc.2 kernel) | `plugins/better-dsh/` | live |
 | 11 | dsh-better-sidebar (Web GUI sidebar workbench; registerTab face for occupants) | `plugins/dsh-better-sidebar/` | live |
 | 12 | dsh-ui-subagent-monitor (subagent monitoring mounted on that sidebar) | `plugins/dsh-ui-subagent-monitor/` | live |
 | 13 | subagent-model-routing (agent preset pinning children to a cheaper model) | `plugins/subagent-model-routing/` | live |

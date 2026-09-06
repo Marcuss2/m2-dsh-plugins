@@ -68,3 +68,24 @@ record:** re-export via Settings → Plugin Market → Advanced → Backup & Res
 → Export backup, strip per `plugins/dshmarket/README.md`, and replace
 `profile-backup.stripped.json` in the same task as the install and the
 verification.
+
+### 4. Removed plugins are removed completely
+
+When a plugin is superseded or retired, remove it **completely** from the
+repository in the same task:
+
+- Delete its `plugins/<name>/` directory (README, patches, artifacts).
+- Remove all active references from kit files: `plugins/README.md` index,
+  `RESTORE.md` table, `setup/verify.sh` BUNDLES array and checks,
+  `setup/versions.txt`, `profile-backup.stripped.json`, root `README.md`,
+  `DEPENDENCIES.md`, and any cross-references in other plugin READMEs.
+- Historical mentions that explain *what was replaced and why* are fine to
+  keep (e.g. "replaces the former dsh-ptc-plus (removed 2026-09-06)");
+  active instructions pointing to the removed plugin are not.
+- Do not keep a removed plugin's directory as a "rollback recipe" — the git
+  history serves that purpose. A kept-but-dead directory rots: future agents
+  see it as live and waste time reading stale docs.
+
+Precedent: `dsh-ptc-plus` was fully removed on 2026-09-06 after being
+superseded by `better-dsh` (Dashr). Its directory, patch, and all active
+references were deleted; only historical context lines remain.

@@ -115,7 +115,7 @@ Tool write does not exists.
 and the turn ended — the model never got to react. Per design, a parse failure
 should be a self-correctable tool result, not a loop killer.
 
-**Mechanism traced through the installed code (core 0.1.1-rc.2 + dsh-ptc-plus 0.3.2):**
+**Mechanism traced through the installed code (core 0.1.1-rc.2):**
 
 1. `dsh-tools/lib/types/code-mode.js:538` — when the kernel reports any
    program-level error (`result.error`, which includes `phase: parse`), the
@@ -143,17 +143,14 @@ should be a self-correctable tool result, not a loop killer.
    `toolErrorResult` are only wrapped two levels up, so their failures become
    `schedulerFailure` instead of an isError result.
 
-**Why this session hits it:** dsh-ptc-plus patches the run_code definition
-(`runtime-bridge-owner.js patchRunCodeDefinition` + `executeTentative` deferred
-settlement), so every cell outcome traverses extra plugin code inside
-finalize; its journal/meta stamping on `isError` results is the plausible
-thrower. The stock core path may simply never trigger it.
-
-**Status:** upstream defect (harness), latent in the shipped scheduler;
-ptc-plus 0.3.2 is the latest published version, no fix available. Next step if
-it recurs: capture the thrown error identity (attach a temporary
-`tools/result` observer or run with debug logging) to name the exact thrower
-before reporting upstream.
+**Why this session hit it:** the run_code definition traverses extra plugin
+  code inside finalize; journal/meta stamping on `isError` results is the
+  plausible thrower.
+**Status:** upstream defect (harness), latent in the shipped scheduler.
+  The triggering plugin (dsh-ptc-plus) was removed 2026-09-06. Next step if
+  it recurs: capture the thrown error identity (attach a temporary
+  `tools/result` observer or run with debug logging) to name the exact thrower
+  before reporting upstream.
 
 **Workaround until fixed:** keep cells syntactically trivial-safe (this agent:
 avoid nested-template-literal traps by building shell commands with joined

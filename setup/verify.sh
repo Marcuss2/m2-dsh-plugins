@@ -179,16 +179,12 @@ else
   note "profile-backup.stripped.json" "absent — see plugins/dshmarket/README.md (Backup & Restore standard)"
 fi
 
-# better-dsh (Dashr) — replaces the old dsh-ptc-plus qwencloud patch check. The
-# qwencloud provider rejects ROOT-level oneOf/anyOf in tool parameter schemas;
-# Dashr's edit.path uses a NESTED oneOf, which is accepted (probed 2026-09-05).
-# What must hold: the bundle installed, zeromq build-approved, and NO leftover
-# ptc-plus patch registration (it breaks every later `dsh plugin` run with
-# ERR_PNPM_UNUSED_PATCH). See plugins/better-dsh/README.md.
+# better-dsh (Dashr) — the qwencloud provider rejects ROOT-level oneOf/anyOf
+# in tool parameter schemas; Dashr's edit.path uses a NESTED oneOf, which is
+# accepted (probed 2026-09-05). What must hold: the bundle installed and
+# zeromq build-approved. See plugins/better-dsh/README.md.
 if [ ! -f "$NM/better-dsh/package.json" ]; then
   bad "better-dsh bundle" "missing from node_modules — dsh plugin --profile web add --config.auto-install-peers=false better-dsh"
-elif grep -q 'dsh-ptc-plus@' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null; then
-  bad "better-dsh workspace hygiene" "stale dsh-ptc-plus entries in pnpm-workspace.yaml (patchedDependencies / minimumReleaseAgeExclude) — remove them or pnpm removals fail"
 else
   ok "better-dsh bundle" "installed $(jsonget "$NM/better-dsh/package.json" version)"
   grep -qE '^\s*zeromq:\s*true' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null &&

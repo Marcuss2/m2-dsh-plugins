@@ -22,8 +22,7 @@ agent-default-model:
 # LLM provider registration (via the llm-pi-ai package). api: openai-responses
 # drives the OpenAI Responses protocol against the Alibaba MaaS compatible-mode
 # endpoint. That endpoint's tool-schema validator rejects ROOT-LEVEL oneOf/anyOf
-# (nested is fine) — the dsh-ptc-plus qwencloud patch exists for exactly this
-# reason; see plugins/dsh-ptc-plus/README.md.
+# (nested is fine). Dashr's schemas use nested combinators, so no patch needed.
 llm-pi-ai:
   providers:
     qwencloud:

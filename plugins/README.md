@@ -59,8 +59,7 @@ Entries must be applied in the order listed here:
    rc.2 web-client pnpm patch (its client otherwise pends forever on
    `remote.settings`/`remote.session`, which only exist on dsh ≥0.1.2-alpha.1
    — every web boot then dies on "Failed to load plugins"). Coexists
-   with entry 7's `mode: both`. The old `dsh-ptc-plus/` entry (incl. its
-   qwencloud root-`oneOf` patch finding) is kept as the rollback recipe.
+   with entry 7's `mode: both`.
 9. `dsh-better-sidebar/` — the Web GUI **sidebar workbench** (npm profile
    bundle): explorer/editor/terminal/Git tabs replacing the stock workspace
    seat, plus a published `ctx.betterSidebar.registerTab` face so other plugins
@@ -172,7 +171,7 @@ so a stale pin surfaces as a WARN instead of rotting silently. Sweep of **2026-0
 | --- | --- | --- | --- |
 | better-dsh | 0.2.2-b | 0.2.3 (npm `latest` tag) | installed 2026-09-05; **held at 0.2.2-b** — the 0.2.3 publish was pulled back: dist-tags are `{latest: 0.2.3, beta: 0.2.2-a, alpha: 0.2.2-b}` and the maintainer's own test reports reference higher local builds; re-check before upgrading |
 | dshmarket | 1.41.0 | 1.41.0 | upgraded (was 1.33.0) |
-| ~~dsh-ptc-plus / dsh-better-edit~~ | — | — | **removed 2026-09-05**, superseded by better-dsh |
+| ~~dsh-better-edit~~ | — | — | **removed 2026-09-05**, superseded by better-dsh |
 | @vectorize-io/hindsight-coding-agents | 0.5.1 | 0.5.1 | upgraded (was 0.4.3) |
 | dsh-checkpoint-rewind | 0.6.1 | 0.6.5 | **held** — wants `cordis ^4.0.2` + `schemastery ^3.18.2` |
 | dsh-lsp-actions | 0.4.0 | 0.4.4 | **held** — same cordis/schemastery gap |

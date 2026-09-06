@@ -1,4 +1,4 @@
-# better-dsh (Dashr) — persistent IPython kernel REPL, replacing dsh-ptc-plus and dsh-better-edit
+# better-dsh (Dashr) — persistent IPython kernel REPL, replacing dsh-better-edit
 
 ## What it is
 
@@ -9,11 +9,10 @@ adds an **`eval` tool backed by one persistent IPython kernel subprocess per
 session** (`ctx.replRuntime`, class `DashrRuntime`). It supersedes two kit
 entries at once:
 
-- **`dsh-ptc-plus`** (removed): same job — turn the ephemeral cell surface into
+- **`dsh-ptc-plus`** (removed 2026-09-06): same job — turn the ephemeral cell surface into
   a session-persistent REPL — but Python instead of TypeScript, and with every
   budget configurable **plus a model-settable per-call timeout**, which was the
-  thing ptc-plus structurally refused to expose (it throws unless `run_code`'s
-  schema is exactly `{code, description}` strings).
+  thing ptc-plus structurally refused to expose.
 - **`dsh-better-edit`** (removed): Dashr re-wires the hashline lineage natively
   — its own `read` / `write` / `edit` / `undo_last_edit` register on each
   agent's own scope layer and **shadow** the stock ones by nearest-layer-wins
@@ -22,12 +21,12 @@ entries at once:
   `http(s)://`. The upstream project's own test reports record deployments run
   with `dsh-better-edit` removed as the intended configuration.
 
-| | dsh-ptc-plus (old) | better-dsh (now) |
-| --- | --- | --- |
-| language | TypeScript worker-thread REPL | IPython kernel subprocess (`zeromq` Jupyter protocol) |
-| transport | `run_code` (hijacked) | `eval` (own name; `run_code` untouched) |
-| per-cell timeout | config card only; model cannot set it | config default `runTimeoutMs` **and** optional `timeout` (seconds) parameter the model passes per call |
-| state across cells | yes (worker respawn loses it) | yes; plus `dill` namespace snapshots restore across restarts (`snapshotDir`) |
+| | better-dsh (now) |
+| --- | --- |
+| language | IPython kernel subprocess (`zeromq` Jupyter protocol) |
+| transport | `eval` (own name; `run_code` untouched) |
+| per-cell timeout | config default `runTimeoutMs` **and** optional `timeout` (seconds) parameter the model passes per call |
+| state across cells | yes; plus `dill` namespace snapshots restore across restarts (`snapshotDir`) |
 | in-flight cancel | no | two-phase interrupt (control-channel, then SIGALRM escalation) |
 | file editing tools | separate plugin (`dsh-better-edit`) | built-in hashline read/write/edit/undo + URL schemas |
 
@@ -82,8 +81,7 @@ entries at once:
 ## qwencloud compatibility
 
 The default provider here (qwencloud, Alibaba MaaS) rejects **root-level**
-`oneOf`/`anyOf` in tool parameter schemas (this is why dsh-ptc-plus needed a
-patch — see `../dsh-ptc-plus/README.md`). Dashr's `edit.path` uses a *nested*
+`oneOf`/`anyOf` in tool parameter schemas. Dashr's `edit.path` uses a *nested*
 `oneOf` inside `properties`, which the endpoint accepts (probed 2026-09-04:
 nested combinators pass). No patch needed; if a future version moves a
 combinator to a schema root, revisit.
@@ -198,11 +196,7 @@ dshmarket Backup & Restore import materializes it too.)
 5. Remove the displaced bundles (already done here):
 
    ```sh
-   # unregister the ptc-plus pnpm patch + release-age entry FIRST, or pnpm
-   # fails the removal with ERR_PNPM_UNUSED_PATCH:
-   #   patchedDependencies: drop the dsh-ptc-plus@0.3.2 line
-   #   minimumReleaseAgeExclude: drop dsh-ptc-plus@0.3.2 (whole key if sole entry)
-   dsh plugin --profile web remove dsh-ptc-plus dsh-better-edit
+   dsh plugin --profile web remove dsh-better-edit
    ```
 
 6. Restart `dsh --profile web` (composition rows mount at boot).
@@ -251,26 +245,23 @@ grep 'KIT PATCH' ~/.dsh/profiles/web/node_modules/better-dsh/lib/client/index.js
 ```sh
 # FIRST unregister the rc.2 client patch (drop the better-dsh@0.2.2-b line from
 # patchedDependencies: in pnpm-workspace.yaml), or the removal dies with
-# ERR_PNPM_UNUSED_PATCH — same trap as the retired ptc-plus patch.
-dsh plugin --profile web add dsh-ptc-plus@0.3.2 dsh-better-edit   # + re-register the pnpm patch per ../dsh-ptc-plus/
-dsh plugin --profile web remove better-dsh
+# ERR_PNPM_UNUSED_PATCH.
+dsh plugin --profile web add dsh-better-edit
 ```
 
 then restart. The displaced entries keep their full records
-(`../dsh-ptc-plus/`, `../dsh-better-edit/`) for exactly this path.
-
+then restart. The displaced entry keeps its full record
+(`../dsh-better-edit/`) for exactly this path.
 ## Interacts with
 
 - `../machine-wide-ptc/` — unchanged and required: `mode: both` keeps native
   calls working beside `eval`. Do not switch to `mode: code` while Dashr is
   mounted (its collapse guard and the PTC collapse would fight).
-- `../dsh-ptc-plus/`, `../dsh-better-edit/` — **REMOVED 2026-09-05, superseded
-  here**; their READMEs record the removal and remain valid rollback docs.
+- `../dsh-better-edit/` — **REMOVED 2026-09-05, superseded here**; its README
+  records the removal and remains valid rollback docs.
 - `../dsh-llm-fallbacks/` — functional overlap with Dashr's built-in failover;
   kept installed for now (its route-chain policy is richer). Revisit if the
   two ever disagree.
 - `../tier1-plugins/` — `dsh-lsp-actions` etc. unaffected; Dashr's `dvc://lsp`
   device is an alternative surface, not a replacement of those rows.
-- `setup/verify.sh` — BUNDLES lists `better-dsh` (replaced `dsh-ptc-plus` and
-  `dsh-better-edit`); §9 checks the `dashr-repl` row; the old ptc-plus patch
-  check is gone.
+- `setup/verify.sh` — BUNDLES lists `better-dsh`; §9 checks the `dashr-repl` row.

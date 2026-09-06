@@ -23,8 +23,7 @@
 #               while direct single tool calls stay available. It is also what the
 #               companion REPL bundle needs — better-dsh/Dashr (`plugins/better-dsh/`,
 #               whose `eval` cells ride their own transport) composes with native
-#               calls under `both`; the retired dsh-ptc-plus additionally rejected
-#               direct native calls outright, which made `both` mandatory for it.
+#               calls under `both`.
 #     `native` (no run_code at all) stays compatible with Dashr — its `eval` is
 #     an ordinary tool row — but drops the built-in TypeScript SDK surface, so
 #     this kit does not use it.
