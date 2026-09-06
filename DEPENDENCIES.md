@@ -122,11 +122,19 @@ a profile bundle (see `plugins/better-dsh/`). Replaces the former
   copy of cordis/dsh core into the profile). Then ensure `allowBuilds:
   zeromq: true` in the profile's `pnpm-workspace.yaml` and re-run
   `pnpm install`; afterwards check `dsh.profile.bundles` does NOT contain
-  `dshmarket` (the add command may re-insert it).
+  `dshmarket` (the add command may re-insert it). Finally apply the kit's
+  rc.2 web-client pnpm patch (`plugins/better-dsh/better-dsh@0.2.2-b.patch`):
+  the unpatched client hard-requires the alpha.1-only Typert faces
+  `remote.settings`/`remote.session`, so on the bundled 0.1.1-rc.2 kernel
+  every web boot reports `better-dsh: pending` — see the entry README.
+- **Detect (patch):** `grep 'better-dsh@0.2.2-b:' "$DSH_HOME/profiles/web/pnpm-workspace.yaml"`
+  and `grep 'KIT PATCH' "$DSH_HOME/profiles/web/node_modules/better-dsh/lib/client/index.js"`.
 - **Verify:** `dsh --profile web --dump-config` contains a `# == better-dsh`
   layer with an `id: dashr-repl` row; a NEW session offers `eval` with an
   optional `timeout` parameter, and its `read` tool returns `HASH│content`
-  lines while mentioning `scheme://` URLs.
+  lines while mentioning `scheme://` URLs; the web GUI boots WITHOUT the
+  `Failed to load plugins / better-dsh: pending` dialog (rc.2 client patch
+  applied).
 
 ## hindsight-server
 

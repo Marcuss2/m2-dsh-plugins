@@ -55,7 +55,10 @@ Entries must be applied in the order listed here:
    `undo_last_edit` that shadow the stock tools and resolve `skill://`,
    `ctx://`, `agent://`, `dvc://`, `http(s)://` URLs. Needs
    `--config.auto-install-peers=false` on install, `allowBuilds: zeromq: true`,
-   and an auto-provisioned kernel venv (or `DASHR_KERNEL_PYTHON`). Coexists
+   an auto-provisioned kernel venv (or `DASHR_KERNEL_PYTHON`), and the kit's
+   rc.2 web-client pnpm patch (its client otherwise pends forever on
+   `remote.settings`/`remote.session`, which only exist on dsh ≥0.1.2-alpha.1
+   — every web boot then dies on "Failed to load plugins"). Coexists
    with entry 7's `mode: both`. The old `dsh-ptc-plus/` entry (incl. its
    qwencloud root-`oneOf` patch finding) is kept as the rollback recipe.
 9. `dsh-better-sidebar/` — the Web GUI **sidebar workbench** (npm profile

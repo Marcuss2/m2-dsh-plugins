@@ -64,7 +64,7 @@ entries at once:
 - **Kernel env ownership**: `python` is only a hint. Bare `python3` selects a
   managed venv `<package>/.venv-kernel` auto-provisioned on first use
   (`kernelAutoInstall: true`, uv → venv+pip fallback ladder). This machine has
-  it pre-provisioned manually (see Install step 3), so first cell doesn't pay
+  it pre-provisioned manually (see Install step 4), so first cell doesn't pay
   provisioning cost.
 - **Concurrency**: cells on one session serialize; different sessions get
   their own kernels. `maxParallelSubCalls` (default 10) caps one cell's
@@ -73,7 +73,10 @@ entries at once:
   rows (`compaction-basic`, `command-compact`, `tool-result-pruner` —
   dsh-web-app disables them) and installs a global LLM-endpoint failover
   (fallback1/fallback2 settings fields, unset by default — overlaps
-  `../dsh-llm-fallbacks/`, which remains installed).
+  `../dsh-llm-fallbacks/`, which remains installed). On 0.1.1-rc.2 kernels
+  the failover's General-settings GUI row is skipped by the kit patch (see
+  below) — the host-side failover stays active and its fields remain editable
+  directly in `$DSH_HOME/settings.yaml`.
 - **iOS PWA tweaks + web-trust fence**: client-side UI rows; harmless here.
 
 ## qwencloud compatibility
@@ -107,6 +110,51 @@ combinator to a schema root, revisit.
   pnpm pulls a second divergent copy of cordis/dsh core into the profile
   (rule-2 violation). The profile also sets `autoInstallPeers: false` globally.
 
+## The rc.2 web-client patch (MANDATORY on kernel 0.1.1-rc.2)
+
+**Symptom (2026-09-06, desktop 0.3.8):** the Web GUI boots into a dialog
+`Failed to load plugins — web boot: 1 entry did not activate — better-dsh:
+pending (waiting for services: remote.settings, remote.session)`. The host
+plane is unaffected (`eval`, hashline tools all work); only the browser half
+never activates.
+
+**Root cause:** better-dsh's client entry hard-declares
+`inject = ["slots", "locale", "remote", "remote.settings", "remote.session"]`
+(and its peerDeps require `@deepseek-ai/dsh >=0.1.2-alpha.1`). The
+`remote.settings` / `remote.session` Typert faces only exist on the
+**0.1.2-alpha.1** kernel; both the desktop AppImages (0.3.6 **and** 0.3.8) and
+the system CLI bundle **0.1.1-rc.2**, which never provides them, so the Cordis
+loader parks the entry pending forever. Upstream has no fix (0.2.3, though
+newer than the `latest` tag, keeps the same hard list). The sibling plugin
+`dsh-better-reasoning-effort` solves the identical seam with a dual-kernel
+runtime probe instead of a hard inject.
+
+**Fix:** the kit pnpm patch [`better-dsh@0.2.2-b.patch`](./better-dsh@0.2.2-b.patch)
+— drops the two alpha-only services from the required `inject` list and guards
+the failover settings-row registration in `apply()` behind
+`if (!ctx.remote.settings || !ctx.remote.session) return;`. On rc.2 the entry
+activates (locale dictionaries + mobile-layout tweaks register normally, the
+failover row is skipped); on a future alpha.1+ kernel the row comes back
+automatically. Retire the patch when the bundled core reaches 0.1.2-alpha.1
+(or upstream softens the inject).
+
+**Apply (fresh machine, after Install step 1; already applied here — the
+patched file ships as [`better-dsh@0.2.2-b.patch`](./better-dsh@0.2.2-b.patch)
+in this directory):**
+
+```sh
+cd ~/.dsh/profiles/web
+PATH=/usr/bin:$PATH pnpm patch better-dsh@0.2.2-b --edit-dir /tmp/bd-edit
+patch -d /tmp/bd-edit -p1 < $KIT/plugins/better-dsh/better-dsh@0.2.2-b.patch
+PATH=/usr/bin:$PATH pnpm patch-commit /tmp/bd-edit
+```
+
+(system pnpm v11 via the PATH prefix, same rule as every other profile write;
+`patch-commit` registers `better-dsh@0.2.2-b` under `patchedDependencies:`
+in `pnpm-workspace.yaml` and re-links `node_modules`. The kit's
+`profile-backup.stripped.json` carries the patch file + registration, so a
+dshmarket Backup & Restore import materializes it too.)
+
 ## Install (fresh machine)
 
 1. One batched command (ground rule 3), PATH-prefixed for the system pnpm:
@@ -120,7 +168,10 @@ combinator to a schema root, revisit.
    `ERR_PNPM_IGNORED_BUILDS: zeromq`, add `zeromq: true` under `allowBuilds:`
    in `~/.dsh/profiles/web/pnpm-workspace.yaml` and re-run.
 
-2. **Do NOT let a later `dsh plugin add` resurrect the `dshmarket` bundle
+2. Apply the rc.2 web-client patch (see section above — MANDATORY while the
+   kernel is 0.1.1-rc.2, or the web GUI shows `Failed to load plugins`).
+
+3. **Do NOT let a later `dsh plugin add` resurrect the `dshmarket` bundle
    row** — observed 2026-09-05: `dsh plugin … add better-dsh` re-inserted
    `dshmarket` into `dsh.profile.bundles` (the package is still a dependency),
    which duplicates the desktop's own `dsh-market` insert and kills the boot.
@@ -132,7 +183,7 @@ combinator to a schema root, revisit.
 
    and remove `dshmarket` from that list if present (keep the dependency).
 
-3. Pre-provision the kernel venv (optional but recommended — skips first-use
+4. Pre-provision the kernel venv (optional but recommended — skips first-use
    latency and the build ladder):
 
    ```sh
@@ -144,7 +195,7 @@ combinator to a schema root, revisit.
    Or export `DASHR_KERNEL_PYTHON` to any prepared interpreter; the row reads
    it (`python: !!js process.env.DASHR_KERNEL_PYTHON ?? 'python3'`).
 
-4. Remove the displaced bundles (already done here):
+5. Remove the displaced bundles (already done here):
 
    ```sh
    # unregister the ptc-plus pnpm patch + release-age entry FIRST, or pnpm
@@ -154,7 +205,7 @@ combinator to a schema root, revisit.
    dsh plugin --profile web remove dsh-ptc-plus dsh-better-edit
    ```
 
-5. Restart `dsh --profile web` (composition rows mount at boot).
+6. Restart `dsh --profile web` (composition rows mount at boot).
 
 ## Activation
 
@@ -179,16 +230,28 @@ After the restart, in a new session:
    installed bundle standalone runs real cells — persistence ✓, per-call
    timeout ✓ (`cell exceeded 2000ms wall budget` in 2.5 s).
 
+6. Web GUI boot (regression guard for the rc.2 client patch): launch
+   `dsh --profile web --no-open` or the desktop AppImage — the GUI must come
+   up WITHOUT the `Failed to load plugins / better-dsh: pending (waiting for
+   services: remote.settings, remote.session)` dialog. Headless probe:
+   `agent-browser open <served url>` then assert `document.body.innerText`
+   lacks `Failed to load plugins` (done 2026-09-06: NO_DIALOG post-patch).
+
 CLI-side checks:
 
 ```sh
 dsh --profile web --dump-config | grep -A3 'id: dashr-repl'   # row present
+grep better-dsh@ ~/.dsh/profiles/web/pnpm-workspace.yaml      # patch registered
+grep 'KIT PATCH' ~/.dsh/profiles/web/node_modules/better-dsh/lib/client/index.js
 ../setup/verify.sh                                            # §3/§4/§9 green
 ```
 
 ## Rollback
 
 ```sh
+# FIRST unregister the rc.2 client patch (drop the better-dsh@0.2.2-b line from
+# patchedDependencies: in pnpm-workspace.yaml), or the removal dies with
+# ERR_PNPM_UNUSED_PATCH — same trap as the retired ptc-plus patch.
 dsh plugin --profile web add dsh-ptc-plus@0.3.2 dsh-better-edit   # + re-register the pnpm patch per ../dsh-ptc-plus/
 dsh plugin --profile web remove better-dsh
 ```

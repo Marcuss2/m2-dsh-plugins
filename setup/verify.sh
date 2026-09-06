@@ -163,6 +163,17 @@ else
   grep -qE '^\s*zeromq:\s*true' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null \
     && ok "zeromq build approval" "allowBuilds zeromq: true" \
     || bad "zeromq build approval" "not in allowBuilds — kernel bridge cannot load its native addon"
+  # rc.2 web-client patch: better-dsh's client hard-injects the alpha.1-only
+  # Typert faces remote.settings/remote.session; on the bundled 0.1.1-rc.2
+  # kernel (desktop 0.3.6/0.3.8, system CLI) the unpatched entry never
+  # activates and every web GUI boot shows "Failed to load plugins —
+  # better-dsh: pending". See plugins/better-dsh/README.md.
+  if grep -q 'better-dsh@0.2.2-b:' "$PROFILE/pnpm-workspace.yaml" 2>/dev/null \
+     && grep -q 'KIT PATCH' "$NM/better-dsh/lib/client/index.js" 2>/dev/null; then
+    ok "better-dsh rc.2 client patch" "registered + applied"
+  else
+    bad "better-dsh rc.2 client patch" "missing — web boot reports 'better-dsh: pending (remote.settings, remote.session)'"
+  fi
 fi
 
 head2 "4. Composition (dsh --profile web --dump-config)"
