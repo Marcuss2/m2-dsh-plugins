@@ -1,4 +1,4 @@
-# better-dsh (Dashr) — persistent IPython kernel REPL, replacing dsh-better-edit
+# better-dsh (Dashr) — persistent IPython kernel REPL
 
 ## What it is
 
@@ -13,13 +13,12 @@ entries at once:
   a session-persistent REPL — but Python instead of TypeScript, and with every
   budget configurable **plus a model-settable per-call timeout**, which was the
   thing ptc-plus structurally refused to expose.
-- **`dsh-better-edit`** (removed): Dashr re-wires the hashline lineage natively
+- **`dsh-better-edit`** (removed 2026-09-06): Dashr re-wires the hashline lineage natively
   — its own `read` / `write` / `edit` / `undo_last_edit` register on each
   agent's own scope layer and **shadow** the stock ones by nearest-layer-wins
   (same `HASH│content` anchors this session uses). Its `read` additionally
   resolves URL schemes: `skill://`, `ctx://`, `agent://`, `dvc://`, `dsh://`,
-  `http(s)://`. The upstream project's own test reports record deployments run
-  with `dsh-better-edit` removed as the intended configuration.
+  `http(s)://`.
 
 | | better-dsh (now) |
 | --- | --- |
@@ -28,7 +27,7 @@ entries at once:
 | per-cell timeout | config default `runTimeoutMs` **and** optional `timeout` (seconds) parameter the model passes per call |
 | state across cells | yes; plus `dill` namespace snapshots restore across restarts (`snapshotDir`) |
 | in-flight cancel | no | two-phase interrupt (control-channel, then SIGALRM escalation) |
-| file editing tools | separate plugin (`dsh-better-edit`) | built-in hashline read/write/edit/undo + URL schemas |
+| file editing tools | built-in hashline read/write/edit/undo + URL schemas |
 
 ## Why it exists in this kit
 
@@ -193,11 +192,7 @@ dshmarket Backup & Restore import materializes it too.)
    Or export `DASHR_KERNEL_PYTHON` to any prepared interpreter; the row reads
    it (`python: !!js process.env.DASHR_KERNEL_PYTHON ?? 'python3'`).
 
-5. Remove the displaced bundles (already done here):
-
-   ```sh
-   dsh plugin --profile web remove dsh-better-edit
-   ```
+5. Restart `dsh --profile web` (composition rows mount at boot).
 
 6. Restart `dsh --profile web` (composition rows mount at boot).
 
@@ -246,19 +241,13 @@ grep 'KIT PATCH' ~/.dsh/profiles/web/node_modules/better-dsh/lib/client/index.js
 # FIRST unregister the rc.2 client patch (drop the better-dsh@0.2.2-b line from
 # patchedDependencies: in pnpm-workspace.yaml), or the removal dies with
 # ERR_PNPM_UNUSED_PATCH.
-dsh plugin --profile web add dsh-better-edit
-```
 
-then restart. The displaced entries keep their full records
-then restart. The displaced entry keeps its full record
-(`../dsh-better-edit/`) for exactly this path.
+then restart.
 ## Interacts with
 
 - `../machine-wide-ptc/` — unchanged and required: `mode: both` keeps native
   calls working beside `eval`. Do not switch to `mode: code` while Dashr is
   mounted (its collapse guard and the PTC collapse would fight).
-- `../dsh-better-edit/` — **REMOVED 2026-09-05, superseded here**; its README
-  records the removal and remains valid rollback docs.
 - `../dsh-llm-fallbacks/` — functional overlap with Dashr's built-in failover;
   kept installed for now (its route-chain policy is richer). Revisit if the
   two ever disagree.

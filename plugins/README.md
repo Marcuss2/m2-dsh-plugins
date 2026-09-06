@@ -29,24 +29,21 @@ Entries must be applied in the order listed here:
    profile state; re-export + strip after any profile-wide change.
 2. `agent-browser-skill/` — browser automation for agents (requires the
    `agent-browser` CLI; see its README for the dependency install).
-3. `dsh-better-edit/` — **REMOVED 2026-09-05** (superseded by entry 8's
-   `better-dsh/`, which re-wires the same hashline read/edit/write/undo natively
-   and adds URL-scheme reads). README kept as the rollback recipe.
-4. `hindsight-coding-agents/` — Hindsight long-term memory (official profile-
+3. `hindsight-coding-agents/` — Hindsight long-term memory (official profile-
    bundle plugin; requires a reachable Hindsight server + a dsh restart).
-5. `tier1-plugins/` — coding-agent capability pack: DAP debugger, LSP actions,
+4. `tier1-plugins/` — coding-agent capability pack: DAP debugger, LSP actions,
    checkpoint/rewind, LLM fallback chains, web-search failover, and four MCP
    servers (requires `uv`; dsh restart).
-6. `dsh-better-reasoning-effort/` — reasoning-effort and input-modality
+5. `dsh-better-reasoning-effort/` — reasoning-effort and input-modality
    declarations for custom (`llm-pi-ai`) provider models, edited inside the
    official Models page (profile-bundle plugin; dsh restart).
-7. `machine-wide-ptc/` — machine-wide Code Mode (PTC): writes the home-level
+6. `machine-wide-ptc/` — machine-wide Code Mode (PTC): writes the home-level
    `$DSH_HOME/cordis.patch.yml` that sets the deployment default tool
    presentation to **`mode: both`** — native per-tool schemas *and* the
    built-in `run_code` + generated TypeScript SDK — for every profile. Not an
    npm bundle: the machinery ships inside stock `dsh`. Apply before the final
    restart so one boot activates everything.
-8. `better-dsh/` — **Dashr** (npm `better-dsh@0.2.2-b`): replaces both former
+7. `better-dsh/` — **Dashr** (npm `better-dsh@0.2.2-b`): replaces both former
    entries here — a host-plane bundle whose `eval` tool runs one Python cell on
    **one persistent IPython kernel per session** (variables survive across
    cells; optional `dill` snapshots restore across restarts), with every budget
@@ -59,22 +56,17 @@ Entries must be applied in the order listed here:
    rc.2 web-client pnpm patch (its client otherwise pends forever on
    `remote.settings`/`remote.session`, which only exist on dsh ≥0.1.2-alpha.1
    — every web boot then dies on "Failed to load plugins"). Coexists
-   with entry 7's `mode: both`.
-9. `dsh-better-sidebar/` — the Web GUI **sidebar workbench** (npm profile
+   with entry 6's `mode: both`.
+8. `dsh-better-sidebar/` — the Web GUI **sidebar workbench** (npm profile
    bundle): explorer/editor/terminal/Git tabs replacing the stock workspace
    seat, plus a published `ctx.betterSidebar.registerTab` face so other plugins
    mount into the sidebar. Needs `allowBuilds: node-pty` in the profile's
    `pnpm-workspace.yaml`; install needs the system pnpm on PATH (see its README).
-10. `dsh-ui-subagent-monitor/` — **subagent monitoring as an additional plugin
+9. `dsh-ui-subagent-monitor/` — **subagent monitoring as an additional plugin
    for that sidebar**: `@leetoners/dsh-ui-subagent-monitor` mounts a Subagents
    entry at the sidebar foot (`sidebar.footer.action`) and a live card panel
    (`shell.overlay`) showing every child run of the current session; jump into
    any child conversation and back (profile bundle; dsh restart).
-10. `dsh-ui-subagent-monitor/` — **subagent monitoring as an additional plugin
-    for that sidebar**: `@leetoners/dsh-ui-subagent-monitor` mounts a Subagents
-    entry at the sidebar foot (`sidebar.footer.action`) and a live card panel
-    (`shell.overlay`) showing every child run of the current session; jump into
-    any child conversation and back (profile bundle; dsh restart).
 11. `subagent-model-routing/` — powerful root + cheap coding model for
     delegated children, via an **agent preset** (materialized at
     `$DSH_HOME/.agent-presets/code-subagent-flash/`, a copy of the shipped
@@ -171,7 +163,6 @@ so a stale pin surfaces as a WARN instead of rotting silently. Sweep of **2026-0
 | --- | --- | --- | --- |
 | better-dsh | 0.2.2-b | 0.2.3 (npm `latest` tag) | installed 2026-09-05; **held at 0.2.2-b** — the 0.2.3 publish was pulled back: dist-tags are `{latest: 0.2.3, beta: 0.2.2-a, alpha: 0.2.2-b}` and the maintainer's own test reports reference higher local builds; re-check before upgrading |
 | dshmarket | 1.41.0 | 1.41.0 | upgraded (was 1.33.0) |
-| ~~dsh-better-edit~~ | — | — | **removed 2026-09-05**, superseded by better-dsh |
 | @vectorize-io/hindsight-coding-agents | 0.5.1 | 0.5.1 | upgraded (was 0.4.3) |
 | dsh-checkpoint-rewind | 0.6.1 | 0.6.5 | **held** — wants `cordis ^4.0.2` + `schemastery ^3.18.2` |
 | dsh-lsp-actions | 0.4.0 | 0.4.4 | **held** — same cordis/schemastery gap |
@@ -194,14 +185,6 @@ dsh plugin --profile web add dsh-checkpoint-rewind@0.6.4 dsh-lsp-actions@0.4.3 \
   dsh-llm-fallbacks@0.4.1 dsh-better-reasoning-effort@0.3.5 && ../setup/verify.sh --record
 ```
 
-(Historic, pre-2026-09-05 — kept for the rollback path) `dsh-better-edit@0.6.1`
-(zod `^3.25.76`) and `dsh-checkpoint-rewind@0.6.1` (zod `^4.4.3`)
-do want conflicting zod majors. Checked, not assumed: the root hoist took 4.4.3 and the
-linker nested a private copy for the other, so `dsh-better-edit` resolves
-`node_modules/dsh-better-edit/node_modules/zod` ⇒ **3.25.76**, and its only zod consumer
-(`lib/store-config.js`) loads against its own major. Neither zod is an `@deepseek-ai/*`
-package, so §4's core-shadow guard stays green. Worth re-checking the same way after any
-future bump.
 
 ## Recommended, not installed — desktop client
 

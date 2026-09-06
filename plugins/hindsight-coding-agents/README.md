@@ -8,7 +8,7 @@ Long-term, cross-session **memory** for DSH agents, backed by the
 (v0.4.2 at record time; **0.4.3 installed** on the 2026-08-28 restore) — which ships a native DeepSeek Harness target.
 
 Installed as a DSH **profile bundle** (the same mechanism as
-`dsh-better-edit`). The package declares `dsh.bundle.patch`, so `dsh plugin
+other profile bundles). The package declares `dsh.bundle.patch`, so `dsh plugin
 add` both pnpm-installs it and appends its shipped `cordis.patch.yml` to the
 profile's bundle list. That layer mounts one Cordis plugin row on the **host
 plane**, which every session (including the Web GUI's per-session agent

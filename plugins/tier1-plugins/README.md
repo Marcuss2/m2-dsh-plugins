@@ -58,7 +58,7 @@ were intentionally **not** included — the built-in `ptc` covers that.
 
    The resulting `$DSH_HOME/profiles/web/package.json` must list all five in
    both `dependencies` and `dsh.profile.bundles` (after the existing
-   `dsh-better-edit` / `@vectorize-io/hindsight-coding-agents` entries;
+   `@vectorize-io/hindsight-coding-agents` entries;
    `dshmarket` is dependency-only on desktop ≥0.3.8 and must NOT appear here —
    see `../dshmarket/README.md`):
 
@@ -68,7 +68,6 @@ were intentionally **not** included — the built-in `ptc` covers that.
        "bundles": [
          "@deepseek-ai/dsh-base",
          "@deepseek-ai/dsh-web-app",
-         "dsh-better-edit",
          "@vectorize-io/hindsight-coding-agents",
          "dsh-checkpoint-rewind",
          "dsh-debugger-dap",
@@ -140,7 +139,7 @@ upstream drifts and one reload behavior were found; the install steps above
 already reflect the corrections.
 
 - **Installed versions** (pnpm resolves `latest`, so these drift from the
-  authoring record above): dsh-better-edit 0.4.1 ·
+  authoring record above):
   @vectorize-io/hindsight-coding-agents 0.4.3 · dsh-checkpoint-rewind 0.6.0 ·
   dsh-debugger-dap 0.1.8 · dsh-llm-fallbacks 0.3.5 ·
   dsh-lsp-actions 0.3.4 · dsh-search-failover 0.3.9. All registered
