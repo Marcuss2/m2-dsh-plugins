@@ -1,0 +1,3 @@
+name: Coding mode
+description: "The custom both-mode agent (native tool catalog + PTC run_code side by side) with an oh-my-pi-style engineering contract — a phased workflow whose final step requires deliverable proof of the change before the agent may report it done."
+order: 0

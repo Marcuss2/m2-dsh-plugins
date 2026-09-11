@@ -1,0 +1,3 @@
+name: Custom mode
+description: Everything the Standard mode coding agent offers, with the native tool catalog and the PTC SDK (run_code) side by side — the model picks per task, nudged by the persona to compose multi-step work into single programmatic calls.
+order: 0
