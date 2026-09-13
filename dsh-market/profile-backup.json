@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-09-11T16:21:39.001Z",
+  "createdAt": "2026-09-13T16:49:12.524Z",
   "profile": "web",
   "files": [
     {
@@ -10,7 +10,16 @@
         "# Your patch layer for this dsh profile, applied after every bundle layer:",
         "# a top-level YAML array of loader patch entries (id-targeted config",
         "# overrides, disables, and insert lists; `!!js` expressions allowed).",
-        "[]",
+        "",
+        "# Disabled 2026-09-11 while investigating slow workspace list at boot:",
+        "# git-graph polls every 30s (several git spawns per tick, even for non-git",
+        "# workspaces, each through a systemd-run scope) and each git status round can",
+        "# stall up to 15s (STATUS_TIMEOUT_MS). Its auto-isolation hook is already",
+        "# disabled by the dsh workspaces-service shape change, so the plugin currently",
+        "# adds the poll churn without its main feature. Re-enable by removing this",
+        "# entry.",
+        "- id: ui-git-graph",
+        "  disabled: true",
         ""
       ]
     },
