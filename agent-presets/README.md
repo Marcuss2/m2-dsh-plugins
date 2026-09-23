@@ -74,10 +74,13 @@ agent-presets:
 ## Maintenance
 
 These are copies of a preset the harness ships, so a DSH upgrade can leave
-them behind: shipped preset rows change between versions. On 0.1.5-rc.1, for
-example, the shipped `standard` preset ends with `- id: present` /
-`@deepseek-ai/dsh-tool-present`, and the shipped `ptc` preset shows the
-grouped `tool-presentation` form — neither matches these files exactly.
+them behind: shipped preset rows change between versions. Their one structural
+divergence from the shipped presets is the tail row — shipped `standard` ends
+with `- id: present` / `@deepseek-ai/dsh-tool-present`, and shipped `ptc` pairs
+`- id: tool-presentation` (`mode: ptc`) with a separate `- id: present` row,
+whereas these presets carry a single `- id: tool-presentation` row with
+`mode: both` and no `present` row. (Compared against the shipped presets of
+`@deepseek-ai/dsh` 0.1.5-rc.2.)
 
 After upgrading the harness, diff the copies against
 `@deepseek-ai/dsh-agent-presets/presets/standard/agent.cordis.yml` and re-apply

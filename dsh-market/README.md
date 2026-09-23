@@ -8,7 +8,7 @@ Settings: a searchable card UI over the plugin registry with one-click
 install and upgrade of any `dsh.bundle` plugin, plus **Advanced → Backup &
 Restore**, which exports and imports an entire profile as a single JSON file.
 
-Live version here: **1.45.1**.
+Live version here: **1.51.0**.
 
 ## Install
 
@@ -58,12 +58,13 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-09-13T16:49:12.524Z`; 5 files. It was produced with
+Recorded `createdAt 2026-09-23T11:30:58.815Z`; 5 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
 
-The `cordis.patch.yml` entry is the only one that has changed since the
-2026-09-11 capture: it now disables the `ui-git-graph` loader row. See the root
+Since the 2026-09-11 capture it has lost `dsh-better-edit` — **10 dependencies
+and 12 bundles, down from 11 and 13** — gained `cordis.patch.yml`'s
+`ui-git-graph` disable, and taken the 2026-09-20 version bumps. See the root
 README's *Known constraints* and `CHANGELOG.md`.
 
 The export covers the profile directory only, so it carries **no credentials

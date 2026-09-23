@@ -13,14 +13,14 @@ which versions.
 
 | | |
 | --- | --- |
-| Harness | `@deepseek-ai/dsh` **0.1.5-rc.1** (global npm install) |
+| Harness | `@deepseek-ai/dsh` **0.1.5-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` |
+| Profile | `web` — **10 dependencies, 12 ordered bundles** |
 | Default agent preset | `custom` (`$DSH_HOME/settings.yaml` → `agent-presets.default`) |
-| Default model | `z-ai/glm-5.3-flash` on provider `openrouter-custom` |
-| Plugin market | `dshmarket` **1.45.1** |
+| Default model | `deepseek/deepseek-v4.1-flash` on provider `openrouter-custom` |
+| Plugin market | `dshmarket` **1.51.0** |
 
-Last recorded **2026-09-13**. What changed, and when, is in `CHANGELOG.md`.
+Last recorded **2026-09-23**. What changed, and when, is in `CHANGELOG.md`.
 
 ## Contents
 
@@ -47,12 +47,24 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   churn without its main feature. Re-enable by deleting the entry.
 - **`dsh-subagent-workspace-ui` cannot be upgraded past 1.3.3** as-is. The
   profile carries a hand-derived English-labels patch pinned to
-  `dsh-subagent-workspace-ui@1.3.3`; requesting any other version fails with
-  `ERR_PNPM_UNUSED_PATCH`, and `dshmarket` rolls the update back to 1.3.3.
-  Upgrading means re-deriving the patch from the new `lib/client.js` first.
-  Upstream is now 1.4.0.
-- **Seven of the eleven profile plugins have newer npm releases** as of
-  2026-09-13; none are installed. The sweep is in `CHANGELOG.md`.
+  `dsh-subagent-workspace-ui@1.3.3`, so requesting any other version fails with
+  `ERR_PNPM_UNUSED_PATCH` and `dshmarket` rolls the update back. That has now
+  happened twice — 1.3.4 on 2026-09-11, 1.4.0 on 2026-09-20. Upgrading means
+  re-deriving the patch from the new `lib/client.js` first. Upstream is 1.6.0.
+- **`dsh-better-edit` is uninstalled, but its state directory remains.**
+  `$DSH_HOME/plugins/dsh-better-edit/` still holds `config.yaml`, the
+  `standard`/`code`/`minimal`/`cordis` prompt directories and a `runtime/`
+  tree of per-workspace hash stores. Nothing reads it now. The plugin was
+  removed on 2026-09-20 because it did more harm than good; one visible
+  consequence is that file edits use the stock literal
+  `old_string`/`new_string` replacement rather than its hash-anchored patching.
+- **Five of the ten profile plugins have newer npm releases** as of
+  2026-09-23; none are installed. The sweep is in `CHANGELOG.md`.
+- **Three `minimumReleaseAgeExclude` entries are stale** — they name versions
+  that are no longer installed (`dsh-better-edit@0.8.1`,
+  `@hytime/dsh-thinking-effort@0.2.4`, `@vectorize-io/hindsight-coding-agents@0.5.3 || 0.5.4`).
+  Left in place deliberately: this repository records the live profile, it does
+  not edit it.
 
 ## Rebuilding from here
 

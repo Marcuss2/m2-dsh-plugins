@@ -9,6 +9,106 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-09-20 — plugin sweep; `dsh-better-edit` removed
+
+Recorded 2026-09-23 from `$DSH_HOME/profiles/web/.dsh-market/log.ndjson`, which
+timestamps every action the market takes.
+
+### Removed: `dsh-better-edit`
+
+```
+17:21:02  uninstall  dsh-better-edit exit=0 live-removed=true
+```
+
+Gone from `dependencies` **and** `dsh.profile.bundles`. Reason, in the user's
+words: it did more harm than good.
+
+It also took its hashline `read` / `write` / `edit` / `undo_last_edit` tools
+with it. The stock tools are back, and file edits are now literal
+`old_string` / `new_string` replacement rather than hash-anchored patches.
+
+Leftovers it did not clean up:
+
+- `$DSH_HOME/plugins/dsh-better-edit/` still exists — `config.yaml`, the
+  `standard` / `code` / `minimal` / `cordis` prompt directories, and a
+  `runtime/` tree of per-workspace hash stores. Nothing reads it now.
+- `dsh-better-edit@0.8.1` is still listed under `minimumReleaseAgeExclude` in
+  `pnpm-workspace.yaml`.
+
+### Upgraded
+
+All within the same 17:20–17:22Z window:
+
+| Plugin | From | To |
+| --- | --- | --- |
+| `dshmarket` | 1.45.1 | **1.51.0** |
+| `@hytime/dsh-thinking-effort` | 0.2.4 | **0.3.1** |
+| `@linxin666/dsh-client-ui-task-board` | 0.3.20 | **0.3.24** |
+| `@vectorize-io/hindsight-coding-agents` | 0.5.4 | **0.6.1** |
+| `dsh-context` | 0.49.4 | **0.54.0** |
+| `dsh-lsp-actions` | 0.5.0 | **0.5.3** |
+
+### Failed again: `dsh-subagent-workspace-ui`
+
+```
+17:22:04  update-rollback  dsh-subagent-workspace-ui: restored npm build v1.3.3
+17:22:04  warn             dsh-subagent-workspace-ui: failed update command; previous build restored and verified
+17:22:04  error            dsh-subagent-workspace-ui -> 1.4.0 exit=1
+                           err=ERR_PNPM_UNUSED_PATCH: The following patches were not used: dsh-subagent-workspace-ui@1.3.3
+```
+
+The same failure as the 1.3.4 attempt on 2026-09-11: the English-labels patch
+is pinned to 1.3.3, so no other version installs under it. Upstream is now
+1.6.0. See *Known constraints* in the root README.
+
+### Also changed
+
+- **Harness upgraded** — `@deepseek-ai/dsh` 0.1.5-rc.1 → **0.1.5-rc.2**. Not in
+  the market log; observed from `dsh --version`.
+- **`settings.yaml` gained a second provider**, `alibaba-qwencloud`
+  (`apiKeyEnv: ALIBABA_QWENCLOUD_API_KEY`, the Alibaba MaaS compatible-mode
+  endpoint, models `qwen3.8-max` and `deepseek-v4.1-flash`), plus two more
+  models on `openrouter-custom`: `stealth/union-alpha` and
+  `xiaomi/mimo-v2.6-pro`.
+- **Default model moved back** to `deepseek/deepseek-v4.1-flash` on
+  `openrouter-custom`, having been `z-ai/glm-5.3-flash` since 2026-09-13.
+
+### Stale `minimumReleaseAgeExclude` entries
+
+Left as-is — this repository records the live profile, it does not edit it.
+Three entries no longer match an installed version:
+
+- `dsh-better-edit@0.8.1` — the plugin is uninstalled.
+- `@hytime/dsh-thinking-effort@0.2.4` — 0.3.1 is installed.
+- `@vectorize-io/hindsight-coding-agents@0.5.3 || 0.5.4` — 0.6.1 is installed,
+  and 0.6.1 is not exempt.
+
+### Verified unchanged
+
+- Both agent presets byte-identical to `agent-presets/`; the `prompts/`
+  extraction still round-trips against the live YAML.
+- The `ui-git-graph` disable in `cordis.patch.yml` is still in place.
+- `patches/dsh-subagent-workspace-ui@1.3.3.patch` unchanged.
+- `$DSH_HOME/AGENTS.md` and `$DSH_HOME/cordis.patch.yml` still absent.
+
+## 2026-09-23 — version currency sweep
+
+`npm view <name> version` against the ten installed profile plugins. **Five have
+newer releases; none are installed.**
+
+| Plugin | Installed | npm latest |
+| --- | --- | --- |
+| `@hytime/dsh-thinking-effort` | 0.3.1 | 0.3.2 |
+| `@linxin666/dsh-client-ui-git-graph` | 0.3.20 | 0.3.24 |
+| `@linxin666/dsh-client-ui-task-board` | 0.3.24 | 0.3.24 |
+| `@vectorize-io/hindsight-coding-agents` | 0.6.1 | 0.6.1 |
+| `dsh-better-sidebar` | 0.19.1 | 0.19.1 |
+| `dsh-context` | 0.54.0 | 0.55.0 |
+| `dsh-lsp-actions` | 0.5.3 | 0.5.4 |
+| `dsh-search-failover` | 0.3.9 | 0.3.9 |
+| `dsh-subagent-workspace-ui` | 1.3.3 | 1.6.0 |
+| `dshmarket` | 1.51.0 | 1.58.0 |
+
 ## 2026-09-13 — record refreshed against the live setup
 
 Diffed the live machine against the 2026-09-11 capture (`50d8262`). Two
