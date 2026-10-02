@@ -38,6 +38,44 @@ configuration for individual plugins — including the Exa engine override on
 the `web-search-free` row. See `dsh-market/README.md` for the backup that
 records it.
 
+## Machine tooling
+
+Software outside the profile that the installed plugins depend on, or that
+makes them worth having. Install these **before** restoring the profile — a
+plugin whose backing binaries are missing mounts fine and then does nothing.
+
+| Tool | Version | Backs | Why it matters here |
+| --- | --- | --- | --- |
+| `@deepseek-ai/dsh` | 0.2.0-rc.2 | everything | the harness itself |
+| `dshmarket` (profile dep) | 1.66.8 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
+| `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
+| `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
+| `rust-analyzer` | system | `dsh-lsp-actions` | already present |
+| `clangd` | system | `dsh-lsp-actions` | already present |
+
+```sh
+# Language-server backends — both ship as global npm packages, one install path
+npm install -g typescript-language-server pyright
+# typescript-language-server also needs TypeScript itself resolvable:
+npm install -g typescript
+
+# Verify — each must answer with a version, and the pyright wrapper must
+# expose the language server binary alongside the CLI:
+typescript-language-server --version    # 6.0.0
+pyright --version                       # pyright 1.1.412
+command -v typescript-language-server pyright pyright-langserver tsserver
+```
+
+Both went in with **no restart**: the harness's `lsp_*` tools discover
+backends on PATH per call, so they pick the servers up in the next session
+rather than on the next boot.
+
+Still missing, deliberately recorded: **no DAP debug adapter** (`debugpy`,
+`dlv`, `codelldb`, `netcoredbg` are all absent), so the debugger surface has
+nothing to attach to; and no `gopls`, `jdtls`, `bash-language-server` or
+`yaml-language-server`. Add one only when a project actually needs it — each
+is a single package install with no plugin change.
+
 ## Contents
 
 | Path | What it records |

@@ -9,6 +9,36 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-02 — language-server backends installed
+
+`typescript-language-server` 6.0.0 and `pyright` 1.1.412, both **global npm**
+installs (not pip, not pipx — one install path), alongside the already-present
+`typescript` 6.0.3.
+
+`dsh-lsp-actions` 0.5.6 was installed since 2026-09-20 but had almost nothing
+to drive: the machine's only language servers were `rust-analyzer` and
+`clangd`, so the `lsp_*` tools were mounted and inert for the languages this
+checkout is written in. Now both are served.
+
+Verified:
+
+```
+typescript-language-server  /usr/bin/typescript-language-server   6.0.0
+pyright                     /usr/bin/pyright                      1.1.412
+pyright-langserver          /usr/bin/pyright-langserver
+tsserver                    /usr/bin/tsserver
+```
+
+No harness restart needed — LSP backends are discovered on PATH per call, so
+they surface in the next session rather than on the next boot.
+
+Recorded as **machine tooling** in the root README's new *Machine tooling*
+section, with the install and verify commands. That section now carries the
+table the deleted `DEPENDENCIES.md` used to: software outside the profile that
+plugins depend on. Also recorded there as still missing: no DAP debug adapter
+(`debugpy`, `dlv`, `codelldb`, `netcoredbg` all absent), so the debugger
+surface has nothing to attach to.
+
 ## 2026-10-02 — search provider: `dsh-free-search` installed, engine set to Exa
 
 Recorded 2026-10-02. Fills the gap left by the `dsh-search-failover` removal
