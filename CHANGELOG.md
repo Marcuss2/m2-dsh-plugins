@@ -9,6 +9,99 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-02 — search provider: `dsh-free-search` installed, engine set to Exa
+
+Recorded 2026-10-02. Fills the gap left by the `dsh-search-failover` removal
+earlier the same day.
+
+### Chosen: `dsh-free-search`
+
+Three candidates were compared on the `ctx.web` seam, the extension point the
+removed plugin used. The harness ships only `dsh-web-search-deepseek`, and the
+official `@deepseek-ai/dsh-web-search-exa` on npm is stale at `0.0.1-rc.1`
+with peers pinned to ancient versions — not usable.
+
+| | Chosen `dsh-free-search` 0.6.5 | `@tonydua/dsh-web-search-exa` 0.1.5 | `@yugasun/dsh-web-search` 0.2.5 |
+| --- | --- | --- | --- |
+| Engines | 18, Exa among them | Exa only | 5, Exa among them |
+| Exa without a key | ✅ anonymous MCP | ✅ anonymous MCP | ❌ key required |
+| Core package as a regular dep | `@deepseek-ai/schemastery` | none | none |
+| Declares a harness range | `engines.dsh >=0.1.7-rc.1` | peers only, untested ≥0.1.8 | README claims 0.1.0-rc.7 |
+| Last published | 2026-10-01 | 2026-08-15 | 2026-08-24 |
+| Settings UI | ✅ | ❌ config via patch layer | ✅ |
+
+Deciding factors: the most current of the three, a Settings UI, and Exa works
+keyless. The `schemastery` regular dep was checked rather than assumed:
+per the project's ground rule 2 record, `schemastery` is an inert
+non-composition package — not in `CORE_MODULES` — and the profile already
+hoists **3.18.4**, the exact version the plugin wants, so no second copy is
+introduced. The package that actually bricked the harness was `dsh-tools`,
+whose dual copies produced two different `Symbol("@deepseek-ai/dsh-tools.scheduler")`
+keys. Verified after install: the profile still hoists only `cosmokit` and
+`schemastery`, both 3.18.4, unchanged.
+
+Set aside: `@tonydua/dsh-web-search-exa` — cleaner deps and the closest match
+to "just Exa", but its own compat matrix stops at `0.1.7-alpha.1` and marks
+`>=0.1.8` (which covers this host) as untested. `@yugasun/dsh-web-search` —
+requires an Exa key.
+
+### Install
+
+```sh
+PATH=/usr/bin:$PATH dsh plugin --profile web add dsh-free-search
+```
+
+Added `^0.6.5` to dependencies and the bundle list. **Resolved 0.6.5, not
+0.6.6** — pnpm's fresh-release hold substituted an older version because
+0.6.6 was published 2026-10-01, inside the hold window. Same mechanism the
+market logged for `dsh-thinking-effort` on 2026-09-28.
+
+### Engine pointed at Exa
+
+The plugin's own bundle layer ships `provider: bing`, and the profile layer
+applies after the bundle layer — so an override row in
+`$DSH_HOME/profiles/web/cordis.patch.yml` selects the engine:
+
+```yaml
+- id: web-search-free
+  config:
+    provider: exa
+    disabledEngines: []
+    bingMarket: zh-CN
+```
+
+Every field the bundle row sets is restated, not just `provider`: patch
+semantics replace a row's whole `config` (DSH 0.1.2+), so a one-field override
+would silently drop the rest. `disabledEngines` and `bingMarket` are the
+plugin's own defaults, restated verbatim.
+
+Keyless by decision: the `exa` engine in the plugin's source calls
+`resolveApiKey("EXA_API_KEY", "exaApiKey")` and falls back to the anonymous
+`mcp.exa.ai/mcp` endpoint without one, switching to REST `api.exa.ai/search`
+when a key appears. The user's Exa key is not currently wired — it still sits
+in the dead `search-pool` block of `settings.yaml.imported` — so Exa runs on
+the anonymous quota until they add it under Settings → Plugins → Free Search.
+
+### What the plugin registers
+
+Provider id **`ddg`** (line 2497 of `lib/index.js` — the loader entry is
+`web-search-free`, the seam provider is `ddg`; the two are deliberately
+different). Its patch also overrides the `web` row with
+`searchProvider: ddg, fetchProvider: http`, and the code additionally takes
+over at runtime when `searchProvider` is unset or still the factory default
+`deepseek-official` — so search follows this plugin even if a patch layer
+strip erased the row.
+
+### Not yet active
+
+The CLI install schedules no restart, and nothing in the market log shows a
+hot-mount. **A `dsh --profile web` restart is required** for the bundle layer
+to compose.
+
+### Profile state after install
+
+**10 dependencies / 12 bundles.** `dsh-market/profile-backup.json`
+regenerated, `createdAt 2026-10-02T17:38:35.371Z`.
 ## 2026-10-02 — second sweep; `dsh-search-failover` removed
 
 Recorded 2026-10-02 from the market log and the live files. Three dated

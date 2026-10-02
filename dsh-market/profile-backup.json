@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-10-02T17:30:45.488Z",
+  "createdAt": "2026-10-02T17:38:35.371Z",
   "profile": "web",
   "files": [
     {
@@ -182,6 +182,12 @@
     },
     {
       "path": ".plugin-manager/logs/operation-WbxrHc/pnpm.log",
+      "lines": [
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-aJvGPS/pnpm.log",
       "lines": [
         ""
       ]
@@ -420,6 +426,20 @@
         "            compat:",
         "              chatTemplateKwargs: {}",
         "              chatTemplateArgs: {}",
+        "",
+        "# Engine selection for dsh-free-search (installed 2026-10-02). This machine",
+        "# uses Exa; the plugin's own bundle layer ships provider: bing, which would",
+        "# otherwise win (the profile layer applies after the bundle layer). The whole",
+        "# config is replaced by patch semantics (DSH 0.1.2+), so every field the",
+        "# bundle row sets is restated here, not just provider. Keyless for now: the",
+        "# exa engine falls back to the anonymous mcp.exa.ai/mcp endpoint without an",
+        "# API key and switches to REST api.exa.ai once exaApiKey / EXA_API_KEY",
+        "# appears (Settings > Plugins > Free Search).",
+        "- id: web-search-free",
+        "  config:",
+        "    provider: exa",
+        "    disabledEngines: []",
+        "    bingMarket: zh-CN",
         ""
       ]
     },
@@ -445,6 +465,7 @@
           "@vectorize-io/hindsight-coding-agents": "^0.8.0",
           "dsh-better-sidebar": "^0.24.1",
           "dsh-context": "^0.62.2",
+          "dsh-free-search": "^0.6.5",
           "dsh-lsp-actions": "^0.5.6",
           "dsh-subagent-workspace-ui": "^1.3.3",
           "dshmarket": "^1.66.8"
@@ -462,7 +483,8 @@
               "dsh-lsp-actions",
               "@vectorize-io/hindsight-coding-agents",
               "dshmarket",
-              "@local/dsh-custom-presets"
+              "@local/dsh-custom-presets",
+              "dsh-free-search"
             ]
           }
         }

@@ -15,9 +15,10 @@ which versions.
 | --- | --- |
 | Harness | `@deepseek-ai/dsh` **0.2.0-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **9 dependencies, 11 ordered bundles** |
+| Profile | `web` — **10 dependencies, 12 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode** |
 | Default model | `z-ai/glm-5.3-flash` on provider `openrouter-custom` |
+| Web search | `dsh-free-search` 0.6.5, engine **`exa`**, keyless |
 | Plugin market | `dshmarket` **1.66.8** |
 
 Last recorded **2026-10-02**. What changed, and when, is in `CHANGELOG.md`.
@@ -33,8 +34,9 @@ including the `search-pool` block that belonged to the removed
 `dsh-search-failover` — dead config now.
 
 So the profile's patch layer is the settings file, and it also carries
-configuration for individual plugins. See `dsh-market/README.md` for the
-backup that records it.
+configuration for individual plugins — including the Exa engine override on
+the `web-search-free` row. See `dsh-market/README.md` for the backup that
+records it.
 
 ## Contents
 
@@ -70,9 +72,11 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   consequence of its removal: file edits use the stock literal
   `old_string`/`new_string` replacement rather than its hash-anchored
   patching.
-- **`@hytime/dsh-thinking-effort` and `dsh-search-failover` are uninstalled.**
-  The user removed the search pool deliberately — this machine is to use Exa
-  directly. A replacement search provider was not yet chosen.
+- **Search runs keyless on Exa's anonymous quota.** `dsh-free-search`'s `exa`
+  engine falls back to `mcp.exa.ai/mcp` without a key and switches to REST
+  `api.exa.ai/search` once one appears. The user's Exa key is not wired — it
+  still sits in the dead `search-pool` block of `settings.yaml.imported`. Add
+  it under Settings → Plugins → Free Search to lift the anonymous rate limit.
 - **Stale `minimumReleaseAgeExclude` entries remain** in
   `pnpm-workspace.yaml`, naming packages that are no longer installed
   (`dsh-better-edit@0.8.1`). Left in place deliberately: this repository
