@@ -13,14 +13,28 @@ which versions.
 
 | | |
 | --- | --- |
-| Harness | `@deepseek-ai/dsh` **0.1.5-rc.2** (global npm install) |
+| Harness | `@deepseek-ai/dsh` **0.2.0-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **10 dependencies, 12 ordered bundles** |
-| Default agent preset | `custom` (`$DSH_HOME/settings.yaml` → `agent-presets.default`) |
-| Default model | `deepseek/deepseek-v4.1-flash` on provider `openrouter-custom` |
-| Plugin market | `dshmarket` **1.51.0** |
+| Profile | `web` — **9 dependencies, 11 ordered bundles** |
+| Default agent preset | `custom` — **Productivity Mode** |
+| Default model | `z-ai/glm-5.3-flash` on provider `openrouter-custom` |
+| Plugin market | `dshmarket` **1.66.8** |
 
-Last recorded **2026-09-23**. What changed, and when, is in `CHANGELOG.md`.
+Last recorded **2026-10-02**. What changed, and when, is in `CHANGELOG.md`.
+
+## Where settings live now
+
+As of DSH 0.1.7-rc.2 the old `$DSH_HOME/settings.yaml` is **no longer read**:
+the harness renamed it `settings.yaml.imported` and its keys are now expressed
+as **patch rows in `$DSH_HOME/profiles/web/cordis.patch.yml`** —
+`agent-default-model`, `agent-preset-registry`, `locale`, `llm-pi-ai`,
+`better-sidebar`. The imported file still holds the old document verbatim,
+including the `search-pool` block that belonged to the removed
+`dsh-search-failover` — dead config now.
+
+So the profile's patch layer is the settings file, and it also carries
+configuration for individual plugins. See `dsh-market/README.md` for the
+backup that records it.
 
 ## Contents
 
@@ -28,7 +42,7 @@ Last recorded **2026-09-23**. What changed, and when, is in `CHANGELOG.md`.
 | --- | --- |
 | `dsh-market/README.md` | How `dshmarket` is installed, and why it is registered the way it is |
 | `dsh-market/profile-backup.json` | Canonical record of the `web` profile — dependencies, bundle order, profile config files and pnpm patches — with private data stripped |
-| `agent-presets/` | The two agent presets in use (`custom`, `coding`), verbatim |
+| `agent-presets/` | The two presets in use, verbatim, plus the generator that freezes them into the live plugin |
 | `prompts/` | The prompt text those presets carry — personas and plan mode |
 | `CHANGELOG.md` | Dated record of what changed in the live setup |
 | `.research/*.md` | Older research notes, kept for reference only; not part of the setup |
@@ -37,34 +51,32 @@ Last recorded **2026-09-23**. What changed, and when, is in `CHANGELOG.md`.
 
 Recorded because they are non-obvious and would otherwise be rediscovered:
 
-- **`ui-git-graph` is disabled** in the profile's patch layer
-  (`$DSH_HOME/profiles/web/cordis.patch.yml`). The plugin stays installed and
-  listed in `dsh.profile.bundles`; only its loader row is off. Reason, recorded
-  in the file itself: it polls every 30 s — several git spawns per tick, even
-  for non-git workspaces, each through a `systemd-run` scope — a `git status`
-  round can stall up to `STATUS_TIMEOUT_MS` (15 s), and its auto-isolation hook
-  is already dead under the current workspaces-service shape, so it added poll
-  churn without its main feature. Re-enable by deleting the entry.
+- **`ui-git-graph` is disabled** in the profile's patch layer. The plugin
+  stays installed and listed in `dsh.profile.bundles`; only its loader row is
+  off. Reason, recorded in the file itself: it polls every 30 s — several git
+  spawns per tick, even for non-git workspaces, each through a `systemd-run`
+  scope — a `git status` round can stall up to `STATUS_TIMEOUT_MS` (15 s), and
+  its auto-isolation hook is already dead under the current
+  workspaces-service shape. Re-enable by deleting the entry.
 - **`dsh-subagent-workspace-ui` cannot be upgraded past 1.3.3** as-is. The
-  profile carries a hand-derived English-labels patch pinned to
-  `dsh-subagent-workspace-ui@1.3.3`, so requesting any other version fails with
-  `ERR_PNPM_UNUSED_PATCH` and `dshmarket` rolls the update back. That has now
-  happened twice — 1.3.4 on 2026-09-11, 1.4.0 on 2026-09-20. Upgrading means
-  re-deriving the patch from the new `lib/client.js` first. Upstream is 1.6.0.
+  profile carries a hand-derived English-labels patch pinned to 1.3.3, so any
+  other version fails with `ERR_PNPM_UNUSED_PATCH` and rolls back. That has
+  now happened on 1.3.4, 1.4.0, 1.9.0 and 1.9.1; upstream is 1.9.1. Upgrading
+  means re-deriving the patch from the new `lib/client.js` first.
 - **`dsh-better-edit` is uninstalled, but its state directory remains.**
   `$DSH_HOME/plugins/dsh-better-edit/` still holds `config.yaml`, the
   `standard`/`code`/`minimal`/`cordis` prompt directories and a `runtime/`
-  tree of per-workspace hash stores. Nothing reads it now. The plugin was
-  removed on 2026-09-20 because it did more harm than good; one visible
-  consequence is that file edits use the stock literal
-  `old_string`/`new_string` replacement rather than its hash-anchored patching.
-- **Five of the ten profile plugins have newer npm releases** as of
-  2026-09-23; none are installed. The sweep is in `CHANGELOG.md`.
-- **Three `minimumReleaseAgeExclude` entries are stale** — they name versions
-  that are no longer installed (`dsh-better-edit@0.8.1`,
-  `@hytime/dsh-thinking-effort@0.2.4`, `@vectorize-io/hindsight-coding-agents@0.5.3 || 0.5.4`).
-  Left in place deliberately: this repository records the live profile, it does
-  not edit it.
+  tree of per-workspace hash stores. Nothing reads it now. One visible
+  consequence of its removal: file edits use the stock literal
+  `old_string`/`new_string` replacement rather than its hash-anchored
+  patching.
+- **`@hytime/dsh-thinking-effort` and `dsh-search-failover` are uninstalled.**
+  The user removed the search pool deliberately — this machine is to use Exa
+  directly. A replacement search provider was not yet chosen.
+- **Stale `minimumReleaseAgeExclude` entries remain** in
+  `pnpm-workspace.yaml`, naming packages that are no longer installed
+  (`dsh-better-edit@0.8.1`). Left in place deliberately: this repository
+  records the live profile, it does not edit it.
 
 ## Rebuilding from here
 
@@ -73,13 +85,13 @@ On a fresh DSH install:
 1. Install `dshmarket` — see `dsh-market/README.md`.
 2. Restore the profile through Settings → Plugin Market → Advanced →
    Backup & Restore, importing `dsh-market/profile-backup.json`.
-3. Install the agent presets — see `agent-presets/README.md`.
+3. Install the presets — see `agent-presets/README.md`; they arrive as the
+   `@local/dsh-custom-presets` bundle, generated from the legacy sources here.
 4. Restart `dsh --profile web`; bundle layers compose at boot.
 
-`$DSH_HOME/settings.yaml` is **not** reproduced here: it carries API keys (the
-search-pool backend key among them) and is machine-specific. The settings-
-derived values in the table above are recorded as facts, not as a file to
-restore.
+Note that a backup recorded on one DSH release does not automatically apply
+to another: the market's compat gate refuses a bundle whose declared core
+range excludes the running host. That gate is doing its job, not failing.
 
 ## Keeping it current
 
@@ -89,6 +101,7 @@ entry to `CHANGELOG.md`** in the same task:
 - **Profile change** — a plugin added, upgraded, removed, or a patch-layer row
   toggled → re-export the backup and re-strip it (`dsh-market/README.md` →
   *Recording a fresh export*).
-- **Preset change** → re-copy `agent-presets/` and refresh `prompts/`.
-- **Settings change** → if it affects the table above (default preset, default
-  model), correct it here; never copy the file.
+- **Preset change** → edit the legacy source, re-run the generator, re-copy
+  `agent-presets/` and refresh `prompts/`.
+- **Settings change** → these are patch rows now; the backup records them, so
+  re-export and correct the table above.

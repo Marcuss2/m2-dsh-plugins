@@ -9,6 +9,103 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-02 — second sweep; `dsh-search-failover` removed
+
+Recorded 2026-10-02 from the market log and the live files. Three dated
+batches, a harness upgrade chain, and a settings migration that changed where
+configuration lives.
+
+### Settings moved into the profile patch layer
+
+`~/.dsh/settings.yaml` is no longer read: the harness renamed it
+`settings.yaml.imported` (2026-09-26 12:21) and its keys are now expressed as
+**patch rows in `$DSH_HOME/profiles/web/cordis.patch.yml`** —
+`agent-default-model`, `agent-preset-registry`, `locale`, `llm-pi-ai`,
+`better-sidebar`.
+
+The imported file still holds the old document verbatim, including the
+`search-pool` block that belonged to `dsh-search-failover` — dead config now.
+
+**Current live settings, read from the patch layer:** default model
+`z-ai/glm-5.3-flash` on provider `openrouter-custom`, `reasoningEffort: high`;
+default agent preset `custom`; locale `en`; and a two-model `openrouter-custom`
+provider (`fireworks/ember-1`, `z-ai/glm-5.3-flash`) — down from the five
+models and two providers the imported file records.
+
+### Harness upgraded twice
+
+`0.1.5-rc.2` → `0.1.7-rc.2` (visible in the 2026-09-28 compat warnings) →
+**`0.2.0-rc.2`** (current).
+
+### 2026-09-28 11:37–12:54 — thinking-effort installed then dropped
+
+`dsh-thinking-effort` installed at 0.3.5, then toggled off and **uninstalled**
+the same hour (`live-removed=true`) — gone from the profile.
+
+### 2026-09-28 17:46 — the compat gate refused a bundle
+
+`dsh-better-sidebar@0.24.1` update **refused before installing**: the release
+declares `^0.2.0-rc.1` and the host was then `0.1.7-rc.2`. It succeeded once
+the host reached 0.2.0-rc.2. A backup recorded on one release therefore does
+not automatically apply on another.
+
+### 2026-09-28 ~16:17–18:20 — presets migrated into a local plugin
+
+DSH 0.1.7-rc.2 **stopped reading the legacy `$DSH_HOME/.agent-presets/<id>/`
+directories**. The user authored `@local/dsh-custom-presets` at
+`/home/vrbkam/dsh-custom-presets` and installed it as a bundle:
+
+- `generate-patch.cjs` freezes the two legacy presets into a `cordis.patch.yml`
+  declaring each as an `@deepseek-ai/dsh-agent-preset` row, with the plugin
+  entry lists taken verbatim from the legacy `agent.cordis.yml` files.
+- One substitution: `@deepseek-ai/dsh-workflow-worker-thread` (removed in
+  0.1.7-rc.2) → `@deepseek-ai/dsh-workflow-ptc`, keeping
+  `config.provider: spawn`.
+- The `custom` preset was renamed **"Productivity Mode"**; its id stays
+  `custom`, so the registry default keeps working.
+- `agent-presets/generate-patch.cjs` in this repository is a copy of that
+  generator — the legacy files here are the source it freezes from.
+
+### 2026-10-02 17:24–17:26 — the sweep and the search-pool removal
+
+| Plugin | 2026-09-23 | Now |
+| --- | --- | --- |
+| `@linxin666/dsh-client-ui-task-board` | 0.3.24 | **0.4.4** |
+| `@vectorize-io/hindsight-coding-agents` | 0.6.1 | **0.8.0** |
+| `dsh-better-sidebar` | 0.19.1 | **0.24.1** |
+| `dsh-context` | 0.54.0 | **0.62.2** |
+| `dsh-lsp-actions` | 0.5.3 | **0.5.6** |
+| `dshmarket` | 1.51.0 | **1.66.8** |
+| `@linxin666/dsh-client-ui-git-graph` | 0.3.20 | 0.3.20 (unchanged) |
+| `dsh-subagent-workspace-ui` | 1.3.3 | 1.3.3 (updates blocked) |
+
+and **`dsh-search-failover` uninstalled**:
+
+```
+17:25:19  toggle     dsh-search-failover: no loader entry matched
+17:25:19  uninstall  dsh-search-failover exit=0 live-removed=false
+```
+
+`live-removed=false` with "no loader entry matched" — the plugin had already
+stopped contributing a loader entry on this host. Reason, in the user's words:
+this machine will use Exa directly, not a provider pool. **A replacement search
+provider was not yet chosen.**
+
+### Still blocked: `dsh-subagent-workspace-ui`
+
+Attempts on 2026-09-28 (1.9.0) and 2026-10-02 (1.9.1) both failed on
+`ERR_PNPM_UNUSED_PATCH` against the pinned 1.3.3 patch and rolled back. The
+gap is now 1.3.3 → upstream 1.9.1.
+
+### Verified unchanged
+
+- Both agent presets byte-identical to `agent-presets/` — which matters more
+  now, since they are the source the local plugin freezes from.
+- The `ui-git-graph` disable is still in the patch layer.
+- `patches/dsh-subagent-workspace-ui@1.3.3.patch` unchanged.
+- `$DSH_HOME/AGENTS.md` and a home-level `$DSH_HOME/cordis.patch.yml` are
+  still absent.
+- Profile is **9 dependencies / 11 bundles**.
 ## 2026-09-20 — plugin sweep; `dsh-better-edit` removed
 
 Recorded 2026-09-23 from `$DSH_HOME/profiles/web/.dsh-market/log.ndjson`, which
