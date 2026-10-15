@@ -300,22 +300,32 @@
 # computer-use provider slot when the harness's computer-use registry is
 # mounted. The plugin package must stay installed as a profile dependency:
 # the !!js launcher resolution is anchored at the profile's package.json.
-- id: mcp-computer-use-linux
-  name: '@deepseek-ai/dsh-mcp-client'
-  disabled: !!js "process.platform !== 'linux'"
+# Wrapped in an isolate realm group per the agent-plane rule for service-like
+# rows: the standing mount owns a private instance apart from every other
+# preset, instead of publishing into the root realm.
+- id: computer-use
+  name: cordis:group
+  group: true
+  isolate:
+    computerUse: true
   config:
-    serverName: cul
-    transport: stdio
-    command: !!js process.execPath
-    args:
-      - !!js "process.getBuiltinModule('node:module').createRequire(new URL('package.json', baseUrl)).resolve('@brucezhang1993/dsh-computer-use-linux/launcher')"
-    env:
-      ELECTRON_RUN_AS_NODE: '1'
-    toolCallTimeoutMs: 120000
-    failOnStartupError: false
+  - id: mcp-computer-use-linux
+    name: '@deepseek-ai/dsh-mcp-client'
+    disabled: !!js "process.platform !== 'linux'"
+    config:
+      serverName: cul
+      transport: stdio
+      command: !!js process.execPath
+      args:
+        - !!js "process.getBuiltinModule('node:module').createRequire(new URL('package.json', baseUrl)).resolve('@brucezhang1993/dsh-computer-use-linux/launcher')"
+      env:
+        ELECTRON_RUN_AS_NODE: '1'
+      toolCallTimeoutMs: 120000
+      failOnStartupError: false
+
 
 - id: dsh-computer-use-linux
-  name: 'dsh-computer-use-linux'
+  name: '@brucezhang1993/dsh-computer-use-linux'
   disabled: !!js "process.platform !== 'linux'"
 
 # ── presentation ────────────────────────────────────────────────────────────

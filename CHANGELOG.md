@@ -86,6 +86,79 @@ quizzes directly in the browser. This machine is Arch Linux + Hyprland
   still required for the profile to boot with the plugin permanently.
 - `verify.sh` still absent from the repo — pre-existing gap, unchanged.
 
+## 2026-10-15 — computer-use preset fixed: unresolvable plugin alias was killing the mount
+
+The first Computer Use session after the restart had no `mcp__cul__*` tools
+and the GUI reported `dsh-computer-use-linux … never started`. Root cause
+found by instrumenting the shadowed `@deepseek-ai/dsh-mcp-client`, the
+`dsh-agent-preset-registry`, and the plugin launcher (technique: shadow the
+packages into the profile's `node_modules`; tee the launcher's stdio to a
+file; find real server processes via `/proc/*/exe` links — `pgrep -f` matches
+your own watcher).
+
+### Root cause
+
+The preset row declared `name: 'dsh-computer-use-linux'` — an alias that
+resolves nowhere; the package's real name is
+`@brucezhang1993/dsh-computer-use-linux`. The agent-plane preset tree
+imports plugin modules from the declaring preset package's base
+(`@local/dsh-custom-presets`, which had no dependencies at all). The alias
+import failed, the loader logged it and returned with the entry's fiber
+undefined, and `auditRows` reported exactly `dsh-computer-use-linux
+(dsh-computer-use-linux): never started`. A failed audit rejects the mount:
+the registry disposed the whole preset tree ~3 ms after the mcp-client had
+successfully registered all 18 tools (`ready resolved error=none`, then
+`DISPOSE`). That disposal is also why the server process kept vanishing
+without any reconnect attempt.
+
+### Fix
+
+- The preset's JS entry row now uses the real package name
+  `@brucezhang1993/dsh-computer-use-linux` (legacy source, re-frozen patch,
+  repo copy re-synced).
+- `@local/dsh-custom-presets/package.json` gained
+  `"@brucezhang1993/dsh-computer-use-linux": "link:/home/vrbkam/repos/dsh-computer-use-linux"`
+  so the preset tree's import base can resolve the package; `pnpm install`
+  run there. The package must stay resolvable from wherever the preset tree
+  imports — the profile dependency alone is not enough.
+
+### Also learned (recorded, not fixed)
+
+- The harness's bundled MCP client runs a **60 s `server/discover`
+  era-negotiation probe on a disposable sibling stdio process** before
+  falling back to the classic `initialize` handshake. Upstream
+  computer-use-linux 0.7.13 and 0.7.16 both exit on any pre-`initialize`
+  request, so the probe never answers and the full 60 s elapses. The tools
+  therefore register ~60 s after boot/mount; a session opened within that
+  first minute may not list them. The mcp-client Config exposes no
+  negotiation/protocolVersion option to skip the probe (checked
+  0.2.0-rc.2); an upstream binary that speaks `server/discover` would remove
+  the delay.
+- The in-box `@deepseek-ai/dsh-computer-use` package referenced by the
+  plugin's provider-slot claim does not exist in this install.
+
+### Evidence
+
+- End-to-end acceptance, live: a fresh `dsh --profile web` instance on port
+  3447, a new session on the **Computer Use** preset (selected through the
+  GUI preset menu), the prompt "call mcp__cul__doctor" → the agent **called
+  `mcp__cul__doctor` and printed** `{"accessibility": ["at_spi"], "input":
+  ["abs_pointer", "wtype"], "screenshot": ["portal"], "window_control":
+  ["hyprland"], …}` — the capability is preset-scoped and working.
+- The negative check had already passed after the earlier restart: the
+  Productivity session's catalog no longer declares any `mcp__cul__*` tool.
+- Diagnostic breadcrumbs: the shadowed client logged
+  `registered mcp__cul__… t=60085` then `DISPOSE t=60088`; the registry
+  shadow logged the audit verdict; the launcher relay showed the server
+  answering `initialize`/`tools/list` in ~20 ms and the client closing stdin
+  immediately after — the closing was the tree disposal, not a server fault.
+- Cleanup: the instrumented launcher was restored from backup (checkout
+  clean), the shadowed package copies removed, the 3444–3447 test instances
+  killed. The throwaway `cutest` profile (headless + presets bundle + a
+  `--patch` overlay providing `agent-preset-registry`) remains at
+  `$DSH_HOME/profiles/cutest` for future preset debugging; delete it when
+  done with this initiative.
+
 ## 2026-10-15 — `computeruse` preset added; computer use scoped to it
 
 Follow-up to the plugin install above. The user wants the desktop
