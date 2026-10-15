@@ -63,7 +63,7 @@ function substitute(card, indented) {
 }
 
 const cards = [];
-for (const [dir, override] of [["custom", { name: "Productivity Mode" }], ["coding", {}]]) {
+for (const [dir, override] of [["custom", { name: "Productivity Mode" }], ["coding", {}], ["computeruse", { name: "Computer Use" }]]) {
   const card = {
     id: dir,
     order: 0,

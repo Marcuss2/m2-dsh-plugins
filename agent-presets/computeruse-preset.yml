@@ -1,0 +1,3 @@
+name: Computer Use
+description: The Productivity Mode agent plus desktop computer use — the mcp__cul__* tools mount here and nowhere else (screenshots, AT-SPI accessibility trees, window targeting, clicks/typing on Wayland), alongside the bundled computer-use-linux skill. Use for GUI surfaces CLI automation cannot reach.
+order: 0

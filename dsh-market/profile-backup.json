@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-10-15T15:34:31.269Z",
+  "createdAt": "2026-10-15T15:44:00.343Z",
   "profile": "web",
   "files": [
     {
@@ -715,8 +715,7 @@
               "dsh-better-reasoning-effort",
               "mattpocock-skills-dsh",
               "@michengai/dsh-skills-manager",
-              "dsh-secret-guard",
-              "@brucezhang1993/dsh-computer-use-linux"
+              "dsh-secret-guard"
             ]
           }
         }

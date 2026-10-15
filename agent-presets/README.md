@@ -28,16 +28,29 @@ reads the legacy directories, applies one substitution, and rewrites
 `agent-presets/generate-patch.cjs` — so the legacy files here plus that script
 reproduce the live bundle exactly.
 
-## The two in use
+## The three in use
 
 | id | Name | Source (legacy dir) | Files here |
 | --- | --- | --- | --- |
 | `custom` | **Productivity Mode** | `$DSH_HOME/.agent-presets/custom/` | `custom-preset.yml`, `custom-agent.cordis.yml` |
 | `coding` | Coding mode | `$DSH_HOME/.agent-presets/coding/` | `coding-preset.yml`, `coding-agent.cordis.yml` |
+| `computeruse` | **Computer Use** | `$DSH_HOME/.agent-presets/computeruse/` | `computeruse-preset.yml`, `computeruse-agent.cordis.yml` |
 
 - `custom` was renamed from "Custom mode" to **Productivity Mode** at the
   user's request. Its id stays `custom`, so the registry default and prior
   references keep working.
+- `computeruse` (added 2026-10-15) is a copy of `custom` plus two rows before
+  the presentation row: `mcp-computer-use-linux`
+  (`@deepseek-ai/dsh-mcp-client`, `serverName: cul`, stdio) and
+  `dsh-computer-use-linux` (the plugin's JS entry — registers the bundled
+  skill, claims the sole computer-use provider slot). Both consume host
+  registries and provide nothing, so like the tool rows they need no realm.
+  This preset is the ONLY mount of the desktop computer-use capability: the
+  web profile does not list the plugin bundle, so no other preset sees the
+  `mcp__cul__*` tools. The plugin package stays a profile **dependency**
+  because the `!!js` launcher resolution is anchored at the profile's
+  `package.json`. Its persona adds the computer-use paragraph
+  (`../prompts/computeruse-persona.md`).
 - The generator applies one substitution when freezing:
   `@deepseek-ai/dsh-workflow-worker-thread` (removed in 0.1.7-rc.2) →
   `@deepseek-ai/dsh-workflow-ptc`, keeping `config.provider: spawn`. That is
@@ -46,7 +59,7 @@ reproduce the live bundle exactly.
 - The legacy directories are no longer read by DSH, but they remain the
   **source of truth** the generator freezes from.
 
-Both are user-authored copies of the shipped `standard` preset — the full
+All three are user-authored copies of the shipped `standard` preset — the full
 coding agent — carrying two deliberate changes:
 
 1. **Tool presentation.** The tail row becomes a `tool-presentation` row with

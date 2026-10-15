@@ -86,6 +86,67 @@ quizzes directly in the browser. This machine is Arch Linux + Hyprland
   still required for the profile to boot with the plugin permanently.
 - `verify.sh` still absent from the repo — pre-existing gap, unchanged.
 
+## 2026-10-15 — `computeruse` preset added; computer use scoped to it
+
+Follow-up to the plugin install above. The user wants the desktop
+computer-use capability available **only** in an explicit agent preset, not
+in every session of the profile. A preset is an agent-plane composition that
+can mount plugin rows of its own, so the capability moved from the profile
+layer into a new preset.
+
+### What changed
+
+- **New agent preset `computeruse` ("Computer Use")**, declared as
+  `preset-computeruse` in the `@local/dsh-custom-presets` bundle. Source:
+  `$DSH_HOME/.agent-presets/computeruse/{preset.yml,agent.cordis.yml}`,
+  built from the `custom` preset with three changes:
+  1. two rows before the presentation row — `mcp-computer-use-linux`
+     (`@deepseek-ai/dsh-mcp-client`, `serverName: cul`, stdio,
+     `toolCallTimeoutMs: 120000`, `failOnStartupError: false`) and
+     `dsh-computer-use-linux` (the plugin's JS entry: registers the bundled
+     skill, claims the sole computer-use provider slot). Both consume host
+     registries (`tools`, `skills`) and provide nothing, so like the tool
+     rows they need no `isolate` realm.
+  2. the persona suffix gains the computer-use paragraph — `doctor` first,
+     semantic selectors over pixels, prefer agent-browser/bash when they
+     reach the same target, confirm before destructive clicks, never click
+     consent dialogs.
+  3. `preset.yml`: name "Computer Use", order 0. Id is the single lowercase
+     word `computeruse` per the preset-id convention.
+- **The plugin's bundle was removed from the web profile**:
+  `dsh.profile.bundles` went 18 → 17; the package stays in `dependencies`
+  (the preset's `!!js` launcher resolution is anchored at the profile's
+  `package.json`, so the link must survive). This also avoids the
+  duplicate-registration collision a profile-level mount and a preset-level
+  mount would cause on the `mcp__cul__*` tool names.
+- **The generator was extended** to freeze three presets:
+  `generate-patch.cjs` now iterates `custom`, `coding`, `computeruse`
+  (both the live copy and the repo copy). `cordis.patch.yml` re-froze,
+  687 → 1028 lines.
+
+### Evidence
+
+- `dsh --profile web --dump-config` composes cleanly (exit 0): three preset
+  decls present (`preset-custom`, `preset-coding`, `preset-computeruse`),
+  and the `mcp-computer-use-linux` row appears ONLY inside the
+  `preset-computeruse` config.plugins list — not at profile level.
+- The new preset YAML parses (`yaml.parse`), 20 top-level entries
+  (= custom's 18 + the 2 new rows), and carries both generator SUBST anchor
+  lines verbatim so the freeze substitution still applies.
+- Persona fidelity: the `suffix` block parsed from the preset file matches
+  `prompts/computeruse-persona.md` line-for-line after de-indentation.
+- Profile backup re-exported and re-stripped; privacy grep clean; diff
+  against the previous record is only `createdAt` and the removed bundle
+  entry.
+
+### Not done
+
+- No restart yet. After the next `dsh --profile web` restart the acceptance
+  check is: a new session on **Computer Use** lists the `mcp__cul__*` tools;
+  a session on Productivity Mode does not. Whether the mcp-client row mounts
+  correctly from an agent-plane preset (vs the profile plane it was verified
+  from) is recorded as untested until that session exists.
+
 ## 2026-10-15 — `agent-browser` added to both presets' personas
 
 The machine already had **`agent-browser` 0.38.2** installed globally (global

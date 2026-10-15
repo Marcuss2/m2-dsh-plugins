@@ -15,7 +15,7 @@ which versions.
 | --- | --- |
 | Harness | `@deepseek-ai/dsh` **0.2.0-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **15 dependencies, 18 ordered bundles** |
+| Profile | `web` — **15 dependencies, 17 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode** |
 | Default model | `z-ai/glm-5.3-flash` on provider `openrouter-custom` |
 | Web search | `dsh-free-search` 0.6.5, engine **`exa`**, keyless |
@@ -53,7 +53,7 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 | `rust-analyzer` | system | `dsh-lsp-actions` | already present |
 | `clangd` | system | `dsh-lsp-actions` | already present |
 | `agent-browser` | 0.38.2 | persona of both presets | browser automation CLI, driven through the `bash` tool — see below |
-| `@brucezhang1993/dsh-computer-use-linux` | 0.1.1 (profile link) | the plugin itself | Linux computer use MCP bridge (`mcp__cul__*` tools) — see below |
+| `@brucezhang1993/dsh-computer-use-linux` | 0.1.1 (profile link dep) | the `computeruse` preset | Linux computer use MCP bridge (`mcp__cul__*` tools) — see below |
 | `computer-use-linux` (upstream binary) | 0.7.13, pinned by the plugin | `mcp__cul__*` tools | Rust MCP server, cached at `~/.cache/computer-use-linux/plugin/` |
 | `wtype`, `ydotool` | **not yet installed** | `mcp__cul__type_text` / `mcp__cul__click` | Wayland input synthesis — `pacman -S wtype ydotool` |
 
@@ -97,13 +97,13 @@ upstream `agent-sh/computer-use-linux` Rust MCP server into the harness as the
 Hyprland backend is `hyprctl`; screenshots go through `xdg-desktop-portal`.
 The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
 
-- **Installed as a local checkout link**, not a registry version: the package
-  is served from GitHub Packages and needs a classic PAT with
-  `read:packages` for an authenticated install. The checkout lives at
-  `$HOME/repos/dsh-computer-use-linux` and the backup records it as
-  `link:$HOME/repos/dsh-computer-use-linux` — restoring the backup on a fresh
-  machine therefore needs either that checkout or the GitHub Packages route
-  (`dsh plugin --profile web add @brucezhang1993/dsh-computer-use-linux`).
+- **Scoped to the `computeruse` preset, not the profile.** The plugin package
+  is a web-profile **dependency** (the `!!js` launcher resolution anchors at
+  the profile's `package.json`), but its bundle is NOT listed in
+  `dsh.profile.bundles`. The two rows mount inside the `computeruse` agent
+  preset's plugin list instead (`agent-presets/README.md`), so only sessions
+  on that preset see the `mcp__cul__*` tools. Running the profile-level
+  mount and the preset-level mount at once would collide on tool names.
 - **Verified live**: `mcp__cul__screenshot` captured the whole desktop
   through `xdg-desktop-portal`; `doctor` reports the Hyprland windowing
   backend OK, portals OK. AT-SPI was enabled by hand
@@ -114,7 +114,9 @@ The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
   pointer input on Wayland — the portal's RemoteDesktop interface lacks
   pointer methods under the Hyprland portal, so clicks fall back to
   ydotool/uinput, and `/dev/uinput` already carries an rw ACL for the user),
-  the first-run portal screenshot consent, and a harness restart.
+  the first-run portal screenshot consent, and a harness restart — after
+  which a session on **Computer Use** must show the `mcp__cul__*` tools and
+  a session on Productivity Mode must not.
 
 ## Contents
 
@@ -122,7 +124,7 @@ The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
 | --- | --- |
 | `dsh-market/README.md` | How `dshmarket` is installed, and why it is registered the way it is |
 | `dsh-market/profile-backup.json` | Canonical record of the `web` profile — dependencies, bundle order, profile config files and pnpm patches — with private data stripped |
-| `agent-presets/` | The two presets in use, verbatim, plus the generator that freezes them into the live plugin |
+| `agent-presets/` | The three presets in use, verbatim, plus the generator that freezes them into the live plugin |
 | `prompts/` | The prompt text those presets carry — personas and plan mode |
 | `CHANGELOG.md` | Dated record of what changed in the live setup |
 | `.research/*.md` | Older research notes, kept for reference only; not part of the setup |
