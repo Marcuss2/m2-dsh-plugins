@@ -9,6 +9,198 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-15 — `@brucezhang1993/dsh-computer-use-linux` installed (computer use for Hyprland)
+
+Searched for a "computer use" plugin so the agent can operate GUI surfaces
+that CLI automation cannot reach — the motivating case is creating Kahoot
+quizzes directly in the browser. This machine is Arch Linux + Hyprland
+0.56.2 on Wayland, which rules out the X11/xdotool-based servers.
+
+### What changed
+
+- **Plugin added to the `web` profile: `@brucezhang1993/dsh-computer-use-linux`
+  0.1.1** (released 2026-10-10; repo `BruceZhang1993/dsh-computer-use-linux`).
+  It bridges the upstream `agent-sh/computer-use-linux` Rust MCP server
+  (upstream at v0.7.16) via the in-box `@deepseek-ai/dsh-mcp-client`
+  0.2.0-rc.2 into the `mcp__cul__*` tool surface — `doctor`, `get_app_state`,
+  `list_windows`, `focused_window`, `screenshot`, `click`, `perform_action`,
+  `set_value`, `type_text`, `press_key`, `scroll`, `drag`, window
+  move/resize, `setup_accessibility`, `setup_window_targeting`, plus the
+  bundled `computer-use-linux` skill.
+- **Chosen over two alternatives found in the same search**:
+  `berker-z/hyprhands` (Hyprland-native MCP server; v0.1, single machine,
+  no releases, drag needs ydotool) and `ziggy42/wayland-computer-use-mcp`
+  (weekend project, tested on GNOME only, pointer-only). The winner is the
+  only one that is a DSH bundle with a maintained upstream, compositor-aware
+  window targeting (Hyprland via `hyprctl`), and AT-SPI semantic actions.
+- **Install form: local checkout link.** The package is served from GitHub
+  Packages, and the first registry install failed with
+  `ERR_PNPM_FETCH_404 … No authorization header was set for the request`
+  (classic PAT with `read:packages` needed). Instead:
+  `git clone https://github.com/BruceZhang1993/dsh-computer-use-linux
+  ~/repos/dsh-computer-use-linux` then
+  `dsh plugin --profile web add ~/repos/dsh-computer-use-linux`,
+  which pnpm-links the directory. Profile went from 14 deps / 17 bundles to
+  **15 deps / 18 bundles**; `dshmarket` was **not** re-inserted this time
+  (single occurrence in `dsh.profile.bundles`).
+- **AT-SPI enabled by hand** — on Hyprland nothing owns the accessibility
+  switches, so `gsettings set org.gnome.desktop.interface
+  toolkit-accessibility true` and the D-Bus property
+  `org.a11y.Status IsEnabled = true` were both set directly; both verified
+  as true afterwards. `/dev/uinput` already carries an rw ACL for the user
+  (getfacl shows the user with `rw-`), so ydotool will run without root.
+- **Profile backup re-exported** and re-stripped per the
+  `dsh-market/README.md` flow; privacy grep clean (no `/home/` hits, no
+  username hits). Diff against the previous record: only `createdAt`, the
+  new dependency (`link:$HOME/repos/dsh-computer-use-linux`), the new bundle
+  entry, and plugin-manager log entries — nothing else moved.
+
+### Evidence
+
+- `node scripts/doctor.mjs` (standalone, no DSH needed) downloaded the pinned
+  upstream binary v0.7.13 to `~/.cache/computer-use-linux/plugin/` and
+  reported: Hyprland windowing backend **OK** (`can_query_windows`,
+  `can_focus_apps`, `can_focus_windows` all true), portals **OK**
+  (Screenshot + ScreenCast + input_capture present; the Hyprland portal's
+  RemoteDesktop lacks pointer methods, so clicks route via ydotool),
+  AT-SPI bus present. Blockers recorded: accessibility was off (fixed above)
+  and input tools missing (below).
+- `mcp__cul__screenshot` in a live session captured the full desktop
+  (5640×2880) through `xdg-desktop-portal` — capture verified live, before
+  any restart. This also surfaced the first-run portal consent dialog
+  ("Allow Apps to Take Screenshots?"), left for the user to grant.
+- **Anomaly, recorded as observed**: the `mcp__cul__*` tools were available
+  inside the session that installed the plugin, although the established
+  convention says plugin-provided tools appear only in a session created
+  after the boot that mounted it. Either the surface recomposed or the
+  deployment serves `cul` out of band; not investigated further — flagged
+  so the next verification pass can check which it is.
+
+### Not done
+
+- `wtype` and `ydotool` are **not installed** — pacman needs the user's
+  password: `sudo pacman -S wtype ydotool`. Until then typing has no backend
+  and clicks have no pointer backend (`can_send_development_input: false`).
+- Portal screenshot consent not yet granted by the user.
+- No harness restart yet; bundle layers compose at boot, so a restart is
+  still required for the profile to boot with the plugin permanently.
+- `verify.sh` still absent from the repo — pre-existing gap, unchanged.
+
+## 2026-10-15 — `agent-browser` added to both presets' personas
+
+The machine already had **`agent-browser` 0.38.2** installed globally (global
+npm package, binary `/usr/bin/agent-browser`) — a browser-automation CLI for
+agents (`open`, `snapshot` with click/type `@refs`, `get text|html|title|url`,
+`eval`, `screenshot`, CDP `connect`), found while answering whether a browser
+tool was available. Nothing in the setup recorded it, and no harness tool
+exposes it: it is plain CLI reached through the `bash` tool.
+
+### What changed
+
+- Persona suffix of both presets (`custom` = Productivity Mode, `coding`)
+  now carries a **browser-access paragraph**: that the CLI exists, the main
+  subcommands, when to reach for it (JS-rendered or interactive pages that
+  `web_fetch` cannot handle), its built-in usage guide
+  (`agent-browser skills get core --full`), and `agent-browser close` to
+  release the session. The persona is the seam for this because the tool is
+  a shell binary, not a mounted tool row — the same reason the
+  `run_code`-composition instruction already lives there.
+- Legacy sources edited, then re-frozen per the preset editing flow:
+  `~/.dsh/.agent-presets/{custom,coding}/agent.cordis.yml` →
+  `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs`
+  (patch rewritten, 687 lines) → repo copies re-synced
+  (`agent-presets/*-agent.cordis.yml`, `prompts/*-persona.md`).
+
+### Evidence
+
+- Smoke test (before recording): `agent-browser open https://example.com` →
+  launched a browser on the live display (`DISPLAY=:1`/`wayland-1`), returned
+  `Example Domain`, `snapshot` gave the accessibility tree with refs,
+  `close` released it.
+- Regenerated patch greps 8 `agent-browser` mentions, 4 per preset, inside
+  the `persona` config of both `preset-custom` and `preset-coding` rows.
+- Verified before editing: live legacy files were byte-identical to the repo
+  copies (`diff` clean both presets), so the repo record stayed in step.
+
+### Not done
+
+- No restart yet: the frozen patch composes at boot, so running sessions
+  (including this one) still run without the paragraph; it takes effect on
+  the next `dsh --profile web` restart.
+- `verify.sh` is referenced by `README.md` but is absent from the repo —
+  pre-existing gap, unrelated to this change, recorded here as noticed.
+
+## 2026-10-14 — `dsh-secret-guard` installed (tool-call screening, step 1)
+
+First line of defense of the tool-call screening initiative: a deterministic
+gate that blocks the agent's file tools from touching sensitive files
+(`.env`, credentials, key material) before they execute, and masks
+secret-shaped values in tool results as a fallback — the "don't load API keys
+into context" half of the screening goal. The semantic half (screening every
+tool call through the local Cloudflare **clef-flash** decision model at
+`127.0.0.1:8080/v1/systemone`) is planned next, candidate
+`dsh-jev-interceptor` (market-listed, `provider: custom`); `dsh-decision-layer`
+was evaluated first but rejected because it is **not** in the plugin market
+(absent from `awesome-dsh-plugin.com/plugins.json` and `dsh.directory`).
+
+### Install — from GitHub, deliberately not from npm
+
+```sh
+dsh plugin --profile web add github:JohnXu22786/secret-guard   # → dsh-secret-guard 0.1.0
+```
+
+Installed from the GitHub source the market entry links, **not** the npm
+registry: npm's `dsh-secret-guard@0.1.1` is a *different* plugin by a
+different author (`aazjzkskkw/dsh-secret-guard`, intercepts keys typed into
+shell commands, not market-listed). Same package name, unrelated code —
+running `dsh plugin add dsh-secret-guard` from npm would install the wrong
+one. Recorded here so a future reinstall does not repeat that lookup.
+
+Source was vetted before install: pure-TypeScript, zero-build, no lifecycle
+scripts, MIT; `import type`-only use of `@deepseek-ai/dsh-tools`/`dsh-llm`
+except one runtime import (`defineTool` in `src/inspect.ts`).
+
+### Version exemption (peers pin 0.1.x, runtime is 0.2.0-rc.2)
+
+First `add` was rejected: peers pin `@deepseek-ai/dsh-llm` /
+`@deepseek-ai/dsh-tools` `^0.1.0-rc.6`, and the harness rolled the profile
+back cleanly. Granted the exact-version exemption (`dsh plugin allow-version
+dsh-secret-guard@0.1.0 --dsh-version 0.2.0-rc.2 --accept-risk`) after
+verifying every seam the plugin touches is unchanged in 0.2.0-rc.2:
+
+- `tools/pre-execute` / `tools/post-execute` event names — present (5 refs
+  each across shipped plugins);
+- `PreToolDecision` `kind: 'deny'` shape — present in `dsh-tools` typings;
+- `ctx.tools.register(definition)` and `defineTool` — present, and the
+  plugin's `dsh-tools` import resolves to the host's own 0.2.0-rc.2 copy.
+
+### Verification
+
+- Shipped test suite **77/77 pass** (run from a `/tmp` copy with the host's
+  `@deepseek-ai/*` linked in; Node refuses type-stripping under
+  `node_modules`, which is a test-harness limitation, not a plugin one — the
+  dsh host loads `.ts` with its own loader).
+- Default policy probe (real `PolicyEngine` from the installed copy):
+  `~/.env` → block · `~/.ssh/id_ed25519` → block-read · `~/.aws/credentials`
+  → block · `*.key` → block-read · workspace `README.md` → allow ·
+  `.env.example` → allow (sensible exemption).
+- **Known gap:** `/etc/shadow` (and other system credential files) are *not*
+  covered by the default rules. Fixable with one custom rule in
+  `cordis.patch.yml` config (`rules:`) or the hot-reloadable `rulesFile` —
+  not yet added.
+- **Not yet live:** the running `dsh web` host loads bundle layers at boot,
+  so the gate activates at the next restart. No restart was performed (it
+  would terminate the live session).
+
+### Backup refreshed; drift recorded
+
+`dsh-market/profile-backup.json` re-exported (strip verified: no `/home/`,
+no username). The live profile had drifted from the 2026-10-02 record:
+`@michengai/dsh-skills-manager`, `dsh-better-reasoning-effort` and
+`mattpocock-skills-dsh` were added since, unrecorded — they appear in this
+backup refresh and are noted in `dsh-market/README.md`, not given separate
+entries. Counts: **14 dependencies, 17 bundles** (was 10/12).
+
 ## 2026-10-02 — language-server backends installed
 
 `typescript-language-server` 6.0.0 and `pyright` 1.1.412, both **global npm**

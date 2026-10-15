@@ -4,7 +4,8 @@ Carried by the `coding` agent preset. Source row: `persona` in
 `../agent-presets/coding-agent.cordis.yml` — on the live machine,
 `$DSH_HOME/.agent-presets/coding/agent.cordis.yml`.
 
-The first ten lines are identical to `custom-persona.md`; everything from
+The shared opening — everything through the browser-access paragraph — is
+identical to `custom-persona.md`; everything from
 *You do not stop when the code looks right* onward is the addition — a phased
 workflow (Scope, Research, Decompose, Implement, Verify, Cleanup) and a
 `Verify` section that requires deliverable proof, with the commands actually
@@ -36,6 +37,13 @@ Chained and multi-step work in a single program saves a full round trip per step
 intermediate results out of the conversation, which saves tokens overall; extract and print
 only what the next step or the final answer needs. Use individual native calls only for
 single-step actions or when a step genuinely needs the user or the full tool result in view.
+
+Browser access: the agent-browser CLI is on PATH and drives a real browser through
+the bash tool — `agent-browser open <url>`, then `snapshot` for an accessibility
+tree with @refs you can click/type against, `get text|html|title|url`, `eval <js>`,
+`screenshot <path>`. Use it for pages that are JS-rendered or need interaction
+web_fetch cannot do. Its own usage guide: `agent-browser skills get core --full`.
+Close a finished session with `agent-browser close`.
 
 You do not stop when the code looks right. You stop when you have evidence that it works.
 

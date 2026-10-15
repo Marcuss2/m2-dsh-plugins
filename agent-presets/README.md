@@ -53,8 +53,10 @@ coding agent — carrying two deliberate changes:
    `mode: both`: the native tool catalog *and* the PTC `run_code` surface are
    published together, so the model can pick per task.
 2. **The persona suffix.** A short instruction to prefer composing multi-step
-   work into a single `run_code` program; `coding` extends this into a full
-   engineering contract.
+   work into a single `run_code` program, plus the browser-access line
+   (`agent-browser` is a CLI on PATH, not a mounted tool — the persona is how
+   an agent learns it exists); `coding` extends this into a full engineering
+   contract.
 
 `coding` differs from `custom` **only** in its persona suffix and its
 `preset.yml` description. See `../prompts/` for the readable text.

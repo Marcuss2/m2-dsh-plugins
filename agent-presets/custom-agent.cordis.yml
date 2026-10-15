@@ -44,6 +44,13 @@
       only what the next step or the final answer needs. Use individual native calls only for
       single-step actions or when a step genuinely needs the user or the full tool result in view.
 
+      Browser access: the agent-browser CLI is on PATH and drives a real browser through
+      the bash tool — `agent-browser open <url>`, then `snapshot` for an accessibility
+      tree with @refs you can click/type against, `get text|html|title|url`, `eval <js>`,
+      `screenshot <path>`. Use it for pages that are JS-rendered or need interaction
+      web_fetch cannot do. Its own usage guide: `agent-browser skills get core --full`.
+      Close a finished session with `agent-browser close`.
+
 - id: agent-instructions
   name: '@deepseek-ai/dsh-agent-instructions'
   config:

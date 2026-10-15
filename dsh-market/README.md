@@ -58,15 +58,19 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-10-02T17:38:35.371Z`; 5 files. It was produced with
+Recorded `createdAt 2026-10-14T13:04:54.031Z`; 81 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
+The export shape grew since the 2026-10-02 capture: it now also carries a
+`compatibility.json` and one `pnpm.log` per plugin-manager operation
+(73 at capture). Those logs are operation history, not config; they are kept
+for format fidelity with the export, and the path-strip applies to the whole
+file either way.
 
-**9 dependencies and 11 bundles**, down from 11 and 13 on 2026-09-11:
-`dsh-better-edit` and `dsh-search-failover` uninstalled,
-`@hytime/dsh-thinking-effort` uninstalled, and the user-authored
-`@local/dsh-custom-presets` bundle added (2026-09-28). See the root README's
-*Known constraints* and `CHANGELOG.md`.
+**14 dependencies and 17 bundles**, up from 10 and 12 on 2026-10-02. Added
+since: `@michengai/dsh-skills-manager`, `dsh-better-reasoning-effort`,
+`mattpocock-skills-dsh` (user-installed 2026-10-02…14, not separately
+changelogged), and `dsh-secret-guard` (2026-10-14, see `CHANGELOG.md`).
 
 The export covers the profile directory only, so it carries **no credentials
 and no absolute paths**: `$DSH_HOME/settings.yaml` (model provider, API-key

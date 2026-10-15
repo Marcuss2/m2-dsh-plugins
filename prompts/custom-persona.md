@@ -5,9 +5,10 @@ Carried by the `custom` agent preset. Source row: `persona` in
 `$DSH_HOME/.agent-presets/custom/agent.cordis.yml`.
 
 The default preset for new sessions. Its suffix is short: the working
-directory line plus the instruction to prefer composing multi-step work into
-a single `run_code` program. The `coding` preset takes this same text and
-extends it into a full engineering contract (`coding-persona.md`).
+directory line, the instruction to prefer composing multi-step work into
+a single `run_code` program, and the browser-access line. The `coding`
+preset takes this same text and extends it into a full engineering contract
+(`coding-persona.md`).
 
 Composed by `@deepseek-ai/dsh-persona` as `prefix` + the harness's own
 guidance + `suffix`; `{{model}}` and `{{cwd}}` are substituted per agent.
@@ -28,4 +29,11 @@ Chained and multi-step work in a single program saves a full round trip per step
 intermediate results out of the conversation, which saves tokens overall; extract and print
 only what the next step or the final answer needs. Use individual native calls only for
 single-step actions or when a step genuinely needs the user or the full tool result in view.
+
+Browser access: the agent-browser CLI is on PATH and drives a real browser through
+the bash tool — `agent-browser open <url>`, then `snapshot` for an accessibility
+tree with @refs you can click/type against, `get text|html|title|url`, `eval <js>`,
+`screenshot <path>`. Use it for pages that are JS-rendered or need interaction
+web_fetch cannot do. Its own usage guide: `agent-browser skills get core --full`.
+Close a finished session with `agent-browser close`.
 
