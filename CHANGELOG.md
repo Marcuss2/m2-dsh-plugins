@@ -139,13 +139,24 @@ layer into a new preset.
   against the previous record is only `createdAt` and the removed bundle
   entry.
 
-### Not done
+### Post-restart verification (same day, ~17:50)
 
-- No restart yet. After the next `dsh --profile web` restart the acceptance
-  check is: a new session on **Computer Use** lists the `mcp__cul__*` tools;
-  a session on Productivity Mode does not. Whether the mcp-client row mounts
-  correctly from an agent-plane preset (vs the profile plane it was verified
-  from) is recorded as untested until that session exists.
+- The user restarted the harness. First attempt failed with "did not
+  activate" entries — a collision with the still-running old instance; the
+  second boot succeeded (pid started 17:49:30) and serves this record's
+  session. An alt-port boot test (`dsh --profile web --no-open --port 3399`)
+  showed the preset-scoped mount starting cleanly
+  (`computer-use-linux: using plugin cache …`); its own two "did not
+  activate" entries (`ui-task-board` ledger lock, `secret-guard` import) are
+  second-instance artifacts, not computer-use failures.
+- **Negative acceptance check verified live**: the pre-restart Productivity
+  session's model-facing catalog still listed the `mcp__cul__*` tools
+  mid-session (the anomaly above), and after the restart the recomposed
+  catalog dropped them — this session no longer declares any cul tool. The
+  surface recomposes per request, which is also the mechanism behind the
+  earlier anomaly.
+- **Positive check still open**: a new session on **Computer Use** should
+  list the `mcp__cul__*` tools (call `doctor`). Not yet run by the user.
 
 ## 2026-10-15 — `agent-browser` added to both presets' personas
 
