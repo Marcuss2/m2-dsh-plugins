@@ -8,7 +8,7 @@ Settings: a searchable card UI over the plugin registry with one-click
 install and upgrade of any `dsh.bundle` plugin, plus **Advanced → Backup &
 Restore**, which exports and imports an entire profile as a single JSON file.
 
-Live version here: **1.66.8**.
+Live version here: **1.66.39**.
 
 ## Install
 
@@ -58,7 +58,7 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-10-14T13:04:54.031Z`; 81 files. It was produced with
+Recorded `createdAt 2026-10-18T17:36:17.468Z`; 94 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
 The export shape grew since the 2026-10-02 capture: it now also carries a
@@ -67,10 +67,13 @@ The export shape grew since the 2026-10-02 capture: it now also carries a
 for format fidelity with the export, and the path-strip applies to the whole
 file either way.
 
-**14 dependencies and 17 bundles**, up from 10 and 12 on 2026-10-02. Added
-since: `@michengai/dsh-skills-manager`, `dsh-better-reasoning-effort`,
+**16 dependencies and 18 bundles**, up from 10 and 12 on 2026-10-02. Added
+since that sweep: `@michengai/dsh-skills-manager`, `dsh-better-reasoning-effort`,
 `mattpocock-skills-dsh` (user-installed 2026-10-02…14, not separately
-changelogged), and `dsh-secret-guard` (2026-10-14, see `CHANGELOG.md`).
+changelogged), `dsh-secret-guard` (2026-10-14),
+`@brucezhang1993/dsh-computer-use-linux` (2026-10-15 — a `link:` dependency
+mounted preset-plane, not a bundle), and `dsh-mcp-setting` (2026-10-18, see
+`CHANGELOG.md`).
 
 The export covers the profile directory only, so it carries **no credentials
 and no absolute paths**: `$DSH_HOME/settings.yaml` (model provider, API-key

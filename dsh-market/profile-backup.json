@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-10-15T15:44:00.343Z",
+  "createdAt": "2026-10-18T17:36:17.468Z",
   "profile": "web",
   "files": [
     {
@@ -135,6 +135,16 @@
       ]
     },
     {
+      "path": ".plugin-manager/logs/operation-EcEfAW/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
       "path": ".plugin-manager/logs/operation-G4BmtB/pnpm.log",
       "lines": [
         ""
@@ -172,6 +182,16 @@
       "path": ".plugin-manager/logs/operation-IBGs71/pnpm.log",
       "lines": [
         "Command failed with exit code 1: pnpm updat dshmarket"
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-KoY1hs/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
       ]
     },
     {
@@ -241,6 +261,22 @@
       ]
     },
     {
+      "path": ".plugin-manager/logs/operation-THwwUV/pnpm.log",
+      "lines": [
+        "Command failed with exit code 1: pnpm add -w 'dsh-subagent-workspace-ui@1.10.0' '--reporter=ndjson'"
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-TMXIOv/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
       "path": ".plugin-manager/logs/operation-TWZNf2/pnpm.log",
       "lines": [
         ""
@@ -273,6 +309,16 @@
     {
       "path": ".plugin-manager/logs/operation-WHdOl7/pnpm.log",
       "lines": [
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-WQFsmt/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
         ""
       ]
     },
@@ -335,7 +381,33 @@
       ]
     },
     {
+      "path": ".plugin-manager/logs/operation-djU1IB/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
       "path": ".plugin-manager/logs/operation-fCGUAd/pnpm.log",
+      "lines": [
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-g8UOsf/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-iaOcgL/pnpm.log",
       "lines": [
         ""
       ]
@@ -379,6 +451,16 @@
       ]
     },
     {
+      "path": ".plugin-manager/logs/operation-m75Ncm/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
       "path": ".plugin-manager/logs/operation-nODNej/pnpm.log",
       "lines": [
         ""
@@ -387,6 +469,16 @@
     {
       "path": ".plugin-manager/logs/operation-nbcUIt/pnpm.log",
       "lines": [
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-ohziLl/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
         ""
       ]
     },
@@ -437,6 +529,20 @@
       ]
     },
     {
+      "path": ".plugin-manager/logs/operation-qvjyky/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin @michengai/dsh-skills-manager@1.1.19 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-client-locale\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-client-ui-slots\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-host-webserver\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-session\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-skill\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-tools\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-web-app\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for @michengai/dsh-skills-manager@1.1.19 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin @michengai/dsh-skills-manager@1.1.19 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-client-locale\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-client-ui-slots\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-host-webserver\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-session\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-skill\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-tools\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\",\"@deepseek-ai/dsh-web-app\":\"0.1.2-rc.1 || 0.1.5-rc.1 || 0.1.5-rc.2 || 0.1.5-rc.3 || 0.1.7-rc.1 || 0.1.7-rc.2 || 0.2.0-rc.1 || 0.2.0-rc.2 || 0.2.1-alpha.2\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for @michengai/dsh-skills-manager@1.1.19 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
+        ""
+      ]
+    },
+    {
       "path": ".plugin-manager/logs/operation-qyDtFg/pnpm.log",
       "lines": [
         ""
@@ -451,6 +557,16 @@
     {
       "path": ".plugin-manager/logs/operation-r8yqUP/pnpm.log",
       "lines": [
+        ""
+      ]
+    },
+    {
+      "path": ".plugin-manager/logs/operation-rvOidg/pnpm.log",
+      "lines": [
+        "",
+        "dsh: warning: Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "Plugin dsh-secret-guard@0.1.0 is incompatible with dsh 0.2.1-rc.2: requirements {\"@deepseek-ai/dsh-llm\":\"^0.1.0-rc.6\",\"@deepseek-ai/dsh-tools\":\"^0.1.0-rc.6\"}. Running it may cause crashes or data loss. Update the plugin or install a plugin version compatible with this dsh runtime. To accept this risk explicitly, grant the exact-version exemption for dsh-secret-guard@0.1.0 on dsh 0.2.1-rc.2 with `dsh plugin allow-version` or the plugin manager, then retry the installation or restart dsh. Exact-version exemption: not active.",
+        "dsh: it stays installed but profile startup denies it until you grant an exemption for those exact versions.",
         ""
       ]
     },
@@ -550,8 +666,8 @@
         "- id: agent-default-model",
         "  name: \"@deepseek-ai/dsh-agent-default-model\"",
         "  config:",
-        "    provider: openrouter-custom",
-        "    model: z-ai/glm-5.3-flash",
+        "    provider: synthetic",
+        "    model: hf:zai-org/GLM-5.3-Flash",
         "    reasoningEffort: high",
         "# Default agent preset: the migrated legacy 'custom' preset (Productivity",
         "# Mode). Overrides the web-app bundle's agent-preset-registry row, which sets",
@@ -624,18 +740,58 @@
         "              high: high",
         "              xhigh: xhigh",
         "              max: max",
-        "          - id: moonshotai/kimi-k3",
+        "          - reasoningEffortsAutofilled: 5",
+        "            id: moonshotai/kimi-k3",
         "            name: \"MoonshotAI: Kimi K3\"",
         "            contextWindow: 1048576",
         "            maxTokens: 943718",
+        "            input:",
+        "              - text",
+        "              - image",
         "            reasoningEfforts:",
         "              low: low",
         "              high: high",
         "              max: max",
-        "            reasoningEffortsAutofilled: 5",
+        "          - id: deepseek/deepseek-v4.1-flash-1017",
+        "            name: \"DeepSeek: DeepSeek V4.1 Flash 1017\"",
+        "            contextWindow: 1048576",
+        "            maxTokens: 255000",
         "            input:",
         "              - text",
         "              - image",
+        "            reasoningEfforts:",
+        "              low: low",
+        "              high: high",
+        "              max: max",
+        "      synthetic:",
+        "        apiKeyEnv: SYNTHETIC_API_KEY",
+        "        api: openai-completions",
+        "        baseURL: https://api.synthetic.new/openai/v1",
+        "        models:",
+        "          - id: hf:zai-org/GLM-5.3-Flash",
+        "            name: zai-org/GLM-5.3-Flash",
+        "            contextWindow: 524288",
+        "            input:",
+        "              - text",
+        "              - image",
+        "            reasoningEfforts:",
+        "              low: low",
+        "              high: high",
+        "              max: max",
+        "            compat:",
+        "              supportsDeveloperRole: false",
+        "          - id: hf:moonshotai/Kimi-K3",
+        "            name: moonshotai/Kimi-K3",
+        "            contextWindow: 524288",
+        "            input:",
+        "              - text",
+        "              - image",
+        "            reasoningEfforts:",
+        "              low: low",
+        "              high: high",
+        "              max: max",
+        "            compat:",
+        "              supportsDeveloperRole: false",
         "",
         "# Engine selection for dsh-free-search (installed 2026-10-02). This machine",
         "# uses Exa; the plugin's own bundle layer ships provider: bing, which would",
@@ -655,12 +811,17 @@
         "  config:",
         "    enabled: true",
         "    allowedModels:",
-        "      - provider: openrouter-custom",
-        "        model: z-ai/glm-5.3-flash",
+        "      - provider: synthetic",
+        "        model: hf:zai-org/GLM-5.3-Flash",
         "- id: subagent",
         "  name: \"@deepseek-ai/dsh-subagent\"",
         "  config:",
         "    maxDepth: 3",
+        "- id: web",
+        "  name: \"@deepseek-ai/dsh-web\"",
+        "  config:",
+        "    searchProvider: ddg",
+        "    fetchProvider: fs-quality-fetch",
         ""
       ]
     },
@@ -682,18 +843,19 @@
         "dependencies": {
           "@brucezhang1993/dsh-computer-use-linux": "link:$HOME/repos/dsh-computer-use-linux",
           "@linxin666/dsh-client-ui-git-graph": "^0.3.20",
-          "@linxin666/dsh-client-ui-task-board": "0.4.6",
+          "@linxin666/dsh-client-ui-task-board": "0.4.7",
           "@local/dsh-custom-presets": "link:$HOME/dsh-custom-presets",
-          "@michengai/dsh-skills-manager": "1.1.19",
+          "@michengai/dsh-skills-manager": "1.2.6",
           "@vectorize-io/hindsight-coding-agents": "0.8.1",
           "dsh-better-reasoning-effort": "0.5.3",
-          "dsh-better-sidebar": "0.26.0",
-          "dsh-context": "0.70.0",
-          "dsh-free-search": "0.8.10",
-          "dsh-lsp-actions": "0.5.12",
+          "dsh-better-sidebar": "0.28.0",
+          "dsh-context": "0.73.1",
+          "dsh-free-search": "0.9.4",
+          "dsh-lsp-actions": "0.5.15",
+          "dsh-mcp-setting": "^0.1.5",
           "dsh-secret-guard": "github:JohnXu22786/secret-guard",
           "dsh-subagent-workspace-ui": "^1.3.3",
-          "dshmarket": "1.66.21",
+          "dshmarket": "1.66.39",
           "mattpocock-skills-dsh": "0.1.8"
         },
         "dsh": {
@@ -711,11 +873,12 @@
               "dshmarket",
               "@local/dsh-custom-presets",
               "dsh-free-search",
-              "@deepseek-ai/dsh-experimental-schedule-bundle",
               "dsh-better-reasoning-effort",
               "mattpocock-skills-dsh",
               "@michengai/dsh-skills-manager",
-              "dsh-secret-guard"
+              "dsh-secret-guard",
+              "@deepseek-ai/dsh-experimental-agent-team-profile",
+              "dsh-mcp-setting"
             ]
           }
         }
@@ -881,9 +1044,10 @@
         "  - dsh-better-edit@0.8.1",
         "  - dsh-better-sidebar",
         "  - dshmarket",
-        "  - '@michengai/dsh-skills-manager@1.1.18 || 1.1.19'",
+        "  - '@michengai/dsh-skills-manager@1.1.18 || 1.1.19 || 1.2.6'",
         "  - dsh-better-reasoning-effort@0.5.3",
-        "  - dsh-free-search@0.8.10",
+        "  - dsh-free-search@0.8.10 || 0.9.4",
+        "  - dsh-lsp-actions@0.5.15",
         ""
       ]
     }

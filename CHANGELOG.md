@@ -9,6 +9,68 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-18 — `dsh-mcp-setting` installed (Settings GUI for MCP server rows)
+
+The user asked for a settings GUI to manage MCP servers directly in dsh web.
+The canonical model is unchanged — one MCP server is one
+`@deepseek-ai/dsh-mcp-client` row in a `cordis.patch.yml` (home or
+per-profile) or in an agent preset's config list — but the bundled Settings UI
+has no MCP page, so row editing was hand-YAML only.
+
+### What changed
+
+- **`dsh-mcp-setting` 0.1.5 installed into the `web` profile** via
+  `dsh plugin --profile web add dsh-mcp-setting` (exit 0, +2 packages). It
+  adds Settings → **MCP Servers**: list/add/edit/delete/toggle
+  `@deepseek-ai/dsh-mcp-client` rows across the home patch
+  (`~/.dsh/cordis.patch.yml`, created on first add) and per-profile patch
+  files, with live status badges, contract validation (id/serverName rules,
+  stdio⇒command, streamable-http⇒url), atomic `.bak` writes, and
+  loopback-only write access. Profile went **15 deps / 17 bundles →
+  16 deps / 18 bundles**.
+- **Chosen over `@xxxyz/dsh-mcp-manager` 2.2.7** (richer: HTTP API,
+  `mcp_manager_*` model tools, skills page): its peer
+  `@deepseek-ai/dsh-tools ^0.1.2-rc.1` does not satisfy this runtime's
+  dsh-tools 0.2.1-rc.2 (checked with `semver.satisfies`,
+  `includePrerelease: true` → false), so DSH's
+  `evaluatePluginCompatibility` would refuse it without a version exemption.
+  `dsh-mcp-setting`'s peers (`^0.2.0-rc.2`) are satisfied by the
+  0.2.1-rc.2 runtime; the install produced no compatibility warning for it
+  (the `dsh-secret-guard` warning is pre-existing, unchanged).
+- **Version-currency drift corrected in `README.md` while touching it:**
+  Harness 0.2.0-rc.2 → 0.2.1-rc.2 (verified via `dsh --version` and the
+  dsh-app-boot package version), dshmarket 1.66.21 → 1.66.39,
+  dsh-free-search 0.6.5 → 0.9.4, and the default-model row updated to the
+  `synthetic` provider row the patch layer actually sets.
+
+### Evidence
+
+- `dsh --profile web --dump-config` shows the mounted row
+  (`- id: dsh-mcp-setting / name: dsh-mcp-setting`); `--dump-config-schema`
+  declares its schema.
+- **No restart was needed**: dsh-hmr is enabled for this profile
+  (`disabled: !!js '!ctx.get('profileContext')'`), and the new bundle layer
+  hot-mounted in the already-running host. The dsh-market README's "bundle
+  layers compose at boot" guidance describes the no-HMR case.
+- GUI verified end-to-end with agent-browser against the running host:
+  Settings → **MCP Servers** renders the add form (row id, serverName,
+  stdio/streamable-http, command/args/cwd/env) and reports "No MCP servers
+  configured yet" — correct, because the only MCP server here (`cul`) is
+  preset-scoped, so its row lives in the preset config, not a patch file.
+- **How the GUI was reached for verification**: the web GUI authenticates via
+  a signed cookie (`dsh-auth-<sha256(authority)>`, payload
+  `{version, authority, issuedAt, expiresAt}`, HMAC-SHA256 over the
+  base64url body) keyed by the browser-session grant secret in
+  `~/.dsh/.credentials.yaml`. A cookie was minted locally for authority
+  `127.0.0.1:3080` (1-day expiry) and injected into agent-browser; the
+  secret was never printed or persisted. Only works with local file access to
+  `$DSH_HOME` — the same trust domain as the harness itself. Reusable
+  technique for future live-GUI verification.
+- **Profile backup re-exported** per the dsh-market flow:
+  `createdAt 2026-10-18T17:36:17.468Z`, 94 files (was 81), 16 deps / 18
+  bundles, `dsh-mcp-setting ^0.1.5` present in both dependencies and
+  `dsh.profile.bundles`; privacy grep clean.
+
 ## 2026-10-15 — `@brucezhang1993/dsh-computer-use-linux` installed (computer use for Hyprland)
 
 Searched for a "computer use" plugin so the agent can operate GUI surfaces

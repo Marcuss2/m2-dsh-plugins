@@ -13,15 +13,16 @@ which versions.
 
 | | |
 | --- | --- |
-| Harness | `@deepseek-ai/dsh` **0.2.0-rc.2** (global npm install) |
+| Harness | `@deepseek-ai/dsh` **0.2.1-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **15 dependencies, 17 ordered bundles** |
+| Profile | `web` — **16 dependencies, 18 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode** |
-| Default model | `z-ai/glm-5.3-flash` on provider `openrouter-custom` |
-| Web search | `dsh-free-search` 0.6.5, engine **`exa`**, keyless |
-| Plugin market | `dshmarket` **1.66.21** |
+| Default model | `hf:zai-org/GLM-5.3-Flash` on provider `synthetic` |
+| Web search | `dsh-free-search` 0.9.4, engine **`exa`**, keyless |
+| Plugin market | `dshmarket` **1.66.39** |
+| MCP 管理 | `dsh-mcp-setting` 0.1.5 — Settings → **MCP Servers** |
 
-Last recorded **2026-10-15**. What changed, and when, is in `CHANGELOG.md`.
+Last recorded **2026-10-18**. What changed, and when, is in `CHANGELOG.md`.
 
 ## Where settings live now
 
@@ -47,7 +48,7 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 | Tool | Version | Backs | Why it matters here |
 | --- | --- | --- | --- |
 | `@deepseek-ai/dsh` | 0.2.0-rc.2 | everything | the harness itself |
-| `dshmarket` (profile dep) | 1.66.8 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
+| `dshmarket` (profile dep) | 1.66.39 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
 | `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
 | `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
 | `rust-analyzer` | system | `dsh-lsp-actions` | already present |
@@ -117,6 +118,17 @@ The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
   the first-run portal screenshot consent, and a harness restart — after
   which a session on **Computer Use** must show the `mcp__cul__*` tools and
   a session on Productivity Mode must not.
+
+### MCP servers (Settings GUI)
+
+`dsh-mcp-setting` 0.1.5 (added 2026-10-18) adds Settings → **MCP Servers**: a
+GUI over the canonical MCP configuration — the `@deepseek-ai/dsh-mcp-client`
+rows in the patch layers. It lists, adds, edits, deletes and toggles rows in
+the home patch (`~/.dsh/cordis.patch.yml`, all profiles) and the per-profile
+`cordis.patch.yml` files; toggles write the `disabled` flag and hot-apply via
+config live reload, no restart. The `cul` server does **not** appear there:
+it is scoped to the `computeruse` preset, so its row lives in the preset
+config, not in a patch file — preset-plane mounts stay preset-plane.
 
 ## Contents
 
