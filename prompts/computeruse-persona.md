@@ -1,24 +1,27 @@
 # Computer Use — persona prompt
 
 Carried by the `computeruse` agent preset. Source row: `persona` in
-`../agent-presets/computeruse-agent.cordis.yml` — on the live machine,
-`$DSH_HOME/.agent-presets/computeruse/agent.cordis.yml`.
+`../agent-presets/computeruse-agent.cordis.yml` — byte-identical to the live
+source at
+`/home/vrbkam/dsh-custom-presets/legacy-agent-presets-pre-rc2/computeruse/agent.cordis.yml`,
+which the generator freezes into `@local/dsh-custom-presets`' `cordis.patch.yml`.
 
 The desktop-automation preset. Its suffix is `custom`'s (Productivity Mode)
 with one more paragraph — the computer-use guidance for the `mcp__cul__*`
 tools, which mount in this preset and nowhere else. The prefix is identical.
 
 Composed by `@deepseek-ai/dsh-persona` as `prefix` + the harness's own
-guidance + `suffix`; `{{model}}` and `{{cwd}}` are substituted per agent.
-The sections below are verbatim, ready to paste back into the row.
+guidance + `suffix`; `{{model}}` is the only prompt variable the loop
+registers, so it is the only one substituted per agent. There is no `{{cwd}}`
+— the working directory arrives as required runtime context, and a `{{cwd}}`
+reference fails prompt assembly. The sections below are verbatim, ready to
+paste back into the row.
 
 ## prefix
 
 You are a coding agent powered by the {{model}} model.
 
 ## suffix
-
-Your working directory is {{cwd}}.
 
 Prefer programmatic tool calls: when a task needs several tool steps — multiple reads or
 searches, a call whose result feeds the next call, batch edits, or any fan-out — compose

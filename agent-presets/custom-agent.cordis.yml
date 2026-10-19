@@ -1,11 +1,16 @@
-# The `custom` agent preset: the standard coding agent, presented in BOTH mode.
+# The `custom` agent preset: the standard coding agent, in PTC tool presentation.
 #
-# A user-authored copy of the shipped `standard` preset. The single deliberate
-# change is the `tool-presentation` row appended at the end: `mode: both`
-# publishes the native tool catalog AND the PTC `run_code` surface together, so
-# the model can choose per task — plain native calls for simple steps, one
-# model-authored TypeScript program (the PTC SDK) to compose multi-step work
-# into a single round trip.
+# A user-authored copy of the shipped `standard` preset. Two deliberate
+# changes:
+#
+#   1. The `tool-presentation` row appended at the end selects `mode: ptc`:
+#      the model sees only the `run_code` transport plus the generated SDK,
+#      and the native tool schemas are NOT listed. (`native` and `ptc` are
+#      the only accepted values; the earlier `both` mode was removed.)
+#   2. The persona suffix drops `Your working directory is {{cwd}}.` — the
+#      loop registers only `provider` and `model` as prompt variables, so
+#      `{{cwd}}` no longer resolves and would fail prompt assembly. The
+#      working directory arrives as required runtime context instead.
 #
 # This file is an AGENT-PLANE composition. The roster mounts it ONCE under a
 # standing scope; every session naming it joins by scope parentage, so the
@@ -27,15 +32,15 @@
 # ── identity ────────────────────────────────────────────────────────────────
 
 # The preset's own persona, shadowing the deployment default for this agent.
-# `{{model}}` and `{{cwd}}` resolve from the agent's own route and workspace.
+# `{{model}}` is registered by the loop and resolves from the agent's own
+# route; the working directory arrives as runtime context, so no `{{cwd}}`
+# line belongs in the suffix.
 - id: persona
   name: '@deepseek-ai/dsh-persona'
   config:
     prefix: >-
       You are a coding agent powered by the {{model}} model.
     suffix: |
-      Your working directory is {{cwd}}.
-
       Prefer programmatic tool calls: when a task needs several tool steps — multiple reads or
       searches, a call whose result feeds the next call, batch edits, or any fan-out — compose
       them into ONE run_code program instead of issuing them as separate native tool calls.
@@ -276,12 +281,12 @@
 
 # ── presentation ────────────────────────────────────────────────────────────
 
-# BOTH mode for this agent: the native tool catalog stays listed, and PTC mode's
-# `run_code` composition surface runs beside it. The row waits for the host's
-# `codeRuntime` rather than assuming it — a deployment that composes no
+# PTC mode for this agent: the model sees only the `run_code` transport plus
+# the generated SDK; native tool schemas are not listed. The row waits for the
+# host's `codeRuntime` rather than assuming it — a deployment that composes no
 # TypeScript runtime fails this preset at mount, naming this id, instead of at
 # the first request.
 - id: tool-presentation
   name: '@deepseek-ai/dsh-agent-tool-presentation'
   config:
-    mode: both
+    mode: ptc

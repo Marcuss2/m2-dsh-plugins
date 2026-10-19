@@ -16,13 +16,13 @@ which versions.
 | Harness | `@deepseek-ai/dsh` **0.2.1-rc.2** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
 | Profile | `web` — **16 dependencies, 18 ordered bundles** |
-| Default agent preset | `custom` — **Productivity Mode** |
-| Default model | `hf:zai-org/GLM-5.3-Flash` on provider `synthetic` |
-| Web search | `dsh-free-search` 0.9.4, engine **`exa`**, keyless |
+| Default agent preset | `custom` — **Productivity Mode**, PTC tool presentation (`run_code` + generated SDK) |
+| Default model | `deepseek/deepseek-v4.1-flash-1017` on provider `openrouter-custom`, reasoning effort `high` |
+| Web search | `dsh-free-search` 0.9.7, engine **`exa`**, keyless |
 | Plugin market | `dshmarket` **1.66.39** |
 | MCP 管理 | `dsh-mcp-setting` 0.1.5 — Settings → **MCP Servers** |
 
-Last recorded **2026-10-18**. What changed, and when, is in `CHANGELOG.md`.
+Last recorded **2026-10-19**. What changed, and when, is in `CHANGELOG.md`.
 
 ## Where settings live now
 
@@ -47,13 +47,13 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 
 | Tool | Version | Backs | Why it matters here |
 | --- | --- | --- | --- |
-| `@deepseek-ai/dsh` | 0.2.0-rc.2 | everything | the harness itself |
+| `@deepseek-ai/dsh` | 0.2.1-rc.2 | everything | the harness itself |
 | `dshmarket` (profile dep) | 1.66.39 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
 | `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
 | `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
 | `rust-analyzer` | system | `dsh-lsp-actions` | already present |
 | `clangd` | system | `dsh-lsp-actions` | already present |
-| `agent-browser` | 0.38.2 | persona of both presets | browser automation CLI, driven through the `bash` tool — see below |
+| `agent-browser` | 0.38.2 | persona of all three presets | browser automation CLI, driven through the `bash` tool — see below |
 | `@brucezhang1993/dsh-computer-use-linux` | 0.1.1 (profile link dep) | the `computeruse` preset | Linux computer use MCP bridge (`mcp__cul__*` tools) — see below |
 | `computer-use-linux` (upstream binary) | 0.7.13, pinned by the plugin | `mcp__cul__*` tools | Rust MCP server, cached at `~/.cache/computer-use-linux/plugin/` |
 | `wtype`, `ydotool` | **not yet installed** | `mcp__cul__type_text` / `mcp__cul__click` | Wayland input synthesis — `pacman -S wtype ydotool` |
@@ -78,8 +78,9 @@ rather than on the next boot.
 `agent-browser` (global npm package, binary `/usr/bin/agent-browser`) is the
 same shape of thing from the other side: a browser-automation CLI the agent
 reaches through the `bash` tool. No plugin backs it and none is needed —
-unlike the language servers there is no harness tool to discover it, so both
-presets tell the agent it exists in their persona suffix (added 2026-10-15).
+unlike the language servers there is no harness tool to discover it, so all
+three presets tell the agent it exists in their persona suffix (added
+2026-10-15).
 Smoke-tested live: `open` → `get title` → `snapshot` against
 `https://example.com`, then `close`.
 
@@ -197,7 +198,8 @@ entry to `CHANGELOG.md`** in the same task:
 - **Profile change** — a plugin added, upgraded, removed, or a patch-layer row
   toggled → re-export the backup and re-strip it (`dsh-market/README.md` →
   *Recording a fresh export*).
-- **Preset change** → edit the legacy source, re-run the generator, re-copy
-  `agent-presets/` and refresh `prompts/`.
+- **Preset change** → edit the legacy source, re-run the generator, check
+  `dsh --profile web --dump-config`, then re-copy `agent-presets/` (byte-identical
+  to the live sources) and refresh `prompts/`.
 - **Settings change** → these are patch rows now; the backup records them, so
   re-export and correct the table above.

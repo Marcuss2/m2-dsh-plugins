@@ -9,6 +9,87 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-19 — preset record refreshed for 0.2.1-rc.2 (PTC mode, no `{{cwd}}`); docs drift corrected
+
+The user asked for the latest configuration to be committed and pushed, noting
+that the upstream record still described an older version. It did: `HEAD` still
+documented `tool-presentation: mode: both` and a `Your working directory is
+{{cwd}}.` persona line, both of which DSH 0.2.1-rc.2 rejects, while the live
+sources had only been half-sed'd on 2026-10-18 — the `mode:` rows were flipped
+to `ptc`, but the surrounding prose, the persona line, and the preset
+descriptions still promised the old shape.
+
+### What changed
+
+- **Preset sources cleaned and re-synced.** `agent-presets/*-agent.cordis.yml`
+  and `*-preset.yml` are byte-identical to the live sources again. Removed the
+  sed casualty `# ptc in the persona at the top:` (restored `both`), the
+  dangling `# ... the working directory arrives` comment, the `BOTH mode`
+  presentation prose, and the `Your working directory is {{cwd}}.` suffix line.
+  The comments now state what the rows do: `mode: ptc` publishes `run_code`
+  plus the generated SDK and does **not** list native schemas.
+- **Preset card descriptions corrected** for `custom` and `coding`, which still
+  read "native tool catalog + PTC run_code side by side". Regenerated
+  `cordis.patch.yml` and installed it by atomic rename; `dsh --profile web
+  --dump-config` (exit 0) shows the corrected text in the effective config.
+  No restart: HMR is on for this profile.
+- **Generator refreshed and improved.** The repo copy was stale — it still read
+  `$DSH_HOME/.agent-presets` and lacked the rc.2 transforms. It is now
+  byte-identical to the live one, which also collapses the blank-line runs left
+  where it strips the legacy commentary (installed patch 1042 → 696 lines,
+  whitespace only).
+- **Prompts brought in step.** `prompts/*-persona.md` no longer carry the
+  `{{cwd}}` line or claim that `{{cwd}}` is substituted; they name the real
+  live source paths and note that `{{model}}` is the only loop-registered
+  variable. `prompts/README.md` and `agent-presets/README.md` likewise
+  (including the 0.2.1-rc.2 shipped-preset paths in the maintenance note).
+- **Root README drift corrected:** default model row
+  (`openrouter-custom` / `deepseek/deepseek-v4.1-flash-1017`, reasoning effort
+  `high` — not the recorded `synthetic` / GLM-5.3-Flash), `dsh-free-search`
+  0.9.4 → 0.9.7, the harness row in the machine-tooling table 0.2.0-rc.2 →
+  0.2.1-rc.2, "persona of both presets" → all three, and the recording date.
+- **Profile backup re-exported** with `createProfileBackup('web')` and
+  path-strip: `createdAt 2026-10-19T18:08:01.792Z`, 101 files (95
+  `pnpm.log` + 6 config), 16 dependencies / 18 bundles — counts unchanged,
+  version pins current (`dsh-free-search` 0.9.4→0.9.7, `dsh-context`
+  0.73.1→0.73.3, `dsh-skills-manager` 1.2.6→1.2.8,
+  `dsh-better-reasoning-effort` 0.5.3→0.5.4).
+
+### Evidence
+
+- `dsh-agent-tool-presentation` 0.2.1-rc.2 schema:
+  `mode: z.union(["native", "ptc"]).required()` — `both` is gone, and its
+  README documents exactly those two values.
+- `dsh-system-prompt/README.md`: "Custom persona templates must not depend on a
+  built-in `{{cwd}}` variable: the loop does not register it, so unresolved
+  references fail prompt assembly before any model request." Only `provider`
+  and `model` are loop-supplied.
+- Shipped presets checked at
+  `node_modules/@deepseek-ai/dsh-web-app/presets/{standard,ptc}.patch.yml`:
+  `standard` is native-only with a bare `present` row; `ptc` pairs
+  `tool-presentation` (`mode: ptc`) with `present`; both personas carry only a
+  prefix, no suffix.
+- Regeneration check: sources + generator copied to a scratch directory and run
+  there; `diff` against the previously installed `cordis.patch.yml` showed only
+  the two corrected description lines (blank lines ignored). After the atomic
+  install, `diff -q` reports no delta against the regenerated file, and the
+  installed patch parses (`--dump-config` exit 0).
+- Prompt extract check: each `prompts/*-persona.md` `## suffix` block compares
+  equal to its preset's `persona.config.suffix` (custom 1090 chars, coding
+  6866, computeruse 1942).
+- Backup strip verified: `grep -E "$(whoami)|/home/"` over
+  `dsh-market/profile-backup.json` prints nothing.
+- No harness restart was performed; the running host keeps serving sessions
+  (including the one that made these edits).
+
+### Left unchanged
+
+- `dsh-secret-guard` still reports its pre-existing incompatibility
+  (`requirements @deepseek-ai/dsh-llm ^0.1.0-rc.6`) on 0.2.1-rc.2. Unrelated to
+  this refresh.
+- The web profile's patch layer and its `minimumReleaseAgeExclude` residue were
+  not touched.
+
 ## 2026-10-18 — `dsh-mcp-setting` installed (Settings GUI for MCP server rows)
 
 The user asked for a settings GUI to manage MCP servers directly in dsh web.

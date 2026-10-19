@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const HOME = process.env.HOME;
-const legacyRoot = path.join(HOME, ".dsh", ".agent-presets");
+const legacyRoot = path.join(__dirname, "legacy-agent-presets-pre-rc2");
 const here = __dirname;
 
 // One substitution for the removed package (dropped in 0.1.7-rc.2):
@@ -54,7 +54,11 @@ function presetDecl(card, entryText) {
 }
 
 function substitute(card, indented) {
-  let out = indented;
+  let out = indented
+    // rc.2 registers only provider/model as prompt variables: cwd now arrives
+    // via required runtime context, and tool-presentation mode "both" is gone.
+    .replace(/^ *Your working directory is \{\{cwd\}\}\.\n\n?/m, "")
+    .replace(/^( *mode:) both$/m, "$1 ptc");
   for (let i = 0; i < SUBST.from.length; i++) {
     if (!out.includes(SUBST.from[i])) throw new Error(`card '${card}': expected the removed row line, not found: ${SUBST.from[i]}`);
     out = out.replace(SUBST.from[i], SUBST.to[i]);
@@ -70,6 +74,7 @@ for (const [dir, override] of [["custom", { name: "Productivity Mode" }], ["codi
     ...Object.fromEntries(["name", "description"].map(k => [k, field(fs.readFileSync(path.join(legacyRoot, dir, "preset.yml"), "utf8"), k)])),
     ...override,
   };
+  card.description = card.description.replace(/both-mode/g, "ptc-mode");
   for (const k of ["name", "description"]) card[k] = JSON.stringify(card[k]);
   cards.push(card);
 }
@@ -99,7 +104,11 @@ const patch = [
   "# profile patch, while this file is loader-edited by decl id.",
   "#",
   ...decls.flatMap(d => [d, ""]),
-].join("\n");
+]
+  .join("\n")
+  // Stripping the legacy files' commentary leaves runs of empty lines; collapse
+  // them so the generated file stays readable.
+  .replace(/\n{3,}/g, "\n\n");
 
 fs.writeFileSync(path.join(here, "cordis.patch.yml"), patch);
 console.log("cordis.patch.yml written,", patch.split("\n").length, "lines");

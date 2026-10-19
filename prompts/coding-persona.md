@@ -1,8 +1,10 @@
 # Coding mode — persona prompt
 
 Carried by the `coding` agent preset. Source row: `persona` in
-`../agent-presets/coding-agent.cordis.yml` — on the live machine,
-`$DSH_HOME/.agent-presets/coding/agent.cordis.yml`.
+`../agent-presets/coding-agent.cordis.yml` — byte-identical to the live
+source at
+`/home/vrbkam/dsh-custom-presets/legacy-agent-presets-pre-rc2/coding/agent.cordis.yml`,
+which the generator freezes into `@local/dsh-custom-presets`' `cordis.patch.yml`.
 
 The shared opening — everything through the browser-access paragraph — is
 identical to `custom-persona.md`; everything from
@@ -19,16 +21,17 @@ RFC-2119 keyword soup do not exist here and were dropped rather than
 translated.
 
 Composed by `@deepseek-ai/dsh-persona` as `prefix` + the harness's own
-guidance + `suffix`; `{{model}}` and `{{cwd}}` are substituted per agent.
-The two sections below are verbatim, ready to paste back into the row.
+guidance + `suffix`; `{{model}}` is the only prompt variable the loop
+registers, so it is the only one substituted per agent. There is no `{{cwd}}`
+— the working directory arrives as required runtime context, and a `{{cwd}}`
+reference fails prompt assembly. The two sections below are verbatim, ready to
+paste back into the row.
 
 ## prefix
 
 You are a coding agent powered by the {{model}} model.
 
 ## suffix
-
-Your working directory is {{cwd}}.
 
 Prefer programmatic tool calls: when a task needs several tool steps — multiple reads or
 searches, a call whose result feeds the next call, batch edits, or any fan-out — compose

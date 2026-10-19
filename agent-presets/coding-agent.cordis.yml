@@ -1,4 +1,4 @@
-# The `coding` agent preset: the `custom` preset (standard coding agent, BOTH
+# The `coding` agent preset: the `custom` preset (standard coding agent, PTC
 # tool presentation) carrying an oh-my-pi-style engineering contract.
 #
 # A user-authored derivative of the `custom` preset. Two deliberate changes,
@@ -21,10 +21,9 @@
 # exist here and were dropped rather than translated.
 #
 # Everything below the persona is UNCHANGED from `custom`, including the
-# `tool-presentation` row at the end. `mode: both` publishes the native tool
-# catalog AND the PTC `run_code` surface together, so the model can choose per
-# task — plain native calls for simple steps, one model-authored TypeScript
-# program (the PTC SDK) to compose multi-step work into a single round trip.
+# `tool-presentation` row at the end (`mode: ptc`), so this preset inherits the
+# same PTC presentation: `run_code` plus its generated SDK, with no native tool
+# schemas listed.
 #
 # This file is an AGENT-PLANE composition. The roster mounts it ONCE under a
 # standing scope; every session naming it joins by scope parentage, so the
@@ -46,15 +45,15 @@
 # ── identity ────────────────────────────────────────────────────────────────
 
 # The preset's own persona, shadowing the deployment default for this agent.
-# `{{model}}` and `{{cwd}}` resolve from the agent's own route and workspace.
+# `{{model}}` is registered by the loop and resolves from the agent's own
+# route; the working directory arrives as runtime context, so no `{{cwd}}`
+# line belongs in the suffix.
 - id: persona
   name: '@deepseek-ai/dsh-persona'
   config:
     prefix: >-
       You are a coding agent powered by the {{model}} model.
     suffix: |
-      Your working directory is {{cwd}}.
-
       Prefer programmatic tool calls: when a task needs several tool steps — multiple reads or
       searches, a call whose result feeds the next call, batch edits, or any fan-out — compose
       them into ONE run_code program instead of issuing them as separate native tool calls.
@@ -350,12 +349,12 @@
 
 # ── presentation ────────────────────────────────────────────────────────────
 
-# BOTH mode for this agent: the native tool catalog stays listed, and PTC mode's
-# `run_code` composition surface runs beside it. The row waits for the host's
-# `codeRuntime` rather than assuming it — a deployment that composes no
+# PTC mode for this agent: the model sees only the `run_code` transport plus
+# the generated SDK; native tool schemas are not listed. The row waits for the
+# host's `codeRuntime` rather than assuming it — a deployment that composes no
 # TypeScript runtime fails this preset at mount, naming this id, instead of at
 # the first request.
 - id: tool-presentation
   name: '@deepseek-ai/dsh-agent-tool-presentation'
   config:
-    mode: both
+    mode: ptc
