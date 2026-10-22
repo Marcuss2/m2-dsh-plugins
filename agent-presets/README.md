@@ -83,10 +83,11 @@ coding agent — carrying two deliberate changes:
    only accepted values; the `both` mode these presets used before DSH
    0.2.1-rc.2 was removed and fails the row's schema.)
 2. **The persona suffix.** A short instruction to prefer composing multi-step
-   work into a single `run_code` program, plus the browser-access line
+   work into a single `run_code` program, the browser-access line
    (`agent-browser` is a CLI on PATH, not a mounted tool — the persona is how
-   an agent learns it exists); `coding` extends this into a full engineering
-   contract.
+   an agent learns it exists), and the **Ask before you guess** paragraph that
+   names `ask_user_question` as the channel for user-owned decisions; `coding`
+   extends this into a full engineering contract.
 
 Neither suffix references `{{cwd}}`: the loop registers only `provider` and
 `model`, an unresolved variable fails prompt assembly before any model request,
@@ -94,6 +95,13 @@ and the working directory arrives as required runtime context.
 
 `coding` differs from `custom` **only** in its persona suffix and its
 `preset.yml` description. See `../prompts/` for the readable text.
+
+The **Ask before you guess** paragraph is carried verbatim by all three presets.
+It exists because models were observed ignoring `ask_user_question` — answering
+in prose or guessing silently — and under `mode: ptc` there is no native tool
+schema to reinforce it, so the persona is the only place that names the tool.
+Keep the paragraph byte-identical across presets, and keep its wording aligned
+with `../prompts/plan-mode.md`, which governs asking while in plan mode.
 
 ## Editing a preset
 

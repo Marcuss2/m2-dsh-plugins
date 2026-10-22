@@ -9,6 +9,75 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-10-22 — persona revised: `ask_user_question` encouraged everywhere; coding contract de-duplicated
+
+The user asked for the persona prompt to be revised, naming one concrete
+problem: models were ignoring `ask_user_question`. That is not a wording
+preference — under `mode: ptc` the model sees no native tool schemas at all,
+so the persona is the only place the tool can be advertised and legitimised.
+A separate GLM-5.3-Flash review of the draft found additional defects, recorded
+below as they were fixed.
+
+### What changed
+
+- **New shared paragraph, "Ask before you guess"** — carried verbatim by
+  all three presets (`custom`, `coding`, `computeruse`). It names
+  `ask_user_question`, shows the PTC call shape
+  (`await tools.ask_user_question({ questions: [...] })`), lists the trigger
+  classes (user-owned decisions, material ambiguity, irreversible/destructive
+  steps, unreachable credentials), and states the anti-triggers (never ask what
+  inspection can answer, never re-ask what the request already stated, never
+  spend a question on "should I proceed?"). Trigger vocabulary is deliberately
+  the same words `prompts/plan-mode.md` uses, so the two rules cannot
+  contradict each other.
+- **Placement.** In `coding` it sits directly under the thesis line ("You do
+  not stop when the code looks right…") — the highest-salience block of the
+  suffix. In `custom` and `computeruse` it follows the browser-access
+  paragraph, before the computer-use paragraph.
+- **`coding`: latent contradiction fixed.** `Verify` said "reproduce the
+  failure first"; `Engineering` said a user's failure report is ground truth
+  and must not be re-run. Both could not be satisfied. The bug-fix bullet now
+  says reproduce to *build the regression check*, not to re-confirm a report
+  you were already given.
+- **`coding`: one rule, one home.** The near-duplicate "Scope" bullet in
+  `Verify` folded into "Consistency and blast radius"; the standalone
+  "Verification is not paranoia…" paragraph merged into the `Engineering`
+  ground-truth bullet; "Evidence, not confidence" and "match the format the ask
+  implies" cut as restatements.
+- **`computeruse`: cul paragraph tightened.** Its "confirm with the user before
+  clicking anything that submits, deletes, sends, purchases, or overwrites data"
+  is now covered by the shared destructive-step trigger; it now points back at
+  it. The click-specific "never click consent or permission dialogs yourself"
+  rule is retained.
+- **Docs in step.** `prompts/README.md` gains the missing
+  `computeruse-persona.md` row and an "Ask before you guess" section explaining
+  why the paragraph exists and that it must stay aligned with `plan-mode.md`.
+  `agent-presets/README.md` describes the revised suffix.
+
+### Evidence
+
+- `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs` regenerated the
+  bundle: 734 lines, and re-running it produced a byte-identical file
+  (`md5 e050ba45a6dca958ff6f44261754d106` twice) — regeneration stays
+  idempotent.
+- `dsh --profile web --dump-config` exits **0**, and the assembled effective
+  config carries the new paragraph once per preset (3 occurrences of
+  "Ask before you guess"). The `@local/dsh-custom-presets` dependency is a
+  `link:`, so the rewritten patch is what the profile reads; no reinstall.
+- `prompts/*-persona.md` verified byte-faithful to the `suffix: |` blocks in
+  `agent-presets/*-agent.cordis.yml` by re-extracting both and comparing
+  (`custom` 2084 chars, `coding` 7862, `computeruse` 2956 — all exact).
+- `agent-presets/*-agent.cordis.yml` and `generate-patch.cjs` verified
+  byte-identical to the live sources under
+  `/home/vrbkam/dsh-custom-presets/legacy-agent-presets-pre-rc2/` by `diff -q`.
+- `prompts/plan-mode.md` and the `plan-mode` rows were **not touched**;
+  their three copies remain byte-identical to each other (`md5 c2ba9516…`).
+- Review: an independent GLM-5.3-Flash subagent reviewed the original text and
+  then the revision; its findings drove the contradiction fix, the rule
+  de-duplication, and the wording of the ask paragraph.
+
+---
+
 ## 2026-10-19 — preset record refreshed for 0.2.1-rc.2 (PTC mode, no `{{cwd}}`); docs drift corrected
 
 The user asked for the latest configuration to be committed and pushed, noting

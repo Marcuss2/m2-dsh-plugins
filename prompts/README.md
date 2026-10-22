@@ -8,6 +8,7 @@ compositions.
 | --- | --- | --- |
 | `custom-persona.md` | `custom` | `persona.config.prefix` + `persona.config.suffix` |
 | `coding-persona.md` | `coding` | the same rows, with a longer suffix |
+| `computeruse-persona.md` | `computeruse` | the same rows, plus the computer-use paragraph |
 | `plan-mode.md` | all three (byte-identical) | `planning` → `plan-mode` → `config.section` |
 
 ## Persona
@@ -21,7 +22,25 @@ assembly before any model request.
 
 - **prefix** — the one-line identity statement.
 - **suffix** — the instruction to prefer composing multi-step work into a
-  single `run_code` program, and (in `coding`) the engineering contract.
+  single `run_code` program, the browser-access line, **Ask before you guess**
+  (the `ask_user_question` paragraph), and (in `coding`) the engineering
+  contract.
+
+### Ask before you guess
+
+All three suffixes carry the same `ask_user_question` paragraph. Adding it was
+a deliberate response to observed behaviour: models were not calling the tool,
+answering in prose or guessing silently instead. In PTC mode there is no native
+tool schema to reinforce it, so the persona is the only channel that names the
+tool and legitimises using it.
+
+The paragraph is shared verbatim, not tuned per preset, so the interaction rule
+is identical whichever preset a session runs under. Its trigger list —
+user-owned decisions, material ambiguity, irreversible or destructive steps,
+unreachable credentials — reuses plan mode's own wording ("material ambiguity
+that inspection cannot answer", the ban on "should I proceed?") so the two
+never contradict each other. Keep that phrasing in step when editing either
+file.
 
 ## Plan mode
 
