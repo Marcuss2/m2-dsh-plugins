@@ -1,13 +1,14 @@
 # DeepSeek Harness setup
 
 A plain record of the DeepSeek Harness (DSH) setup on this machine: how
-`dsh-market` is installed, the canonical profile backup, the agent presets in
-use, and the prompts they carry.
+`dsh-market` is installed, the canonical profile backup, **every plugin the
+profile carries**, the agent presets in use, and the prompts they carry.
 
 This repository is **not** a reproduction kit and contains no plugin source.
-Plugins are installed directly into the `web` profile; `dsh-market`'s own
-Backup & Restore export in `dsh-market/` is the record of which ones, and at
-which versions.
+Plugins are installed directly into the `web` profile. The **plugin inventory**
+below lists each one with its recorded spec, its installed version and what it
+adds; `dsh-market`'s own Backup & Restore export in `dsh-market/` is the
+machine-readable copy.
 
 ## Current setup
 
@@ -15,18 +16,63 @@ which versions.
 | --- | --- |
 | Harness | `@deepseek-ai/dsh` **0.2.2-rc.1** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **22 dependencies, 23 ordered bundles** |
+| Profile | `web` — **23 dependencies, 25 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode**, PTC tool presentation (`run_code` + generated SDK) |
-| Default model | `hf:deepseek-ai/DeepSeek-V4.1-Flash-1017` on provider `synthetic`, reasoning effort `high` |
+| Default model | `deepseek-v4-1-flash-1017` on provider `mistral-vibe`, reasoning effort `high` |
+| Mistral Vibe route | `@khuraie/dsh-mistral-vibe-provider` 0.1.29 (GitHub, unpinned) — Settings → **Mistral Vibe** |
+| Forge / worktree | `@deepseek-ai/dsh-experimental-forge-bundle` 0.2.2-rc.1 (host-shipped) — worktree option + change-request panel |
 | Web search | `dsh-free-search` 0.9.51, engine **`exa`**, keyless |
 | Plugin market | `dshmarket` **1.70.2** |
 | MCP 管理 | `dsh-mcp-setting` 0.2.0 — Settings → **MCP Servers** |
 | Agent Teams models | `dsh-agent-team-model-selection` 0.7.0 — Settings → **Agent Teams models** |
 
-Profile inventory last recorded **2026-11-15** — refreshed on the
-0.2.2-rc.1 update, which also dropped the Hindsight bundle (see
-`CHANGELOG.md`); preset prompts last compacted **2026-11-11**. What changed,
-and when, is in `CHANGELOG.md`.
+Profile inventory last recorded **2026-11-18**, after the Mistral Vibe route
+and the host's forge bundle joined the profile and the default model moved
+onto that route; the 0.2.2-rc.1 update before it had dropped the Hindsight
+bundle (see `CHANGELOG.md`). Preset prompts last compacted **2026-11-11**,
+with the additive `run_code` paragraph on 2026-11-16. What changed, and when,
+is in `CHANGELOG.md`.
+
+## Plugins
+
+The `web` profile as recorded **2026-11-18**. *Spec* is what
+`$DSH_HOME/profiles/web/package.json` records, *installed* is the version
+resolved in the profile's `node_modules`; `~` stands for `/home/vrbkam`. The
+machine-readable copy of every row is `dsh-market/profile-backup.json`.
+
+| Package | Recorded spec | Installed | What it adds |
+| --- | --- | --- | --- |
+| `@brucezhang1993/dsh-computer-use-linux` | `link:~/repos/dsh-computer-use-linux` | 0.1.1 | desktop computer use (`mcp__cul__*`), mounted **only** by the `computeruse` preset |
+| `@idealclover/dsh-session-title-studio` | `0.8.1` | 0.8.1 | session titles: recipes, refresh policy, topic-drift detection |
+| `@khuraie/dsh-mistral-vibe-provider` | `github:Khuraie/dsh-mistral-vibe-provider` | 0.1.29 | the `mistral-vibe` LLM route, PKCE sign-in and Vibe/Studio budget meters |
+| `@linxin666/dsh-client-ui-git-graph` | `^0.3.20` | 0.3.20 | git branch selector + graph — loader row **disabled** (see constraints) |
+| `@linxin666/dsh-client-ui-task-board` | `0.4.8` | 0.4.8 | Host-authoritative task board with real session runs and cron |
+| `@local/dsh-custom-presets` | `link:~/dsh-custom-presets` | 1.0.0 | the four agent presets — see `agent-presets/` |
+| `@michengai/dsh-skills-manager` | `1.4.9` | 1.4.9 | loads and toggles local skills (`~/.dsh/skills`) |
+| `@vectorize-io/hindsight-coding-agents` | `0.8.2` | 0.8.2 | Hindsight memory — **installed, bundle not mounted** |
+| `dsh-agent-team-model-selection` | `github:devloom1024/dsh-agent-team-model-selection#5150ff9d87799320fa04577db44786175fd1db4f` | 0.7.0 | per-member Agent Teams route selection; Settings → **Agent Teams models** |
+| `dsh-better-reasoning-effort` | `0.5.4` | 0.5.4 | per-model reasoning effort and input modalities |
+| `dsh-better-sidebar` | `0.28.0` | 0.28.0 | file tree, editor, changes, tasks and side chat in one sidebar |
+| `dsh-context` | `0.84.1` | 0.84.1 | context dashboard and `/context` command |
+| `dsh-free-search` | `0.9.51` | 0.9.51 | web search + fetch: 39 engines, engine `exa`, keyless |
+| `dsh-lsp-actions` | `0.5.21` | 0.5.21 | the `lsp_*` tools over language servers |
+| `dsh-mcp-connector` | `link:~/repos/dsh-mcp-connector` | 0.2.77 | MCP server connections, catalog and cross-server tool search |
+| `dsh-mcp-setting` | `0.2.0` | 0.2.0 | Settings → **MCP Servers** over the `dsh-mcp-client` rows |
+| `dsh-subagent-workspace-ui` | `^1.3.3` | 1.3.3 | subagent manager UI — **patch-pinned**, cannot upgrade (see constraints) |
+| `dsh-tool-ast-grep` | `0.1.2` | 0.1.2 | AST structural search (`ast_search`) and outline (`ast_outline`) tools |
+| `dsh-workboard` | `link:~/Projects/dsh-workboard/workboard` | 0.1.0 | one merged, urgency-ordered workboard |
+| `dsh-workboard-gitlab` | `link:~/Projects/dsh-workboard/workboard-gitlab` | 0.1.0 | GitLab provider for the workboard |
+| `dsh-workboard-jira` | `link:~/Projects/dsh-workboard/workboard-jira` | 0.1.0 | Jira Cloud provider for the workboard |
+| `dshmarket` | `1.70.2` | 1.70.2 | Settings → **Plugin Market**, Browse/install/upgrade + Backup & Restore |
+| `mattpocock-skills-dsh` | `0.1.8` | 0.1.8 | Matt Pocock's skills bundle |
+
+Two more entries in `dsh.profile.bundles` have **no dependency row** because
+they ship inside the harness install: `@deepseek-ai/dsh-experimental-forge-bundle`
+(0.2.2-rc.1 — `worktree`, `tool-worktree` and the `forge*` change-request rows)
+and `@deepseek-ai/dsh-experimental-agent-team-profile` (0.2.2-rc.1). The list
+also opens with the host's own `@deepseek-ai/dsh-base` and
+`@deepseek-ai/dsh-web-app` layers. Bundle order matters and is recorded in the
+backup, not here.
 
 ## Where settings live now
 
@@ -39,9 +85,11 @@ including the `search-pool` block that belonged to the removed
 `dsh-search-failover` — dead config now.
 
 So the profile's patch layer is the settings file, and it also carries
-configuration for individual plugins — including the Exa engine override on
-the `web-search-free` row. See `dsh-market/README.md` for the backup that
-records it.
+configuration for individual plugins — the Exa engine override on the
+`web-search-free` row, and the route rows themselves: `agent-default-model`,
+`subagent-model-selection-settings` and `tool-agent-team-model-selection`
+now carry the `mistral-vibe` routes. See `dsh-market/README.md` for the
+backup that records it.
 
 ## Machine tooling
 
@@ -55,12 +103,12 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 | `dshmarket` (profile dep) | 1.70.2 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
 | `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
 | `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
-| `rust-analyzer` | system | `dsh-lsp-actions` | already present |
+| `rust-analyzer` | **absent** (rustup proxy only) | `dsh-lsp-actions` | `rust-analyzer --version` fails: the component is not in the toolchain — see below |
 | `clangd` | system | `dsh-lsp-actions` | already present |
-| `agent-browser` | 0.38.2 | persona of all four presets | browser automation CLI, driven through the `bash` tool — see below |
+| `agent-browser` | 0.42.0 | persona of all four presets | browser automation CLI, driven through the `bash` tool — see below |
 | `@brucezhang1993/dsh-computer-use-linux` | 0.1.1 (profile link dep) | the `computeruse` preset | Linux computer use MCP bridge (`mcp__cul__*` tools) — see below |
 | `computer-use-linux` (upstream binary) | 0.7.13, pinned by the plugin | `mcp__cul__*` tools | Rust MCP server, cached at `~/.cache/computer-use-linux/plugin/` |
-| `wtype`, `ydotool` | **not yet installed** | `mcp__cul__type_text` / `mcp__cul__click` | Wayland input synthesis — `pacman -S wtype ydotool` |
+| `wtype`, `ydotool` | system packages | `mcp__cul__type_text` / `mcp__cul__click` | Wayland input synthesis — installed 2026-11-18; the input path itself not yet exercised |
 
 ```sh
 # Language-server backends — both ship as global npm packages, one install path
@@ -90,9 +138,12 @@ Smoke-tested live: `open` → `get title` → `snapshot` against
 
 Still missing, deliberately recorded: **no DAP debug adapter** (`debugpy`,
 `dlv`, `codelldb`, `netcoredbg` are all absent), so the debugger surface has
-nothing to attach to; and no `gopls`, `jdtls`, `bash-language-server` or
-`yaml-language-server`. Add one only when a project actually needs it — each
-is a single package install with no plugin change.
+nothing to attach to; no `gopls`, `jdtls`, `bash-language-server` or
+`yaml-language-server`; and no working `rust-analyzer` — the command resolves
+to the rustup proxy, and `rustup component list --installed` has no
+`rust-analyzer`, so Rust files get no `lsp_*` backend until
+`rustup component add rust-analyzer`. Add one only when a project actually
+needs it — each is a single package install with no plugin change.
 
 ### Computer use (Hyprland)
 
@@ -116,13 +167,17 @@ The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
   (`gsettings set org.gnome.desktop.interface toolkit-accessibility true`
   plus the `org.a11y.Status IsEnabled` D-Bus property — there is no GNOME to
   own that setting on Hyprland).
-- **Still pending at recording time**: `wtype` and `ydotool` (keyboard and
-  pointer input on Wayland — the portal's RemoteDesktop interface lacks
-  pointer methods under the Hyprland portal, so clicks fall back to
-  ydotool/uinput, and `/dev/uinput` already carries an rw ACL for the user),
-  the first-run portal screenshot consent, and a harness restart — after
-  which a session on **Computer Use** must show the `mcp__cul__*` tools and
-  a session on Productivity Mode must not.
+- **Input binaries landed 2026-11-18**: `wtype` and `ydotool` are now on
+  PATH (`/usr/bin/wtype`, `/usr/bin/ydotool`). They are what
+  `mcp__cul__type_text` and `mcp__cul__click` fall back to on Wayland — the
+  portal's RemoteDesktop interface lacks pointer methods under the Hyprland
+  portal, so clicks go through ydotool/uinput, and `/dev/uinput` already
+  carries an rw ACL for the user. Presence is verified; the click/type path
+  itself has not been exercised live since they landed.
+- **Portal consent and scoping are settled.** The live screenshot above went
+  through `xdg-desktop-portal`, consent included, and preset scoping was
+  confirmed live on 2026-10-15: a session on **Computer Use** shows the
+  `mcp__cul__*` tools, a session on Productivity Mode does not.
 
 ### MCP servers (Settings GUI)
 
@@ -163,6 +218,32 @@ updates.
   `ctx.subagents.startActivation` and merges the selected route into the
   child's `agentOptions`; both in-process providers (`spawn`, `fork`) declare
   that capability, so no other configuration is needed.
+
+### Mistral Vibe route (Settings GUI)
+
+`@khuraie/dsh-mistral-vibe-provider` **0.1.29** (installed 2026-11-16) registers
+the **`mistral-vibe`** LLM route against `https://api.mistral.ai/v1` and adds
+Settings → **Mistral Vibe**: PKCE browser sign-in through
+`console.mistral.ai/api/vibe/sign-in`, the live `/v1/models` catalogue with a
+price line and a tier badge per model, per-model thinking levels mapped onto
+`reasoning_effort`, and the two real allowance meters (Vibe Code and
+Studio/API) on the settings page and in the sidebar foot. It also puts an
+approximate Session cost on the composer's token-usage pill.
+
+- **One row, one provider.** The bundle's patch inserts only
+  `llm-mistral-vibe`; no shipped row is replaced. The key is read from the
+  credential record named by `apiKeyEnv` — `MISTRAL_API_KEY` — so it never
+  appears in YAML, and the profile backup carries no sign-in state;
+  re-authenticating after a restore is a GUI step.
+- **Installed from GitHub without a pin.** The package is not published on npm;
+  `dshmarket` installed `github:Khuraie/dsh-mistral-vibe-provider` at branch
+  head (market log `2026-11-16T12:10:56Z`, `exit=0 hot=true`). Updating
+  re-resolves the branch, and the market cannot offer updates for it.
+- **Where it shows up.** `agent-default-model` points at
+  `deepseek-v4-1-flash-1017` on this provider, and the subagent and Agent
+  Teams allowlists carry its two routes (`mistral-large-4`,
+  `deepseek-v4-1-flash-1017`). Model ids come from the live catalogue, so the
+  allowlist strings must match what `/v1/models` advertises.
 
 ## Contents
 
@@ -219,6 +300,18 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   bump the commit (`dsh plugin --profile web add
   github:devloom1024/dsh-agent-team-model-selection#<sha>`) only after checking
   its `ctx.agentTeams.*` calls against the new host.
+- **The Mistral Vibe provider is an unpinned GitHub target.** The spec is
+  `github:Khuraie/dsh-mistral-vibe-provider` with no commit, so a reinstall
+  follows the branch head; **0.1.29** is what is installed. It is not published
+  on npm, so `dshmarket` will not offer updates — update with
+  `dsh plugin --profile web add github:Khuraie/dsh-mistral-vibe-provider` and a
+  restart. Its model ids are live-catalogue data, not constants: the allowlist
+  strings must match `/v1/models`.
+- **The forge bundle is host-shipped and experimental.**
+  `@deepseek-ai/dsh-experimental-forge-bundle` sits in `dsh.profile.bundles` but has no
+  dependency row — it resolves from the `@deepseek-ai/dsh` install, so its
+  `worktree`/`forge*` rows move with the host and may change between
+  releases. Listing the bundle name is the whole change.
 - **Custom presets must be regenerated after a DSH update.** The preset rows
   are composed at boot, and `@local/dsh-custom-presets/cordis.patch.yml` is a
   freeze of the legacy sources by `agent-presets/generate-patch.cjs` — its
@@ -255,7 +348,8 @@ entry to `CHANGELOG.md`** in the same task:
 
 - **Profile change** — a plugin added, upgraded, removed, or a patch-layer row
   toggled → re-export the backup and re-strip it (`dsh-market/README.md` →
-  *Recording a fresh export*).
+  *Recording a fresh export*), and update the **Plugins** inventory above if the
+  dependency set, a spec, or an installed version moved.
 - **Preset change** → edit the legacy source, re-run the generator, check
   `dsh --profile web --dump-config`, then re-copy `agent-presets/` (byte-identical
   to the live sources) and refresh `prompts/`.

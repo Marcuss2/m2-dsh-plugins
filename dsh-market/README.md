@@ -58,7 +58,7 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-11-15T12:59:42.370Z`; 6 files. It was produced with
+Recorded `createdAt 2026-11-18T08:53:43.152Z`; 6 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
 The export shape shrank since the 2026-10-19 capture (101 files): 1.70.2
@@ -67,8 +67,9 @@ carries only the profile's config files — `compatibility.json`, `cordis.yml`,
 `patches/*.patch` — and no longer mirrors `.plugin-manager` operation logs or
 `pnpm-lock.yaml`. The path-strip applies to the whole file either way.
 
-**22 dependencies and 23 bundles**, up from 16 and 18 on 2026-10-19. The
-2026-11-11 re-export recorded `dsh-agent-team-model-selection` 0.7.0 (a
+**23 dependencies and 25 bundles**, up from 22 and 23 in the 2026-11-15
+export and 16 and 18 on 2026-10-19. The 2026-11-11 re-export recorded
+`dsh-agent-team-model-selection` 0.7.0 (a
 commit-pinned GitHub bundle) plus the drift accumulated since October: added
 `@idealclover/dsh-session-title-studio` 0.8.1, `dsh-mcp-connector` (`link:`),
 `dsh-tool-ast-grep` 0.1.2, and the `dsh-workboard` / `dsh-workboard-gitlab` /
@@ -82,10 +83,21 @@ mounted; and four pins moved (`dsh-context` 0.75.1→0.84.1, `dsh-free-search`
 0.9.15→0.9.51, `dsh-lsp-actions` 0.5.17→0.5.21,
 `@michengai/dsh-skills-manager` 1.2.18→1.4.9).
 
+The 2026-11-18 re-export records the post-Mistral-Vibe state: added the
+`@khuraie/dsh-mistral-vibe-provider` dependency (`github:`, unpinned; 0.1.29
+installed) and the host-shipped `@deepseek-ai/dsh-experimental-forge-bundle`
+bundle entry. Everything else — every other dependency spec, the bundle order,
+the pnpm patch — is unchanged from 2026-11-15. The patch layer's
+`agent-default-model` row moved to `mistral-vibe` /
+`deepseek-v4-1-flash-1017`, and the two route allowlists carry its models;
+the export carries those rows.
+
 The export covers the profile directory only, so it carries **no credentials
-and no absolute paths**: `$DSH_HOME/settings.yaml` (model provider, API-key
-environment variable, search backends) lives outside the profile and is not in
-it. The copy here was checked to contain no home path and no username.
+and no absolute paths**. The model-provider rows now live in the profile's
+`cordis.patch.yml` and are included — but they reference keys by
+environment-variable name (`apiKeyEnv`), never the key value; the credential
+store (`$DSH_HOME/.credentials.yaml`) is outside the profile and is not in it.
+The copy here was checked to contain no home path and no username.
 
 ### Recording a fresh export
 

@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-11-15T12:59:42.370Z",
+  "createdAt": "2026-11-18T08:53:43.152Z",
   "profile": "web",
   "files": [
     {
@@ -38,8 +38,8 @@
         "- id: agent-default-model",
         "  name: \"@deepseek-ai/dsh-agent-default-model\"",
         "  config:",
-        "    provider: synthetic",
-        "    model: hf:deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "    provider: mistral-vibe",
+        "    model: deepseek-v4-1-flash-1017",
         "    reasoningEffort: high",
         "# Default agent preset: the migrated legacy 'custom' preset (Productivity",
         "# Mode). Overrides the web-app bundle's agent-preset-registry row, which sets",
@@ -233,6 +233,8 @@
         "        model: hf:zai-org/GLM-5.3-Flash",
         "      - provider: synthetic",
         "        model: hf:deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "      - provider: mistral-vibe",
+        "        model: mistral-large-4",
         "- id: subagent",
         "  name: \"@deepseek-ai/dsh-subagent\"",
         "  config:",
@@ -279,10 +281,12 @@
         "      model: \"\"",
         "      reasoningEffort: \"\"",
         "      allowedModels:",
-        "        - provider: synthetic",
-        "          model: hf:deepseek-ai/DeepSeek-V4.1-Flash-1017",
+        "        - provider: mistral-vibe",
+        "          model: mistral-large-4",
         "        - provider: synthetic",
         "          model: hf:zai-org/GLM-5.3-Flash",
+        "        - provider: mistral-vibe",
+        "          model: deepseek-v4-1-flash-1017",
         ""
       ]
     },
@@ -304,6 +308,7 @@
         "dependencies": {
           "@brucezhang1993/dsh-computer-use-linux": "link:$HOME/repos/dsh-computer-use-linux",
           "@idealclover/dsh-session-title-studio": "0.8.1",
+          "@khuraie/dsh-mistral-vibe-provider": "github:Khuraie/dsh-mistral-vibe-provider",
           "@linxin666/dsh-client-ui-git-graph": "^0.3.20",
           "@linxin666/dsh-client-ui-task-board": "0.4.8",
           "@local/dsh-custom-presets": "link:$HOME/dsh-custom-presets",
@@ -350,7 +355,9 @@
               "dsh-mcp-connector",
               "@deepseek-ai/dsh-experimental-agent-team-profile",
               "@idealclover/dsh-session-title-studio",
-              "dsh-agent-team-model-selection"
+              "dsh-agent-team-model-selection",
+              "@deepseek-ai/dsh-experimental-forge-bundle",
+              "@khuraie/dsh-mistral-vibe-provider"
             ]
           }
         }

@@ -9,6 +9,114 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-18 — default route switched to `mistral-vibe/deepseek-v4-1-flash-1017`; inventory recorded
+
+**What changed.** Three rows in the profile patch layer, and the record
+refreshed around them:
+
+- `agent-default-model` — model `mistral-large-4` → **`deepseek-v4-1-flash-1017`**
+  (provider `mistral-vibe`, effort `high` unchanged).
+- `subagent-model-selection-settings.allowedModels` — the Mistral entry
+  `mistral-large-4-0-8` → **`mistral-large-4`**.
+- `tool-agent-team-model-selection.modelSelection.allowedModels` — now
+  `mistral-vibe/mistral-large-4`, `synthetic/hf:zai-org/GLM-5.3-Flash`,
+  `mistral-vibe/deepseek-v4-1-flash-1017`; the earlier
+  `synthetic/hf:deepseek-ai/DeepSeek-V4.1-Flash-1017` and
+  `mistral-vibe/mistral-large-4-0-8` entries are gone.
+
+**Why it is visible in this session.** The Team route restriction reported to
+the Lead (`mistral-vibe/mistral-large-4`,
+`synthetic/hf:zai-org/GLM-5.3-Flash`,
+`mistral-vibe/deepseek-v4-1-flash-1017`) is exactly the allowlist above, and
+the session runs `deepseek-v4-1-flash-1017` — live proof the new row is
+loaded.
+
+**Record refreshed.** `dsh-market/profile-backup.json` re-exported
+(`createdAt 2026-11-18T08:53:43.152Z`, 6 files, **23 dependencies / 25
+bundles**, paths stripped to `$HOME`); the README current-state table updated
+and a new **Plugins** inventory added (every dependency: recorded spec,
+installed version, what it adds, plus the two host-shipped bundles that have no
+dependency row); `dsh-market/README.md` provenance updated.
+
+**Evidence.** `dsh --profile web --dump-config` exits 0 (2961 lines) when run
+against a copy of the profile whose `cordis.yml` is writable — the live
+profile directory is outside this session's file sandbox, so the dump used a
+temporary `DSH_HOME` whose profile dir copies the config files and symlinks
+`node_modules`. Normalized against the 2026-11-16 dump, the diff is exactly the
+three rows above. `cordis.patch.yml` mtime 2026-11-18 09:05.
+
+**Unchanged, verified.** Harness still `0.2.2-rc.1`; all eight preset rows
+still compose (the four shipped plus `custom`, `coding`, `computeruse`,
+`orchestrator`); the forge/worktree rows and `llm-mistral-vibe` are still
+present; the pnpm patch, the bundle order and every other dependency spec are
+unchanged from the 2026-11-15 export.
+
+## 2026-11-18 — machine tooling: `agent-browser` 0.42.0, Wayland input binaries, `rust-analyzer` absent
+
+- **`agent-browser` 0.38.2 → 0.42.0** (global npm package; binary
+  `/usr/bin/agent-browser` dated 2026-11-15 13:36). No persona change needed —
+  the presets say the CLI exists, not which version.
+- **`wtype` and `ydotool` installed** (`/usr/bin/wtype`, `/usr/bin/ydotool`) —
+  the two Wayland input synthesizers the computer-use section listed as
+  missing. They back `mcp__cul__type_text` and `mcp__cul__click`; presence
+  verified, the input path itself not yet exercised live.
+- **`rust-analyzer` is not installed — the README had said it was.** The
+  command resolves to the rustup proxy `/usr/lib/rustup/bin/rust-analyzer`,
+  and `rustup component list --installed` has no `rust-analyzer`, so
+  `rust-analyzer --version` fails with `Unknown binary`. Rust files therefore
+  have no `lsp_*` backend; `rustup component add rust-analyzer` fixes it. The
+  README now records it as absent rather than installed (the record does not
+  edit the live setup).
+- **Skills directory**: `~/.dsh/skills/` carries four enabled skills, by file
+  date `agent-browser` (2026-11-16), `writing-for-agents` (2026-11-15),
+  `bro` (2026-11-06) and `humanizer` (2026-10-13). Managed by
+  `@michengai/dsh-skills-manager`; the record lists the plugin, not the skill
+  contents.
+- **Unchanged**: `typescript-language-server` 6.0.0, `pyright` 1.1.412,
+  `clangd` 23.1.5; `computer-use-linux` pinned at 0.7.13; harness
+  `0.2.2-rc.1`.
+
+## 2026-11-16 — Mistral Vibe provider and the host's forge bundle join the profile
+
+**What changed.** One dependency and two bundle entries, all outside the preset
+plane:
+
+- **`@khuraie/dsh-mistral-vibe-provider` 0.1.29** installed from GitHub
+  (`github:Khuraie/dsh-mistral-vibe-provider`, **no commit pin**) through the
+  Plugin Market at **13:10 local** — market log
+  `2026-11-16T12:10:56.239Z`, `install ... exit=0 hot=true`. Its bundle patch
+  inserts one row, `llm-mistral-vibe`, which owns the `mistral-vibe` route end
+  to end: wire, live `/v1/models` catalogue, per-model thinking levels, PKCE
+  browser sign-in, and the Vibe/Studio budget meters served at
+  `/mistral-vibe/*`. Settings gains a **Mistral Vibe** page. The key is read
+  from the credential record named by `apiKeyEnv` (`MISTRAL_API_KEY`), so it is
+  neither in YAML nor in the profile backup.
+- **`@deepseek-ai/dsh-experimental-forge-bundle`** added to
+  `dsh.profile.bundles`. It ships inside the 0.2.2-rc.1 install (same version),
+  so it has **no dependency row**; listing the name is the whole change. Its
+  patch inserts `worktree`, `tool-worktree`, `forge`, `forge-github`,
+  `forge-session` and the `optional-forge-panel` group (`forge-worktree`,
+  `forge-panel`).
+- The default model moved off `synthetic` in the same profile pass:
+  `agent-default-model` reads provider `mistral-vibe`, model
+  `mistral-large-4`, effort still `high`; the subagent allowlist gained
+  `mistral-vibe/mistral-large-4-0-8`, and the Agent Teams allowlist gained the
+  Mistral routes.
+
+**Why.** The machine's default route moved onto the Mistral subscription, and
+the host's worktree / change-request panel was switched on. Both are
+profile-plane changes, so no preset row moved.
+
+**Evidence.** The dump-config generated that afternoon (kept as
+`.diag/dump-config-2026-11-16.txt` — scratch, not committed) resolves
+`llm-mistral-vibe`, the six forge/worktree rows, and an `agent-default-model`
+of `mistral-vibe` / `mistral-large-4`. `package.json` mtime 2026-11-16 13:10
+matches the log line.
+
+**Not carried into that day's record.** The 2026-11-15 and 2026-11-16 entries
+below were written before or around this install and do not mention it; the
+inventory and backup were refreshed on 2026-11-18 (the 2026-11-18 entries above).
+
 ## 2026-11-16 — Personas teach `run_code`'s function-body shape
 
 **Symptom.** A coding session reported three consecutive

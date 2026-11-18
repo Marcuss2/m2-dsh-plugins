@@ -11,6 +11,10 @@ dsh-dshmarket-backup-*.json
 # Scratch
 test-hashline-edit.txt
 *.log
+# Local diagnostics scratch: plugin-market dumps, registry snapshots, probe
+# scripts. The record keeps the backup and CHANGELOG, not the working files.
+.diag/
+.work/
 
 # Generic noise
 node_modules/
