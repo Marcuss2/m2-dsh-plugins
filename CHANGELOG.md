@@ -9,6 +9,444 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-16 — Personas teach `run_code`'s function-body shape
+
+**Symptom.** A coding session reported three consecutive
+`(run_code completed with no output)` results, then abandoned `run_code` for
+`bash` and finally a plain `read`. Its program opened with
+`async function main() {`: `run_code` runs the submitted text as the **body**
+of an async function, so a function that is declared and never called executes
+nothing — and nothing in the empty result said why.
+
+**What changed.** All four persona suffixes gained one shared paragraph and a
+two-line example: the `code` argument is already the body of an async function,
+top-level `await` and `return` work, `tools.*` is in scope, and a self-defined
+`main()` swallows every result (the paragraph quotes
+`(run_code completed with no output)` so the failure is recognisable). The
+example is:
+
+```ts
+console.log("hello world"); // printed back to you
+return await tools.bash({ description: "List files", command: "ls" });
+```
+
+The wording is deliberately terse — the model that hit the failure proposed
+almost exactly this framing — because the rule is mechanical: state the
+contract and show one working call rather than explain the transport.
+
+### What changed, concretely
+
+- **Sources** — `legacy-agent-presets-pre-rc2/{custom,coding,computeruse,orchestrator}/agent.cordis.yml`
+  carry the paragraph verbatim; the `agent-presets/` copies are byte-identical
+  (`diff -q` clean for all four).
+- **Frozen bundle** — regenerated with
+  `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs`: **983 lines**
+  (was 947), the paragraph appears **4** times, and two consecutive generator
+  runs produce the same md5 `7957845cc8a60fb38b88b62e2ac1986f`.
+- **Docs** — `prompts/README.md` gained a **`run_code` is a function body** section
+  (why the wrapper is the named failure mode, and why the paragraph is shared
+  verbatim), and `agent-presets/README.md` lists the paragraph among the shared
+  suffix text.
+
+### Evidence
+
+- `dsh --profile web --dump-config` exits 0 and carries the example four times,
+  once per preset. The dump re-emits the suffix in folded style, so a source
+  newline shows up as a blank line there; that is the dump's representation,
+  not the loaded value.
+- The generator is idempotent across consecutive runs (identical md5), and the
+  frozen patch composes: all four preset rows appear in the dump.
+- **Not yet exercised:** a new session on each preset. Preset personas compose
+  at boot, so the text reaches a model on the next new session (or via HMR when
+  the patch is rewritten), not in the session that made the change.
+
+## 2026-11-15 — DSH 0.2.2-rc.1: custom presets migrated; New Session mount failure fixed
+
+The host update to `@deepseek-ai/dsh` **0.2.2-rc.1** made every **New session**
+fail with `agent-preset/invalid: tool-subagent-list-agents
+(@deepseek-ai/dsh-tool-subagent-control/list-agents): never started`.
+
+### Root cause
+
+0.2.2-rc.1 merged the globally named `list_agents` tool into
+`@deepseek-ai/dsh-tool-subagent-control` — the root entry registers it now —
+and removed that package's `./list-agents` subpath export. All four custom
+presets still mounted the separate `tool-subagent-list-agents` row, so the
+preset registry's mount audit found an enabled row that never started and
+rejected the whole preset.
+
+### What changed
+
+- **Generator gained two transforms** (`agent-presets/generate-patch.cjs`,
+  byte-identical to the live copy):
+  - drop the `tool-subagent-list-agents` row;
+  - rewrite `modelSelectionSettings: true` → `modelSelection: true` plus
+    `modelDiscovery: true` (0.2.2 split the old switch) and drop the removed
+    `backgroundMode` key.
+- **Regenerated** `/home/vrbkam/dsh-custom-presets/cordis.patch.yml`
+  (947 lines, four presets).
+- **Docs and records:** `agent-presets/README.md` now lists six transforms; the
+  root README carries host 0.2.2-rc.1, 23 bundles, `dsh-free-search` 0.9.51, a
+  preset-regeneration constraint and a Hindsight-mounting constraint; the
+  profile backup was re-exported and path-stripped
+  (`createdAt 2026-11-15T12:59:42.370Z`, 22 dependencies / 23 bundles).
+
+### Evidence
+
+- `dsh --profile web --dump-config`: **zero** `list-agents` occurrences; each
+  of the four presets' spawn row reads `modelSelection: true` +
+  `modelDiscovery: true`.
+- Every other plugin name in the freeze resolves against the 0.2.2-rc.1
+  install; `@brucezhang1993/dsh-computer-use-linux` resolves from the profile's
+  `link:` dependency as before.
+- The generated YAML parses with a `!!js` tag constructor, `node --check`
+  passes, and two consecutive generator runs produce an identical md5
+  (`dbfc51e1ecb864cc7b70a1540e3161c2`).
+- The Agent Teams model-selection plugin survives the update: `list_agents`
+  returned `llm` for the Lead with the same provider/model/effort.
+- **Not yet exercised:** creating a session through the fixed presets. Preset
+  rows compose at boot, so verification needs a Host restart.
+
+### Sessions — restored
+
+No session data was lost. `$DSH_HOME/sessions` holds **316 session
+directories**: 304 with readable v3/v4 headers and 12 created-but-never-
+materialized placeholders. The workspace account (`storages/workspace.json`)
+listed 105 top-level sessions plus 14 archived ones. **19 top-level sessions**
+(2026-09-07…2026-10-18) existed on disk but in no workspace's `sessionIds`, so
+the workspace-scoped sidebar could not show them; the listing code is identical
+in 0.2.1-rc.2 and 0.2.2-rc.1, so they were already unaccounted before this
+update.
+
+**Re-attached 18 of them** to their workspaces by inserting each id at its
+chronological position in that workspace's account (registry backed up as
+`storages/workspace.json.bak-2026-11-15`; 105 → 123 accounted sessions). The
+nineteenth is a `/tmp` session and stays unaccounted: no `/tmp` workspace
+exists, and registering a temporary directory as a permanent project is not
+desirable. The registry is read at boot, so the restored sessions appear after
+the same restart the preset fix needs.
+
+### Observed but not changed
+
+`@vectorize-io/hindsight-coding-agents` 0.8.2 is still a profile dependency but
+is no longer in `dsh.profile.bundles`; the composed config has no `hindsight`
+row and the `hindsight_*` tools are unavailable. Recorded as a constraint, not
+re-enabled here.
+
+## 2026-11-11 — Agent Teams per-member model selection installed
+
+`dsh-agent-team-model-selection` 0.7.0 replaces the shipped Agent Teams tool
+plugin, so a Team Lead can pin each teammate's provider, model, and reasoning
+effort and every member reports the route it actually runs on.
+
+### What changed
+
+- **Installed as a commit-pinned GitHub bundle.** Target
+  `github:devloom1024/dsh-agent-team-model-selection#5150ff9d87799320fa04577db44786175fd1db4f`
+  — the package is `private` and is not published to npm under this name, so
+  the pin is a commit, not a release tag. `plugin_manager install_bundle`
+  added it to `dependencies` and `dsh.profile.bundles` (now 22 / 24) and
+  applied it live.
+- **The bundle swaps the Team tool row.** Its patch disables
+  `tool-agent-team` and inserts `tool-agent-team-model-selection`; both
+  register the same nine Team tool names in each member scope, so they cannot
+  coexist. The replacement reimplements them with no peer dependencies and a
+  vendored schema helper.
+- **New model-facing surface.** `spawn_teammate` gains optional `provider`,
+  `model`, and `reasoning_effort`; `list_agents` returns an `llm` object per
+  member; the new `list_team_models` resolves providers → one provider's models
+  → one model's reasoning efforts.
+- **Policy default is automatic.** `mode: inherit`, `freshProvider: spawn`,
+  `forkProvider: fork`, `allowedModels: []` (no restriction). Settings →
+  **Agent Teams models** edits those fields through the profile patch. `fixed`
+  mode pins every teammate to one route and rejects route parameters; in
+  `inherit` mode `allowedModels` bounds explicit, effort-only, and inherited
+  routes alike.
+- **Route applied at the subagent seam.** The plugin hooks
+  `ctx.subagents.startActivation` and merges the selected route into the child's
+  `agentOptions`; both in-process providers (`spawn`, `fork`) declare that
+  capability in 0.2.1-rc.2.
+- **Record refreshed.** `dsh-market/profile-backup.json` was re-exported and
+  path-stripped, and both state tables were corrected. The new export has **6
+  files**, not 101: `dshmarket` 1.70.2 no longer mirrors `.plugin-manager`
+  operation logs or `pnpm-lock.yaml`. The refresh also captures the drift that
+  had accumulated since the 2026-10-19 capture — seven dependencies added
+  (including this one), `dsh-secret-guard` removed, and eight pins moved.
+
+### Why
+
+Agent Teams otherwise forces every member onto the Lead's LLM route. Cheap
+teammates for mechanical work and strong ones for review are not selectable at
+spawn time, and `list_agents` gave no way to confirm what a member actually
+ran on. This is the market-listed plugin for that gap
+(<https://dsh-plugin.org/plugins/devloom1024/dsh-agent-team-model-selection>).
+
+### Evidence
+
+- Install result: `stage: enable`, `enabled: true`, `changed: true`,
+  `application: applied`, version `0.7.0`, pnpm exit 0.
+- Manifest: `dependencies["dsh-agent-team-model-selection"]` is the pinned
+  `github:` spec, and the bundle is the last entry of `dsh.profile.bundles`.
+- Live Host config: `Config.listConfigs` reports
+  `include:tool-agent-team-model-selection` with the `modelSelection` schema
+  (`mode`, `provider`, `model`, `reasoningEffort`, `allowedModels`).
+- Live tool surface: `Tool.listTools` shows `spawn_teammate` with the three
+  route parameters and a registered `list_team_models`.
+- Live route reporting: `list_agents({})` returned
+  `llm: { provider: "synthetic", model: "hf:deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  reasoningEffort: "high" }`.
+- Live Client slot: the `settings.section` occupant `agent-team-models`
+  (order 25) is `active`.
+- Source review: no `peerDependencies`, vendored `schemastery`/`cosmokit`;
+  `node --test` passes 16/16; every `ctx.agentTeams.*` and
+  `ctx.subagents.startActivation` / `agentOptions` call it makes exists in the
+  running 0.2.1-rc.2 packages.
+- Unchanged: the Agent Teams bundle stays mounted, the other settings pages are
+  untouched, and the manager reported the change as applied without a restart.
+- Not exercised: an actual teammate spawn with a pinned route. That would
+  create a durable member, so the routing rules rest on the plugin's own tests
+  plus the live schemas above. Visual check is limited to the live slot
+  registration — this session had no connected browser control.
+
+## 2026-11-11 — persona prompts compacted without changing preset tools
+
+The system-prompt review found easy repetition in the shared persona paragraphs
+and in the orchestrator suffix. This is the low-risk, prompt-only pass; SDK tool
+scoping and Hindsight injection cadence are deliberately unchanged.
+
+### What changed
+
+- **Shared suffix compacted in all four presets.** The `run_code`, **Language**,
+  browser-access, and **Ask before you guess** paragraphs retain their triggers
+  and required tool names while dropping repeated explanations. The browser
+  paragraph points to the existing CLI guide for details. The ask paragraph
+  keeps plan mode's exact "material ambiguity that inspection cannot answer"
+  wording and the ban on asking "should I proceed?".
+- **Global language rule compacted too.** `$DSH_HOME/AGENTS.md` retains the same
+  language, non-prose, and foreign-language-input rules as the personas; their
+  intentional two-layer defence remains.
+- **Orchestrator simplified and corrected.** The prefix and ledger now state the
+  context/token tradeoff once. Role paragraphs retain the delegation policy but
+  drop tool-call mechanics already carried by schemas/Team policy; the repeated
+  anti-pattern list is gone. `workflow` and `ralph` now carry the harness's
+  explicit-use restrictions. The stale claim that members cannot see each
+  other's edits is replaced with the installed policy's actual rule: edits are
+  immediately visible, so use disjoint write scopes and task dependencies.
+- **Coding verification de-duplicated.** Removed the repeated Workflow/Verify
+  evidence statements and the model-default anti-fabrication sentence. The
+  engineering contract and deliverable-specific checks remain.
+- **Documentation synchronized.** Persona extracts, prompt/preset READMEs, the
+  root maintenance date, and this entry describe the compacted text. The
+  computer-use `mcp__cul__screenshot` command was checked and already correct;
+  it did not change.
+
+### Size reduction
+
+Character counts below include the YAML block scalar's final newline. Token
+figures are only rough chars/4 estimates, not provider tokenizer measurements.
+
+| Preset | Suffix before | Suffix after | Chars saved |
+| --- | ---: | ---: | ---: |
+| `custom` | 2725 | 1372 | 1353 |
+| `coding` | 8589 | 7024 | 1565 |
+| `computeruse` | 3597 | 2244 | 1353 |
+| `orchestrator` | 8876 | 4373 | 4503 |
+
+The orchestrator prefix also dropped from 218 to 135 chars, and its
+orchestrator-specific suffix section from 6148 to 2999 chars before the shared
+paragraph savings.
+
+### Evidence
+
+- Live generation ran twice: `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs`
+  produced 963 lines both times with identical SHA-256
+  `a1aeb627e06bf4f07d698fb58e521f789e292cd31de98f6a4aeafd7ab483c3f7`.
+- `dsh --profile web --dump-config` exited **0**. Its only stderr lines were the
+  three unrelated `@idealclover/dsh-session-title-studio` patch warnings for
+  `optional-session-title-all-prompts`, `session-title-studio-recipe`, and
+  `session-title-studio-policy`.
+- Parsed assembled personas match live source, repository source, and readable
+  `prompts/*-persona.md` extracts exactly (including the final newline in the
+  assembled YAML value). Preset plugin counts remain 18 `custom`, 18
+  `coding`, 20 `computeruse`, and 18 `orchestrator`; generator and preset
+  cards remain byte-identical to the live copies.
+- `git diff --check` exits **0**. Retired long-form and stale orchestrator
+  phrases are absent from every assembled persona.
+- **Scope/limits:** no plugin row, tool-presentation mode, preset card, generator
+  transform, plan-mode text, or Hindsight setting changed. No model-quality A/B
+  test was performed; this pass proves configuration assembly and byte fidelity,
+  not unchanged model behaviour.
+
+## 2026-10-24 — answer language pinned in all four personas, plus a global instruction file
+
+The user reported models randomly switching to Chinese on English requests. The
+cause is not a single bad instruction: nothing in the harness ever stated an
+answer language, while foreign-language text arrives every turn.
+
+### What changed
+
+- **New shared **Language** paragraph**, carried byte-identically by all four
+  presets (`custom`, `coding`, `computeruse`, `orchestrator`), inserted
+  between the `run_code` paragraph and the browser-access paragraph — early in
+  the suffix, where it outweighs later tool guidance. It states the rule
+  positively (answer in the user's language), and pins the two cases a bare
+  "match the user" line leaves open: non-prose (code, identifiers, paths,
+  commands, log lines, error text, quoted output) is reproduced exactly and
+  never translated, and foreign-language tool descriptions / UI strings / search
+  results are **input**, not a cue about answer language.
+- **New `$DSH_HOME/AGENTS.md`** carrying the same rule. This is the user-global
+  chain `dsh-agent-instructions` loads into every session on this DSH_HOME,
+  whichever preset is selected. Two layers on purpose: the persona covers preset
+  sessions, the global file covers the rest, and it survives a session running a
+  preset that predates the paragraph.
+- **Docs in step**: `prompts/README.md` gains a `### Language` section;
+  `agent-presets/README.md` gains "Language rule, and why it is in two places";
+  all four `prompts/*-persona.md` extracts are refreshed and round-trip
+  byte-exactly (custom 2725, coding 8589, computeruse 3597, orchestrator 8875
+  chars of suffix).
+
+### Why this is the right lever, and where the drift comes from
+
+- **No language instruction existed anywhere.** `dsh-client-locale` is GUI
+  localisation only (`preference: en` in the profile patch switches the *Web
+  interface*, not the model's answers); no shipped prompt section mentions
+  answer language. The harness ships the persona prefix as
+  `You are a coding agent powered by the {{model}} model.` and nothing more.
+- **A real foreign-language competitor exists in this profile.**
+  `dsh-free-search` ships **Chinese tool-schema descriptions** — 9 model-facing
+  `description` strings, e.g. the weather parameter "City or place name (Chinese
+  or English), e.g. 北京, Shanghai, Tokyo.", the `so360`/`sogou` engines and the
+  research-document fields ("带来源标注；缺失 = unknown"). Tool schemas sit in the
+  prompt on every turn, so a model with no explicit language rule has a standing
+  Chinese-language signal to follow. The paragraph names this directly instead
+  of only saying "answer in English".
+
+### Evidence
+
+- `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs` → 1070 lines;
+  re-running produced a byte-identical file (`md5 de67725d320f255b7261e53f0de8bcec`
+  twice).
+- `dsh --profile web --dump-config` exits **0** with no bundle-parse error, and
+  the assembled config contains the paragraph **4 times** — once per preset.
+- **Shared paragraphs verified still byte-identical across all four presets**
+  after the insert: `run_code` (627 chars), browser access (461), Ask before you
+  guess (1072). The Language paragraph itself is byte-identical across all four
+  (checked by set-uniqueness of the extracted block).
+- All four `prompts/*-persona.md` extracts compare exactly to their
+  `suffix: |` blocks in `agent-presets/*-agent.cordis.yml`.
+- `~/.dsh/AGENTS.md` verified loading into a live session: the file's content
+  was injected as a workspace-instruction reminder in the same turn it was
+  written, without a restart.
+- **Unchanged, verified**: no tool row, `preset.yml`, or generator transform was
+  touched — this is a prompt-only change. The pre-existing `dsh-secret-guard`
+  compatibility warning still appears on stderr and is unrelated.
+
+## 2026-10-24 — fourth preset added: `orchestrator`
+
+The user asked for a persona "heavily pushed to delegate as much as possible",
+on the stated grounds that the lead model is expensive to run, and for it to
+know that teammates can message each other and spawn their own subagents. A
+new agent preset was added rather than editing an existing one, so the user can
+pick delegation-heavy or delegation-light per session.
+
+### What changed
+
+- **New preset `orchestrator`** (`legacy-agent-presets-pre-rc2/orchestrator/`,
+  frozen as `preset-orchestrator`). Its plugin list is the `custom` list **row
+  for row** — every tool row, `mode: ptc` presentation, plan mode, and the
+  delegation group are unchanged. Only the `persona` row and the `preset.yml`
+  description differ, which makes this a pure persona experiment: if the
+  delegation policy is wrong, nothing else about the preset is.
+- **The persona** (`../prompts/orchestrator-persona.md`) keeps the three shared
+  paragraphs byte-identical (`run_code`, browser access, **Ask before you
+  guess**) and adds: a context-scarcity framing plus a two-sided ledger, a
+  delegation ladder (`subagent` / `subagent_fork` / `workflow` / `ralph` /
+  `spawn_teammate` / self), three role paragraphs, a formal brief format
+  (objective, target, non-goals, acceptance check), a partition-then-dispatch
+  rule, a peers-not-routes rule, verify-once-at-the-end, an explicit plan-mode
+  rule, and an anti-pattern list.
+- **`generate-patch.cjs`** gained `["orchestrator", {}]` in its card list; the
+  repo copy is refreshed. The generator's four freeze transforms are unchanged
+  and the new source already satisfies transforms 2 and 3.
+- **Docs in step**: `agent-presets/README.md` (four-preset table, the new
+  bullet, "all four" wording), `prompts/README.md` (table row plus an
+  `## Orchestrator` section), and a new
+  `.research/2026-10-24-orchestrator-persona-inspiration.md` recording how
+  other frameworks write orchestrator prompts.
+
+### Two design decisions worth carrying forward
+
+- **The persona is role-aware, and there are three roles, not two.** A teammate
+  spawned by `spawn_teammate` inherits the parent's preset, and so do one-shot
+  `subagent`/`workflow`/`ralph` children — so this one suffix renders for all
+  of them. An unqualified "delegate everything" would therefore land on a
+  subagent and produce a delegation tower, so each role has its own conditional
+  paragraph. The role itself comes from the harness (`team:identity`), not from
+  the text.
+- **The cost framing had to be corrected before it could ship.** The first
+  draft claimed the Lead's turns "cost far more" than a child's. False in the
+  important half: `spawn_teammate` takes no model parameters and the roster
+  reports `live.options.model ?? root.options.model`, so a teammate runs the
+  *same* model — it saves the Lead's context, not its spend, while adding total
+  tokens. `subagent`, by contrast, does accept `provider`/`model`/
+  `reasoning_effort` under the `subagent-model-selection` policy (allowlist on
+  this machine: `GLM-5.3-Flash`, `DeepSeek-V4.1-Flash-1017`). The persona now
+  frames the scarce resource as **context** and names the overhead, instead of
+  asserting a price difference that does not exist.
+
+### Evidence
+
+- `node /home/vrbkam/dsh-custom-presets/generate-patch.cjs` writes 1039 lines,
+  and a second run produced a byte-identical file
+  (`md5 c1de40bfd4e0f656ee27a5d8aa0d69f2` twice) — regeneration is idempotent
+  with four cards.
+- `dsh --profile web --dump-config` exits **0** with **no bundle-parse error**,
+  and the assembled config contains all eight preset rows
+  (`preset-standard`, `preset-ptc`, `preset-minimal`, `preset-cordis`,
+  `preset-custom`, `preset-coding`, `preset-computeruse`,
+  `preset-orchestrator`).
+- The rendered `preset-orchestrator` row carries the corrected prefix and
+  suffix, and `prompts/orchestrator-persona.md` round-trips byte-exactly to both
+  blocks (prefix 218 chars, suffix 8365).
+- **One bug found and fixed during verification**: the prefix was first written
+  as an inline `prefix: ...` scalar; because the text contains a colon-space,
+  the YAML failed to parse and the whole `@local/dsh-custom-presets` bundle was
+  skipped (visible as `failed to parse overlay ... bad indentation of a mapping
+  entry` in `--dump-config` stderr). Restored to the `>-` block scalar the other
+  presets use, then re-verified. This is why the persona doc now states that
+  both blocks must stay block scalars.
+- **Correction to a review claim**: the reviewer held that `spawn_teammate`'s
+  lead-only restriction is prompt-level only. It is not —
+  `AgentTeams.spawnAdmitted` throws `TEAM_LEAD_REQUIRED` for a non-lead caller
+  (`dsh-experimental-agent-team/lib/index.js:1004-1006`), the same guard
+  `interrupt_agent` and task reassignment use. The flat-team rule is enforced
+  by the runtime; the persona states it anyway so a model does not spend a turn
+  discovering the refusal.
+- **Second review round, and what it caught.** A reviewer pass over the revised
+  draft found two real self-contradictions the first draft had introduced: the
+  ledger said teammates inherit the Lead's model and then, six words later,
+  claimed "a turn of yours is worth many turns of theirs" (the retracted
+  economics); and the anti-pattern list said "spawning one teammate where three
+  independent slices would fit" while ladder rung 2 assigns many independent
+  slices to `workflow`. Both fixed — the ledger now concludes that delegation
+  "buys your attention, not a smaller bill", and the anti-pattern is a durable
+  teammate where a scripted `workflow` fan-out would do. The same pass found
+  "Workers cannot see your conversation" to be false for `subagent_fork` and
+  `spawn_teammate({context:"fork"})`, now "A fresh delegate cannot see your
+  conversation", and moved the bare-child paragraph **above** the ladder so the
+  caveat precedes the instruction it qualifies.
+- **Duplication with `team:policy` measured, not asserted.** The persona was
+  checked against the bundle's own shipped policy text by extracting both and
+  looking for shared runs of eight or more consecutive words: **0 matches**. What
+  is left is the decision content the policy leaves implicit (who owns which
+  file, who goes first), not a restatement of its sentences.
+- **Unchanged, verified**: the `custom`, `coding`, and `computeruse` rows
+  regenerate identically apart from the added preset; their shared paragraphs
+  are still byte-identical to `orchestrator`'s (`run_code`, browser access, and
+  Ask before you guess all compared equal). The pre-existing
+  `dsh-secret-guard` compatibility warning still appears on stderr and is
+  unrelated.
+
 ## 2026-10-22 — persona revised: `ask_user_question` encouraged everywhere; coding contract de-duplicated
 
 The user asked for the persona prompt to be revised, naming one concrete
@@ -845,131 +1283,3 @@ is pinned to 1.3.3, so no other version installs under it. Upstream is now
 ### Stale `minimumReleaseAgeExclude` entries
 
 Left as-is — this repository records the live profile, it does not edit it.
-Three entries no longer match an installed version:
-
-- `dsh-better-edit@0.8.1` — the plugin is uninstalled.
-- `@hytime/dsh-thinking-effort@0.2.4` — 0.3.1 is installed.
-- `@vectorize-io/hindsight-coding-agents@0.5.3 || 0.5.4` — 0.6.1 is installed,
-  and 0.6.1 is not exempt.
-
-### Verified unchanged
-
-- Both agent presets byte-identical to `agent-presets/`; the `prompts/`
-  extraction still round-trips against the live YAML.
-- The `ui-git-graph` disable in `cordis.patch.yml` is still in place.
-- `patches/dsh-subagent-workspace-ui@1.3.3.patch` unchanged.
-- `$DSH_HOME/AGENTS.md` and `$DSH_HOME/cordis.patch.yml` still absent.
-
-## 2026-09-23 — version currency sweep
-
-`npm view <name> version` against the ten installed profile plugins. **Five have
-newer releases; none are installed.**
-
-| Plugin | Installed | npm latest |
-| --- | --- | --- |
-| `@hytime/dsh-thinking-effort` | 0.3.1 | 0.3.2 |
-| `@linxin666/dsh-client-ui-git-graph` | 0.3.20 | 0.3.24 |
-| `@linxin666/dsh-client-ui-task-board` | 0.3.24 | 0.3.24 |
-| `@vectorize-io/hindsight-coding-agents` | 0.6.1 | 0.6.1 |
-| `dsh-better-sidebar` | 0.19.1 | 0.19.1 |
-| `dsh-context` | 0.54.0 | 0.55.0 |
-| `dsh-lsp-actions` | 0.5.3 | 0.5.4 |
-| `dsh-search-failover` | 0.3.9 | 0.3.9 |
-| `dsh-subagent-workspace-ui` | 1.3.3 | 1.6.0 |
-| `dshmarket` | 1.51.0 | 1.58.0 |
-
-## 2026-09-13 — record refreshed against the live setup
-
-Diffed the live machine against the 2026-09-11 capture (`50d8262`). Two
-changes; everything else byte-identical.
-
-### Fixed: `ui-git-graph` disabled in the profile patch layer
-
-`$DSH_HOME/profiles/web/cordis.patch.yml` gained:
-
-```yaml
-- id: ui-git-graph
-  disabled: true
-```
-
-The plugin `@linxin666/dsh-client-ui-git-graph@0.3.20` stays in both
-`dependencies` and `dsh.profile.bundles` — only its loader row is switched
-off, so the code stays installed but is never mounted.
-
-Reason, from the comment written into the file itself and dated 2026-09-11:
-the plugin polls every 30 s — several git spawns per tick, even for workspaces
-that are not git repositories, each through a `systemd-run` scope — and a
-`git status` round can stall up to `STATUS_TIMEOUT_MS` (15 s). Its
-auto-isolation hook is already disabled by the current `dsh`
-workspaces-service shape, so it was adding poll churn without its main
-feature. It was switched off while investigating a slow workspace list at
-boot. **Re-enable by deleting the entry** — the file says so in place.
-
-### Changed: default model
-
-`$DSH_HOME/settings.yaml` → `agent-default-model.model` moved from
-`deepseek/deepseek-v4.1-flash` to **`z-ai/glm-5.3-flash`**. Provider
-(`openrouter-custom`) and `reasoningEffort` (`high`) are unchanged, and all
-three models remain declared in the `llm-pi-ai` provider block, so this is a
-default switch rather than a provider change.
-
-`settings.yaml` is not reproduced in this repository — it holds API keys — so
-only the fact is recorded, in the root README's setup table.
-
-### Verified unchanged
-
-- Harness `@deepseek-ai/dsh` **0.1.5-rc.1**.
-- **11 dependencies, 13 ordered bundles**; every installed plugin version
-  identical to the 2026-09-11 record.
-- Both agent presets (`custom`, `coding`) byte-identical to `agent-presets/`
-  (`diff -q` clean), and the `prompts/` extraction still round-trips against
-  the live YAML.
-- `$DSH_HOME/AGENTS.md` and `$DSH_HOME/cordis.patch.yml` still absent.
-- `dsh-market/profile-backup.json` regenerated: the only `files[]` entry that
-  differs from the 2026-09-11 copy is `cordis.patch.yml`.
-
-## 2026-09-13 — version currency sweep
-
-`npm view <name> version` against every installed profile plugin. **Seven have
-newer releases; none are installed.**
-
-| Plugin | Installed | npm latest |
-| --- | --- | --- |
-| `@hytime/dsh-thinking-effort` | 0.2.4 | 0.2.4 |
-| `@linxin666/dsh-client-ui-git-graph` | 0.3.20 | 0.3.22 |
-| `@linxin666/dsh-client-ui-task-board` | 0.3.20 | 0.3.22 |
-| `@vectorize-io/hindsight-coding-agents` | 0.5.4 | 0.6.0 |
-| `dsh-better-edit` | 0.8.1 | 0.8.1 |
-| `dsh-better-sidebar` | 0.19.1 | 0.19.1 |
-| `dsh-context` | 0.49.4 | 0.51.1 |
-| `dsh-lsp-actions` | 0.5.0 | 0.5.1 |
-| `dsh-search-failover` | 0.3.9 | 0.3.9 |
-| `dsh-subagent-workspace-ui` | 1.3.3 | 1.4.0 |
-| `dshmarket` | 1.45.1 | 1.46.1 |
-
-### Known blocker: `dsh-subagent-workspace-ui` upgrade
-
-A market upgrade of this plugin on 2026-09-11T13:08Z failed and rolled itself
-back:
-
-```
-info   update-rollback  dsh-subagent-workspace-ui: restored npm build v1.3.3
-warn   update           dsh-subagent-workspace-ui: failed update command; previous build restored and verified
-error  update           dsh-subagent-workspace-ui -> dsh-subagent-workspace-ui@1.3.4 exit=1
-                        err=ERR_PNPM_UNUSED_PATCH: The following patches were not used: dsh-subagent-workspace-ui@1.3.3
-```
-
-The profile patches this plugin's client bundle to translate its hardcoded
-Simplified-Chinese UI strings to English. The patch is pinned to 1.3.3, so pnpm
-refuses to install any other version under it. **Upgrading means re-deriving
-`patches/dsh-subagent-workspace-ui@<version>.patch` from the new
-`lib/client.js` first** — the same instruction is in `pnpm-workspace.yaml`
-beside the pin.
-
-## 2026-09-11 — baseline
-
-The repository replaced its former plugin-reproduction kit with this record, at
-commit `50d8262` (pushed the same day). Captured: the `web` profile backup (11
-dependencies, 13 bundles, profile config, and the pinned
-`dsh-subagent-workspace-ui@1.3.3` patch), the `custom` and `coding` agent
-presets verbatim, and the persona and plan-mode prompts extracted from them.

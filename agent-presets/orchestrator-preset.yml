@@ -1,0 +1,3 @@
+name: Orchestrator
+description: "Every tool the Productivity Mode agent has, run under a persona that treats the lead's own context as the session's scarcest resource: delegation becomes the default rather than an option, with a ladder from cheap one-shot subagents to durable teammates, role-aware rules for the Lead and its members, a formal brief format, and coordination through the shared task board and peer messages."
+order: 0

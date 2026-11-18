@@ -13,16 +13,20 @@ which versions.
 
 | | |
 | --- | --- |
-| Harness | `@deepseek-ai/dsh` **0.2.1-rc.2** (global npm install) |
+| Harness | `@deepseek-ai/dsh` **0.2.2-rc.1** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **16 dependencies, 18 ordered bundles** |
+| Profile | `web` — **22 dependencies, 23 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode**, PTC tool presentation (`run_code` + generated SDK) |
-| Default model | `deepseek/deepseek-v4.1-flash-1017` on provider `openrouter-custom`, reasoning effort `high` |
-| Web search | `dsh-free-search` 0.9.7, engine **`exa`**, keyless |
-| Plugin market | `dshmarket` **1.66.39** |
-| MCP 管理 | `dsh-mcp-setting` 0.1.5 — Settings → **MCP Servers** |
+| Default model | `hf:deepseek-ai/DeepSeek-V4.1-Flash-1017` on provider `synthetic`, reasoning effort `high` |
+| Web search | `dsh-free-search` 0.9.51, engine **`exa`**, keyless |
+| Plugin market | `dshmarket` **1.70.2** |
+| MCP 管理 | `dsh-mcp-setting` 0.2.0 — Settings → **MCP Servers** |
+| Agent Teams models | `dsh-agent-team-model-selection` 0.7.0 — Settings → **Agent Teams models** |
 
-Last recorded **2026-10-19**. What changed, and when, is in `CHANGELOG.md`.
+Profile inventory last recorded **2026-11-15** — refreshed on the
+0.2.2-rc.1 update, which also dropped the Hindsight bundle (see
+`CHANGELOG.md`); preset prompts last compacted **2026-11-11**. What changed,
+and when, is in `CHANGELOG.md`.
 
 ## Where settings live now
 
@@ -47,13 +51,13 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 
 | Tool | Version | Backs | Why it matters here |
 | --- | --- | --- | --- |
-| `@deepseek-ai/dsh` | 0.2.1-rc.2 | everything | the harness itself |
-| `dshmarket` (profile dep) | 1.66.39 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
+| `@deepseek-ai/dsh` | 0.2.2-rc.1 | everything | the harness itself |
+| `dshmarket` (profile dep) | 1.70.2 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
 | `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
 | `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
 | `rust-analyzer` | system | `dsh-lsp-actions` | already present |
 | `clangd` | system | `dsh-lsp-actions` | already present |
-| `agent-browser` | 0.38.2 | persona of all three presets | browser automation CLI, driven through the `bash` tool — see below |
+| `agent-browser` | 0.38.2 | persona of all four presets | browser automation CLI, driven through the `bash` tool — see below |
 | `@brucezhang1993/dsh-computer-use-linux` | 0.1.1 (profile link dep) | the `computeruse` preset | Linux computer use MCP bridge (`mcp__cul__*` tools) — see below |
 | `computer-use-linux` (upstream binary) | 0.7.13, pinned by the plugin | `mcp__cul__*` tools | Rust MCP server, cached at `~/.cache/computer-use-linux/plugin/` |
 | `wtype`, `ydotool` | **not yet installed** | `mcp__cul__type_text` / `mcp__cul__click` | Wayland input synthesis — `pacman -S wtype ydotool` |
@@ -79,7 +83,7 @@ rather than on the next boot.
 same shape of thing from the other side: a browser-automation CLI the agent
 reaches through the `bash` tool. No plugin backs it and none is needed —
 unlike the language servers there is no harness tool to discover it, so all
-three presets tell the agent it exists in their persona suffix (added
+presets tell the agent it exists in their persona suffix (added
 2026-10-15).
 Smoke-tested live: `open` → `get title` → `snapshot` against
 `https://example.com`, then `close`.
@@ -122,7 +126,7 @@ The bridge is the in-box `@deepseek-ai/dsh-mcp-client` — no DSH modification.
 
 ### MCP servers (Settings GUI)
 
-`dsh-mcp-setting` 0.1.5 (added 2026-10-18) adds Settings → **MCP Servers**: a
+`dsh-mcp-setting` 0.2.0 (added 2026-10-18) adds Settings → **MCP Servers**: a
 GUI over the canonical MCP configuration — the `@deepseek-ai/dsh-mcp-client`
 rows in the patch layers. It lists, adds, edits, deletes and toggles rows in
 the home patch (`~/.dsh/cordis.patch.yml`, all profiles) and the per-profile
@@ -131,13 +135,42 @@ config live reload, no restart. The `cul` server does **not** appear there:
 it is scoped to the `computeruse` preset, so its row lives in the preset
 config, not in a patch file — preset-plane mounts stay preset-plane.
 
+### Agent Teams models (Settings GUI)
+
+`dsh-agent-team-model-selection` 0.7.0 (added 2026-11-11) adds Settings →
+**Agent Teams models** and turns the Agent Teams route from one team-wide model
+into a per-member one. It is installed as a **GitHub bundle**, pinned to commit
+`5150ff9d87799320fa04577db44786175fd1db4f`, because the package is not
+published to npm under this name; `dshmarket` therefore will not offer it
+updates.
+
+- **It replaces the shipped Team tool plugin.** The bundle's patch disables the
+  `tool-agent-team` row and inserts its own `tool-agent-team-model-selection`
+  row; both register the same nine Team tool names in each member scope, so
+  they cannot coexist. The reimplementation carries no peer dependencies and
+  vendors the schema helper it needs, which is why it mounts on 0.2.2-rc.1
+  (its `list_agents` route reporting was re-checked live after the update).
+- **What the tools gained.** `spawn_teammate` accepts optional `provider`,
+  `model` and `reasoning_effort`; `list_agents` reports the live route of every
+  member as an `llm` field; and the new `list_team_models` lists providers,
+  one provider's models, or one model's reasoning efforts.
+- **Two policy modes.** `inherit` (automatic) follows the Lead unless a spawn
+  pins a route; `fixed` pins every new teammate to one configured route and
+  rejects any route parameter on `spawn_teammate`. An optional `allowedModels`
+  list bounds every route a teammate may actually run on — explicit,
+  effort-only, and inherited — in `inherit` mode.
+- **The route is applied through the subagent seam.** The plugin hooks
+  `ctx.subagents.startActivation` and merges the selected route into the
+  child's `agentOptions`; both in-process providers (`spawn`, `fork`) declare
+  that capability, so no other configuration is needed.
+
 ## Contents
 
 | Path | What it records |
 | --- | --- |
 | `dsh-market/README.md` | How `dshmarket` is installed, and why it is registered the way it is |
 | `dsh-market/profile-backup.json` | Canonical record of the `web` profile — dependencies, bundle order, profile config files and pnpm patches — with private data stripped |
-| `agent-presets/` | The three presets in use, verbatim, plus the generator that freezes them into the live plugin |
+| `agent-presets/` | The four presets in use, verbatim, plus the generator that freezes them into the live plugin |
 | `prompts/` | The prompt text those presets carry — personas and plan mode |
 | `CHANGELOG.md` | Dated record of what changed in the live setup |
 | `.research/*.md` | Older research notes, kept for reference only; not part of the setup |
@@ -174,6 +207,31 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   `pnpm-workspace.yaml`, naming packages that are no longer installed
   (`dsh-better-edit@0.8.1`). Left in place deliberately: this repository
   records the live profile, it does not edit it.
+- **`tool-agent-team` is disabled on purpose.** The shipped Agent Teams tool
+  row is turned off by `dsh-agent-team-model-selection`'s bundle patch, which
+  inserts the replacement row that owns the same nine tool names. Re-enabling
+  the shipped row without removing the plugin puts two registrants on one tool
+  name. The disable lives inside the installed bundle, not in the profile's
+  patch layer.
+- **The Agent Teams models plugin is a moving GitHub target.** Its pin is a
+  commit, not a release, and it reimplements the Team tool surface rather than
+  wrapping it. A future DSH Agent Teams change can drift from it silently;
+  bump the commit (`dsh plugin --profile web add
+  github:devloom1024/dsh-agent-team-model-selection#<sha>`) only after checking
+  its `ctx.agentTeams.*` calls against the new host.
+- **Custom presets must be regenerated after a DSH update.** The preset rows
+  are composed at boot, and `@local/dsh-custom-presets/cordis.patch.yml` is a
+  freeze of the legacy sources by `agent-presets/generate-patch.cjs` — its
+  transforms absorb every host rename/removal so far. A stale freeze fails
+  **New session** with `agent-preset/invalid ... never started` (seen on
+  0.2.2-rc.1: the removed `tool-subagent-control/list-agents` subpath). After
+  updating `@deepseek-ai/dsh`, run the generator and restart before creating a
+  session.
+- **The Hindsight memory bundle is installed but not mounted.**
+  `@vectorize-io/hindsight-coding-agents` 0.8.2 is still a profile dependency,
+  but as of 2026-11-15 it is absent from `dsh.profile.bundles`, so the
+  `hindsight_*` tools are gone even though a resumed session's prompt may still
+  advertise them. Re-add the bundle name and restart to restore memory tools.
 
 ## Rebuilding from here
 

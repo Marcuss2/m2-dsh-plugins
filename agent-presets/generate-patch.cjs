@@ -58,7 +58,16 @@ function substitute(card, indented) {
     // rc.2 registers only provider/model as prompt variables: cwd now arrives
     // via required runtime context, and tool-presentation mode "both" is gone.
     .replace(/^ *Your working directory is \{\{cwd\}\}\.\n\n?/m, "")
-    .replace(/^( *mode:) both$/m, "$1 ptc");
+    .replace(/^( *mode:) both$/m, "$1 ptc")
+    // 0.2.2-rc.1 merged the globally named list_agents tool into
+    // @deepseek-ai/dsh-tool-subagent-control and removed its /list-agents
+    // subpath export. A preset still mounting the separate row never starts it,
+    // which fails the whole mount with "never started".
+    .replace(/^ *- id: tool-subagent-list-agents\n *name: '@deepseek-ai\/dsh-tool-subagent-control\/list-agents'\n/m, "")
+    // 0.2.2-rc.1 replaced tool-subagent's modelSelectionSettings switch with
+    // modelSelection + modelDiscovery, and removed the backgroundMode key.
+    .replace(/^( *)(modelSelectionSettings: true)$/gm, "$1modelSelection: true\n$1modelDiscovery: true")
+    .replace(/^ *backgroundMode: .*\n/gm, "");
   for (let i = 0; i < SUBST.from.length; i++) {
     if (!out.includes(SUBST.from[i])) throw new Error(`card '${card}': expected the removed row line, not found: ${SUBST.from[i]}`);
     out = out.replace(SUBST.from[i], SUBST.to[i]);
@@ -67,7 +76,7 @@ function substitute(card, indented) {
 }
 
 const cards = [];
-for (const [dir, override] of [["custom", { name: "Productivity Mode" }], ["coding", {}], ["computeruse", { name: "Computer Use" }]]) {
+for (const [dir, override] of [["custom", { name: "Productivity Mode" }], ["coding", {}], ["computeruse", { name: "Computer Use" }], ["orchestrator", {}]]) {
   const card = {
     id: dir,
     order: 0,
@@ -90,12 +99,20 @@ const patch = [
   "# directories (preset.yml + agent.cordis.yml). Per the dsh-agent-preset",
   "# migration doc (skill editing-cordis-compositions), presets are now declared",
   "# as @deepseek-ai/dsh-agent-preset rows in a bundle patch. This file carries",
-  "# both presets with the plugin entry lists taken verbatim from the legacy",
-  "# agent.cordis.yml files, with one substitution:",
+  "# every preset with the plugin entry lists taken verbatim from the legacy",
+  "# agent.cordis.yml files, with these substitutions:",
   "#",
   "#   @deepseek-ai/dsh-workflow-worker-thread (removed in 0.1.7-rc.2) ->",
   "#   @deepseek-ai/dsh-workflow-ptc (config.provider: spawn kept), the",
   "#   workflowEngine provider row the shipped presets mount.",
+  "#",
+  "#   The tool-subagent-list-agents row (0.2.2-rc.1 merged list_agents into",
+  "#   @deepseek-ai/dsh-tool-subagent-control and dropped the /list-agents",
+  "#   subpath) is removed; mounting it fails the preset with 'never started'.",
+  "#",
+  "#   tool-subagent's modelSelectionSettings: true (0.2.1) becomes",
+  "#   modelSelection: true + modelDiscovery: true (0.2.2), and the removed",
+  "#   backgroundMode key is dropped.",
   "#",
   "# The 'custom' preset was renamed from \"Custom mode\" to \"Productivity Mode\"",
   "# at the user's request; its id stays `custom` so the registry default and",
