@@ -1,7 +1,7 @@
 {
   "format": "dsh-profile-backup",
   "version": 0.2,
-  "createdAt": "2026-11-18T08:53:43.152Z",
+  "createdAt": "2026-11-21T10:05:52.567Z",
   "profile": "web",
   "files": [
     {
@@ -18,6 +18,7 @@
     {
       "path": "cordis.patch.yml",
       "lines": [
+        "# yaml-language-server: $schema=$HOME/repos/m2-dsh-plugins/patch.json",
         "# Your patch layer for this dsh profile, applied after every bundle layer:",
         "# a top-level YAML array of loader patch entries (id-targeted config",
         "# overrides, disables, and insert lists; `!!js` expressions allowed).",
@@ -40,7 +41,7 @@
         "  config:",
         "    provider: mistral-vibe",
         "    model: deepseek-v4-1-flash-1017",
-        "    reasoningEffort: high",
+        "    reasoningEffort: low",
         "# Default agent preset: the migrated legacy 'custom' preset (Productivity",
         "# Mode). Overrides the web-app bundle's agent-preset-registry row, which sets",
         "# default: standard. Takes effect on Host restart.",
@@ -269,24 +270,10 @@
         "      enableDrift: true",
         "      driftThreshold: 0.6",
         "      driftForceAfterMessages: 6",
-        "- id: tool-agent-team-model-selection",
-        "  name: dsh-agent-team-model-selection",
-        "  config:",
-        "    interrupt: true",
-        "    freshProvider: spawn",
-        "    forkProvider: fork",
-        "    modelSelection:",
-        "      mode: inherit",
-        "      provider: \"\"",
-        "      model: \"\"",
-        "      reasoningEffort: \"\"",
-        "      allowedModels:",
-        "        - provider: mistral-vibe",
-        "          model: mistral-large-4",
-        "        - provider: synthetic",
-        "          model: hf:zai-org/GLM-5.3-Flash",
-        "        - provider: mistral-vibe",
-        "          model: deepseek-v4-1-flash-1017",
+        "",
+        "# 2026-11-21: the tool-agent-team-model-selection bundle was removed after",
+        "# DSH 0.2.2-rc.5 removed ctx.agentTeams.tryMembership; its Team config row",
+        "# was deleted with it so the patch layer has no orphan settings.",
         ""
       ]
     },
@@ -314,7 +301,6 @@
           "@local/dsh-custom-presets": "link:$HOME/dsh-custom-presets",
           "@michengai/dsh-skills-manager": "1.4.9",
           "@vectorize-io/hindsight-coding-agents": "0.8.2",
-          "dsh-agent-team-model-selection": "github:devloom1024/dsh-agent-team-model-selection#5150ff9d87799320fa04577db44786175fd1db4f",
           "dsh-better-reasoning-effort": "0.5.4",
           "dsh-better-sidebar": "0.28.0",
           "dsh-context": "0.84.1",
@@ -353,9 +339,7 @@
               "dsh-workboard-gitlab",
               "dsh-workboard-jira",
               "dsh-mcp-connector",
-              "@deepseek-ai/dsh-experimental-agent-team-profile",
               "@idealclover/dsh-session-title-studio",
-              "dsh-agent-team-model-selection",
               "@deepseek-ai/dsh-experimental-forge-bundle",
               "@khuraie/dsh-mistral-vibe-provider"
             ]

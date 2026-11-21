@@ -14,22 +14,22 @@ machine-readable copy.
 
 | | |
 | --- | --- |
-| Harness | `@deepseek-ai/dsh` **0.2.2-rc.1** (global npm install) |
+| Harness | `@deepseek-ai/dsh` **0.2.2-rc.5** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **23 dependencies, 25 ordered bundles** |
+| Profile | `web` — **22 dependencies, 23 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode**, PTC tool presentation (`run_code` + generated SDK) |
 | Default model | `deepseek-v4-1-flash-1017` on provider `mistral-vibe`, reasoning effort `high` |
 | Mistral Vibe route | `@khuraie/dsh-mistral-vibe-provider` 0.1.29 (GitHub, unpinned) — Settings → **Mistral Vibe** |
-| Forge / worktree | `@deepseek-ai/dsh-experimental-forge-bundle` 0.2.2-rc.1 (host-shipped) — worktree option + change-request panel |
+| Forge / worktree | `@deepseek-ai/dsh-experimental-forge-bundle` 0.2.2-rc.5 (host-shipped) — worktree option + change-request panel |
 | Web search | `dsh-free-search` 0.9.51, engine **`exa`**, keyless |
 | Plugin market | `dshmarket` **1.70.2** |
 | MCP 管理 | `dsh-mcp-setting` 0.2.0 — Settings → **MCP Servers** |
-| Agent Teams models | `dsh-agent-team-model-selection` 0.7.0 — Settings → **Agent Teams models** |
+| Agent Teams | host-shipped `agent-team` + `tool-agent-team` — shared task DAG; teammate control uses the standard subagent tools |
 
-Profile inventory last recorded **2026-11-18**, after the Mistral Vibe route
-and the host's forge bundle joined the profile and the default model moved
-onto that route; the 0.2.2-rc.1 update before it had dropped the Hindsight
-bundle (see `CHANGELOG.md`). Preset prompts last compacted **2026-11-11**,
+Profile inventory last recorded **2026-11-21**, after DSH 0.2.2-rc.5 and the
+removal of the incompatible Agent Teams model-selection bundle; the 0.2.2-rc.1
+update before it had dropped the Hindsight bundle (see `CHANGELOG.md`). Preset
+prompts last compacted **2026-11-11**,
 with the additive `run_code` paragraph on 2026-11-16. What changed, and when,
 is in `CHANGELOG.md`.
 
@@ -50,7 +50,6 @@ machine-readable copy of every row is `dsh-market/profile-backup.json`.
 | `@local/dsh-custom-presets` | `link:~/dsh-custom-presets` | 1.0.0 | the four agent presets — see `agent-presets/` |
 | `@michengai/dsh-skills-manager` | `1.4.9` | 1.4.9 | loads and toggles local skills (`~/.dsh/skills`) |
 | `@vectorize-io/hindsight-coding-agents` | `0.8.2` | 0.8.2 | Hindsight memory — **installed, bundle not mounted** |
-| `dsh-agent-team-model-selection` | `github:devloom1024/dsh-agent-team-model-selection#5150ff9d87799320fa04577db44786175fd1db4f` | 0.7.0 | per-member Agent Teams route selection; Settings → **Agent Teams models** |
 | `dsh-better-reasoning-effort` | `0.5.4` | 0.5.4 | per-model reasoning effort and input modalities |
 | `dsh-better-sidebar` | `0.28.0` | 0.28.0 | file tree, editor, changes, tasks and side chat in one sidebar |
 | `dsh-context` | `0.84.1` | 0.84.1 | context dashboard and `/context` command |
@@ -66,13 +65,14 @@ machine-readable copy of every row is `dsh-market/profile-backup.json`.
 | `dshmarket` | `1.70.2` | 1.70.2 | Settings → **Plugin Market**, Browse/install/upgrade + Backup & Restore |
 | `mattpocock-skills-dsh` | `0.1.8` | 0.1.8 | Matt Pocock's skills bundle |
 
-Two more entries in `dsh.profile.bundles` have **no dependency row** because
-they ship inside the harness install: `@deepseek-ai/dsh-experimental-forge-bundle`
-(0.2.2-rc.1 — `worktree`, `tool-worktree` and the `forge*` change-request rows)
-and `@deepseek-ai/dsh-experimental-agent-team-profile` (0.2.2-rc.1). The list
-also opens with the host's own `@deepseek-ai/dsh-base` and
-`@deepseek-ai/dsh-web-app` layers. Bundle order matters and is recorded in the
-backup, not here.
+One entry in `dsh.profile.bundles` has **no dependency row** because it ships
+inside the harness install: `@deepseek-ai/dsh-experimental-forge-bundle`
+(0.2.2-rc.5 — `worktree`, `tool-worktree` and the `forge*` change-request
+rows). The list also opens with the host's own `@deepseek-ai/dsh-base` and
+`@deepseek-ai/dsh-web-app` layers. The older
+`@deepseek-ai/dsh-experimental-agent-team-profile` entry is gone: rc.5 no
+longer ships that package. Bundle order matters and is recorded in the backup,
+not here.
 
 ## Where settings live now
 
@@ -86,10 +86,11 @@ including the `search-pool` block that belonged to the removed
 
 So the profile's patch layer is the settings file, and it also carries
 configuration for individual plugins — the Exa engine override on the
-`web-search-free` row, and the route rows themselves: `agent-default-model`,
-`subagent-model-selection-settings` and `tool-agent-team-model-selection`
-now carry the `mistral-vibe` routes. See `dsh-market/README.md` for the
-backup that records it.
+`web-search-free` row, and the route rows themselves: `agent-default-model` and
+`subagent-model-selection-settings` carry the `mistral-vibe` routes. The
+`tool-agent-team-model-selection` row was removed with its plugin on
+2026-11-21; a comment in the patch file explains why. See
+`dsh-market/README.md` for the backup that records it.
 
 ## Machine tooling
 
@@ -99,7 +100,7 @@ plugin whose backing binaries are missing mounts fine and then does nothing.
 
 | Tool | Version | Backs | Why it matters here |
 | --- | --- | --- | --- |
-| `@deepseek-ai/dsh` | 0.2.2-rc.1 | everything | the harness itself |
+| `@deepseek-ai/dsh` | 0.2.2-rc.5 | everything | the harness itself |
 | `dshmarket` (profile dep) | 1.70.2 | Settings → Plugin Market | browse/install/upgrade + Backup & Restore |
 | `typescript-language-server` | 6.0.0 | `dsh-lsp-actions` | the `lsp_*` tools for TypeScript/JavaScript |
 | `pyright` (+ `pyright-langserver`) | 1.1.412 | `dsh-lsp-actions` | the `lsp_*` tools for Python |
@@ -190,34 +191,22 @@ config live reload, no restart. The `cul` server does **not** appear there:
 it is scoped to the `computeruse` preset, so its row lives in the preset
 config, not in a patch file — preset-plane mounts stay preset-plane.
 
-### Agent Teams models (Settings GUI)
+### Agent Teams (host-shipped)
 
-`dsh-agent-team-model-selection` 0.7.0 (added 2026-11-11) adds Settings →
-**Agent Teams models** and turns the Agent Teams route from one team-wide model
-into a per-member one. It is installed as a **GitHub bundle**, pinned to commit
-`5150ff9d87799320fa04577db44786175fd1db4f`, because the package is not
-published to npm under this name; `dshmarket` therefore will not offer it
-updates.
+`dsh-agent-team-model-selection` 0.7.0 was **removed on 2026-11-21**. DSH
+0.2.2-rc.5 had removed `ctx.agentTeams.tryMembership` (and the old
+spawn/message/roster APIs) while the plugin still called `tryMembership` from
+an `agent/created` listener. That synchronous throw vetoed session creation,
+so **New session** failed with `ctx.agentTeams.tryMembership is not a function`
+and existing sessions reported **Session unavailable**.
 
-- **It replaces the shipped Team tool plugin.** The bundle's patch disables the
-  `tool-agent-team` row and inserts its own `tool-agent-team-model-selection`
-  row; both register the same nine Team tool names in each member scope, so
-  they cannot coexist. The reimplementation carries no peer dependencies and
-  vendors the schema helper it needs, which is why it mounts on 0.2.2-rc.1
-  (its `list_agents` route reporting was re-checked live after the update).
-- **What the tools gained.** `spawn_teammate` accepts optional `provider`,
-  `model` and `reasoning_effort`; `list_agents` reports the live route of every
-  member as an `llm` field; and the new `list_team_models` lists providers,
-  one provider's models, or one model's reasoning efforts.
-- **Two policy modes.** `inherit` (automatic) follows the Lead unless a spawn
-  pins a route; `fixed` pins every new teammate to one configured route and
-  rejects any route parameter on `spawn_teammate`. An optional `allowedModels`
-  list bounds every route a teammate may actually run on — explicit,
-  effort-only, and inherited — in `inherit` mode.
-- **The route is applied through the subagent seam.** The plugin hooks
-  `ctx.subagents.startActivation` and merges the selected route into the
-  child's `agentOptions`; both in-process providers (`spawn`, `fork`) declare
-  that capability, so no other configuration is needed.
+The profile now uses the host-shipped `agent-team` and `tool-agent-team` rows.
+Team membership is derived from the standard subagent tree; teammate control
+uses `subagent`, `send_message({ agent_id, … })`, `list_agents` and
+`interrupt_agent({ agent_id })`. Per-member route pinning is no longer
+available from this profile; ordinary subagent model selection remains under
+Settings → **Subagent models**. Details and verification are in
+`CHANGELOG.md`.
 
 ### Mistral Vibe route (Settings GUI)
 
@@ -288,18 +277,17 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   `pnpm-workspace.yaml`, naming packages that are no longer installed
   (`dsh-better-edit@0.8.1`). Left in place deliberately: this repository
   records the live profile, it does not edit it.
-- **`tool-agent-team` is disabled on purpose.** The shipped Agent Teams tool
-  row is turned off by `dsh-agent-team-model-selection`'s bundle patch, which
-  inserts the replacement row that owns the same nine tool names. Re-enabling
-  the shipped row without removing the plugin puts two registrants on one tool
-  name. The disable lives inside the installed bundle, not in the profile's
-  patch layer.
-- **The Agent Teams models plugin is a moving GitHub target.** Its pin is a
-  commit, not a release, and it reimplements the Team tool surface rather than
-  wrapping it. A future DSH Agent Teams change can drift from it silently;
-  bump the commit (`dsh plugin --profile web add
-  github:devloom1024/dsh-agent-team-model-selection#<sha>`) only after checking
-  its `ctx.agentTeams.*` calls against the new host.
+- **The old Agent Teams model-selection plugin is gone.** Do not reinstall the
+  commit-pinned `dsh-agent-team-model-selection` 0.7.0: it reimplements a Team
+  tool surface DSH removed in 0.2.1-rc.2 and still calls
+  `ctx.agentTeams.tryMembership`. On rc.5 that call throws during agent
+  creation. Its old patch row and the bundle's `tool-agent-team` disable went
+  away with the uninstall; the shipped Team tool row is active again.
+- **`dsh-better-sidebar` 0.28.0 still carries old Team API calls.** Its
+  `teams.taskCreate` / `taskUpdate` routes call `ctx.agentTeams.tryMembership`,
+  so Team task mutations from that sidebar can still fail on rc.5. It is not
+  involved in session creation or restore. Upstream 0.32.1 was not installed
+  during this fix.
 - **The Mistral Vibe provider is an unpinned GitHub target.** The spec is
   `github:Khuraie/dsh-mistral-vibe-provider` with no commit, so a reinstall
   follows the branch head; **0.1.29** is what is installed. It is not published

@@ -58,7 +58,7 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-11-18T08:53:43.152Z`; 6 files. It was produced with
+Recorded `createdAt 2026-11-21T10:05:52.567Z`; 6 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
 The export shape shrank since the 2026-10-19 capture (101 files): 1.70.2
@@ -67,8 +67,9 @@ carries only the profile's config files — `compatibility.json`, `cordis.yml`,
 `patches/*.patch` — and no longer mirrors `.plugin-manager` operation logs or
 `pnpm-lock.yaml`. The path-strip applies to the whole file either way.
 
-**23 dependencies and 25 bundles**, up from 22 and 23 in the 2026-11-15
-export and 16 and 18 on 2026-10-19. The 2026-11-11 re-export recorded
+**22 dependencies and 23 bundles**, back to the 2026-11-15 counts after the
+2026-11-21 removals (see below), and up from 16 and 18 on 2026-10-19. The
+2026-11-11 re-export recorded
 `dsh-agent-team-model-selection` 0.7.0 (a
 commit-pinned GitHub bundle) plus the drift accumulated since October: added
 `@idealclover/dsh-session-title-studio` 0.8.1, `dsh-mcp-connector` (`link:`),
@@ -91,6 +92,20 @@ the pnpm patch — is unchanged from 2026-11-15. The patch layer's
 `agent-default-model` row moved to `mistral-vibe` /
 `deepseek-v4-1-flash-1017`, and the two route allowlists carry its models;
 the export carries those rows.
+
+The 2026-11-21 re-export records the post-0.2.2-rc.5 state:
+`dsh-agent-team-model-selection` was uninstalled because its
+`ctx.agentTeams.tryMembership` call broke every new and restored session, and
+its patch row was deleted. The host-shipped
+`@deepseek-ai/dsh-experimental-agent-team-profile` bundle is also absent: it
+was already gone from the live manifest before the uninstall and is no longer
+shipped by rc.5, so this export corrects the stale 2026-11-18 record. Every
+other dependency spec and bundle order is unchanged. The patch layer now
+ends with a comment recording the removal instead of the old Team route
+allowlist, and starts with a YAML language-server modeline pointing at the
+recorded `patch.json` schema so editors stop matching this Cordis patch list
+to the JSON Patch schema. The modeline is a comment; the loader and
+`dsh --dump-config` ignore it.
 
 The export covers the profile directory only, so it carries **no credentials
 and no absolute paths**. The model-provider rows now live in the profile's

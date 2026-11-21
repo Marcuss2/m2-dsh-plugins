@@ -9,6 +9,63 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-21 — DSH 0.2.2-rc.5: incompatible Agent Teams bundle removed; sessions restored
+
+**What changed.** `dsh-agent-team-model-selection` 0.7.0 is uninstalled from
+the `web` profile and its `tool-agent-team-model-selection` config row is gone
+from `cordis.patch.yml`. A three-line comment now records the removal in the
+patch file. The bundle's old patch had disabled the host's `tool-agent-team`
+row; with the bundle gone, the shipped Team tool row is active again. No
+restart was needed — HMR picked the manifest and patch changes up live.
+
+**Why.** The host had moved to `@deepseek-ai/dsh` **0.2.2-rc.5** (`dsh
+--version`; installed files dated 2026-11-20 22:04). DSH's own
+`v0.2.1-rc.2/agent-team-subagents` upgrade guide says `ctx.agentTeams` removed
+creation, messaging, roster, **membership and wait** APIs, and that callers
+must replace `membership`/`tryMembership` with `ctx.subagents.rootOf`. The
+current `TeamService` type exposes only `isEnabled`, `setEnabled` and the four
+task methods. The pinned plugin still had
+`ctx.agentTeams.tryMembership(agent)` in `index.js:650`, inside the
+`agent/created` handler. That synchronous throw vetoes session creation and
+restore, which is exactly the reported pair of failures: **New session failed:
+gateway/internal: failed to create session: TypeError:
+ctx.agentTeams.tryMembership is not a function**, and **Session unavailable**
+on an existing session. The upstream GitHub repository has only two commits;
+both predate the removal and the installed pin is the newer of them, so there
+was no compatible release to upgrade to.
+
+**Evidence.** `dsh plugin --profile web remove dsh-agent-team-model-selection`
+exited 0 and pnpm removed one package. The manifest went from 23 dependencies
+/ 24 bundles to **22 / 23**; the diff removes only that dependency, its bundle
+entry (and, in the refreshed backup, the stale
+`@deepseek-ai/dsh-experimental-agent-team-profile` entry that rc.5 no longer
+ships and that was already absent from the live manifest before this action).
+`dsh --profile web --dump-config` exits 0 with no model-selection row and
+`tool-agent-team` enabled. In the live Web GUI, **New session** created
+`session-07db5c30-d126-4b25-bf7f-56c4e6ddbdfe` at 10:59:55 with no error toast;
+opening the existing **Inkling-2-Mini architecture diagram refinement** session
+rendered its full conversation, and a fresh accessibility snapshot contains no
+“Session unavailable”, “failed to create” or `tryMembership` text. The blank
+verification session was left in the `research` workspace.
+
+**Record refreshed.** `dsh-market/profile-backup.json` re-exported
+(`createdAt 2026-11-21T10:05:52.567Z`, 6 files, 22 dependencies / 23 bundles)
+with the documented path-strip; the secret/path grep is empty. `README.md`
+now records rc.5, the active host Team tools and the removal; `dsh-market/README.md`
+records the new export. `cordis.patch.yml` also gained a harmless YAML
+language-server modeline pointing at the new, recorded `patch.json` schema: the
+language server had been applying the JSON Patch schema to `*.patch.yml` and
+reporting every pre-existing Cordis loader entry as invalid. With that modeline
+the file checks clean; `dsh --dump-config` still exits 0.
+
+**Unchanged / still known.** Every other dependency spec, bundle order, preset
+row and provider route is unchanged. `dsh-better-sidebar` remains 0.28.0: its
+`teams.taskCreate` / `taskUpdate` routes still call `tryMembership`, so Team
+task mutations from that sidebar remain incompatible with rc.5, but those
+routes are not touched by session create/restore and upstream 0.32.1 was not
+installed during this repair. `@linxin666/dsh-client-ui-task-board` already
+fails closed when the old `spawnTeammate` service is absent.
+
 ## 2026-11-18 — default route switched to `mistral-vibe/deepseek-v4-1-flash-1017`; inventory recorded
 
 **What changed.** Three rows in the profile patch layer, and the record

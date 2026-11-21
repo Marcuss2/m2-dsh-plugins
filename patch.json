@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeepSeek Harness profile patch list",
+  "description": "Permissive schema for $DSH_HOME/profiles/*/cordis.patch.yml. The YAML language server otherwise matches *.patch.yml to the JSON Patch schema, which reports every Cordis loader entry (id/name/config/disabled/insert) as invalid. The loader, not this schema, is the authority; dsh --dump-config-schema describes the full parsed config.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "id": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "disabled": {
+        "type": "boolean"
+      },
+      "config": true,
+      "insert": {
+        "type": "array",
+        "items": {
+          "type": "object"
+        }
+      },
+      "group": true,
+      "inject": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "additionalProperties": true
+  }
+}
