@@ -261,6 +261,7 @@ binding through `x-opencode-session`. It needs DSH `0.2.1-rc.5` or newer.
 | `prompts/` | The prompt text those presets carry — personas and plan mode |
 | `COMPACTION-FIX.md` | Diagnosis and fix record for the 2026-11-24 `/compact` failure after the `mistral-vibe` removal |
 | `CHANGELOG.md` | Dated record of what changed in the live setup |
+| `.research/2026-11-25-subagent-model-allowlist-guard.md` | Market scout for plugins that enforce the Subagent model-selection allowlist; recommendation only, nothing installed |
 | `.research/*.md` | Older research notes, kept for reference only; not part of the setup |
 
 ## Known constraints

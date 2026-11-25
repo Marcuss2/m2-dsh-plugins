@@ -9,6 +9,46 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-25 — Subagent allowlist-enforcement plugins scouted; no setup change
+
+**What changed.** Added
+`.research/2026-11-25-subagent-model-allowlist-guard.md` — a market scout for a
+plugin that blocks child Agents whose effective `provider/model` is not in the
+Settings → **Subagent** allowlist — and one row for it in this README's Contents
+table. **Documentation only:** no plugin was installed, no profile file was
+edited, no bundle or dependency row changed. The `web` profile remains at 23
+dependencies / 25 bundles, and `dsh-market/profile-backup.json` is untouched.
+
+**Why.** A probe delegation with no `model` argument succeeded, so the question
+was whether the allowlist actually prevents such subagents. Reading the installed
+harness showed it does not: `assertAllowedModelSelection()` lives only in
+`@deepseek-ai/dsh-tool-subagent`, checks only *explicit* routes on the
+`subagent` tool, and reads a policy frozen into a session snapshot at session
+start. Pure inheritance, `workflow`'s `agent()` and Agent Teams bypass it —
+confirmed by the absence of any allowlist enforcement in
+`dsh-workflow-ptc`, `dsh-tool-workflow`, `dsh-agent-team` and
+`dsh-tool-agent-team` (the only `allowedModels` text there is an embedded type
+declaration), and by upstream discussion #13257. The finding and the
+plugin shortlist are worth keeping so the search is not repeated.
+
+**Recommendation recorded.** `a-molecule-of-ATP/dsh-subagent-model-guard`
+v0.2.1 (already in the GUI Plugin Market catalog, design based on DSH
+0.2.2-rc.3) reads the official `subagentModelSelection` allowlist live and
+gates every child-Agent creation path including inherited routes;
+`Rayzenchen/dsh-workflow-model-guard` v1.0.0 is a zero-config complement tested
+on exactly 0.2.2-rc.5. The npm `dsh-subagent-model-guard` 0.1.0 (mimajiushi)
+declares `dsh.engines <0.2.0` and is **not** compatible with rc.5. Nothing was
+installed; the note carries sources, caveats (link-only vendored deps, fail-open
+when the official list is empty) and operational guidance.
+
+**Evidence.** All version and compatibility claims were read from primary
+sources: the installed `@deepseek-ai/dsh` source and docs under
+`/usr/lib/node_modules/@deepseek-ai/dsh/`, `awesome-dsh-plugin.com/plugins.json`,
+npm registry metadata, GitHub READMEs / DESIGN.md / VENDORED.md / package.json,
+the DSH Hub listing and the upstream discussion. `git status` before the commit
+shows only the new note plus the two documentation edits; the live profile was
+not inspected beyond the reads above and was not modified.
+
 ## 2026-11-25 — Profile drift recorded: `dsh-opencode-go` replaces `mistral-vibe`, seven pins move
 
 **What changed.** The `web` profile inventory is refreshed to the live state
