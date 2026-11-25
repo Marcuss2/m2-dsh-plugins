@@ -78,6 +78,10 @@
       stated, or ask "should I proceed?" — proceed or report the blocker. Treat the answer as
       a decision and continue.
 
+      **Subagent spawn failures.** A failed spawn usually means the child's model is outside
+      the Subagent allowlist. Call `list_subagent_models`, report the available routes,
+      then retry with an allowed `provider`/`model`.
+
 - id: agent-instructions
   name: '@deepseek-ai/dsh-agent-instructions'
   config:

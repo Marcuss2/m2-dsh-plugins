@@ -61,6 +61,10 @@ not depend on the answer. Never ask what inspection can answer, re-ask what the 
 stated, or ask "should I proceed?" — proceed or report the blocker. Treat the answer as
 a decision and continue.
 
+**Subagent spawn failures.** A failed spawn usually means the child's model is outside
+the Subagent allowlist. Call `list_subagent_models`, report the available routes,
+then retry with an allowed `provider`/`model`.
+
 Computer use: the mcp__cul__* tools drive the local Linux desktop —
 `mcp__cul__doctor` (readiness report, call it first), `mcp__cul__get_app_state`
 (AT-SPI accessibility tree + screenshot for one app), `mcp__cul__screenshot`,

@@ -30,9 +30,10 @@ Profile inventory last recorded **2026-11-25**, after the `dsh-opencode-go`
 0.4.9 route replaced the removed `mistral-vibe` provider and seven plugin
 versions moved; the 0.2.2-rc.1 update before it had dropped the Hindsight
 bundle (see `CHANGELOG.md`). Preset prompts last compacted **2026-11-11**, with
-the additive `run_code` paragraph on 2026-11-16 and the
-`run_code`-`description` paragraph on 2026-11-25; all four presets and their
-prompt extracts were re-verified against the live sources on 2026-11-25. What
+the additive `run_code` paragraph on 2026-11-16, the
+`run_code`-`description` paragraph and the subagent-spawn-failure paragraph on
+2026-11-25; all four presets and their prompt extracts were re-verified against
+the live sources on 2026-11-25. What
 changed, and when, is in `CHANGELOG.md`.
 
 ## Plugins

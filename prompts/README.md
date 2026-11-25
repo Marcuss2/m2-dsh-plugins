@@ -26,9 +26,9 @@ assembly before any model request.
   single `run_code` program, the paragraph pinning what a `run_code` program
   *is* (an async function body, discussed below) and the `description` its tool
   call needs, the **Language** paragraph, the browser-access line, **Ask before
-  you guess** (the `ask_user_question` paragraph), and (in `coding`) the
-  engineering contract. `orchestrator` adds its delegation policy around the
-  same shared text.
+  you guess** (the `ask_user_question` paragraph), the **Subagent spawn
+  failures** paragraph, and (in `coding`) the engineering contract.
+  `orchestrator` adds its delegation policy around the same shared text.
 
 ### `run_code` is a function body
 
@@ -54,6 +54,14 @@ than "top-level", because "top-level statements" in the paragraph above already
 means something else, and it names the exact error so the signature is recognisable.
 The `tools.bash(...)` line in the example is called out explicitly: its
 `description` belongs to that inner call and cannot cover the outer one.
+
+### Subagent spawn failures
+
+All four suffixes carry the same three-line paragraph, added 2026-11-25 after
+the subagent model-allowlist guard was installed and tested: a failed spawn
+usually means the child's model is outside the Subagent allowlist, so call
+`list_subagent_models`, report the available routes, then retry with an
+allowed `provider`/`model`.
 
 ### Language
 
@@ -140,5 +148,6 @@ extract of their persona rows. Edit a source there, re-run the generator, then
 re-copy the preset and refresh these files so all four stay in step.
 
 Re-verified 2026-11-25: each persona file contains its preset's live
-`persona.suffix` byte-for-byte, and the `run_code`-description, **Language**
-and **Ask before you guess** paragraphs each appear once in every file.
+`persona.suffix` byte-for-byte, and the `run_code`-description, **Language**,
+**Ask before you guess** and **Subagent spawn failures** paragraphs each appear
+once in every file.

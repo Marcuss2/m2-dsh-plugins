@@ -74,6 +74,10 @@ not depend on the answer. Never ask what inspection can answer, re-ask what the 
 stated, or ask "should I proceed?" — proceed or report the blocker. Treat the answer as
 a decision and continue.
 
+**Subagent spawn failures.** A failed spawn usually means the child's model is outside
+the Subagent allowlist. Call `list_subagent_models`, report the available routes,
+then retry with an allowed `provider`/`model`.
+
 ## Engineering
 - Correctness first, then maintainability six months out. Prefer the boring, obvious solution to the clever one; delete code that earns nothing; refuse abstractions nobody asked for.
 - Reuse the patterns already in this repository. A second convention beside an existing one is a defect, not a style choice.

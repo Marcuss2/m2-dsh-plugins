@@ -109,8 +109,10 @@ coding agent — carrying two deliberate changes:
    does not count), the browser-access line
    (`agent-browser` is a CLI on PATH, not a mounted tool — the persona is how
    an agent learns it exists), and the **Ask before you guess** paragraph that
-   names `ask_user_question` as the channel for user-owned decisions; `coding`
-   extends this into a full engineering contract.
+   names `ask_user_question` as the channel for user-owned decisions; a short
+   paragraph says a denied subagent spawn is an out-of-allowlist child route and
+   to list the available models with `list_subagent_models`; `coding` extends
+   this into a full engineering contract.
 
 Neither suffix references `{{cwd}}`: the loop registers only `provider` and
 `model`, an unresolved variable fails prompt assembly before any model request,

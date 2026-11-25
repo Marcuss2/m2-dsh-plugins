@@ -217,3 +217,7 @@ it waits for the answer. Ask once, in a single batch, after completing work that
 not depend on the answer. Never ask what inspection can answer, re-ask what the request
 stated, or ask "should I proceed?" — proceed or report the blocker. Treat the answer as
 a decision and continue.
+
+**Subagent spawn failures.** A failed spawn usually means the child's model is outside
+the Subagent allowlist. Call `list_subagent_models`, report the available routes,
+then retry with an allowed `provider`/`model`.

@@ -9,6 +9,31 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-25 — Personas explain failed subagent spawns
+
+**What changed.** One shared three-line paragraph added to the `suffix` of all
+four personas: a failed spawn usually means the child's model is outside the
+Subagent allowlist — call `list_subagent_models`, report the available routes,
+then retry with an allowed `provider`/`model`. Edited the four live legacy
+sources, re-ran `generate-patch.cjs` (1023 lines, four copies of the paragraph
+in `cordis.patch.yml`), re-copied the four `agent-presets/*.cordis.yml`,
+refreshed the four `prompts/*-persona.md` extracts, and updated the three
+READMEs. No tool row, preset card or plan-mode text changed.
+
+**Why.** The subagent model-allowlist guard was installed and tested in this
+session: explicit, inherited and `workflow` spawns with a disallowed route were
+all refused. The paragraph names the likely cause and the recovery so a model
+does not read the refusal as a broken tool; `list_subagent_models` is already
+in the generated PTC SDK.
+
+**Evidence.** `guard_selfcheck`: `active/strict: true`, 7 official routes.
+Live probes: allowed `hy4-flash-free` replied `OK`; disallowed `hy4`, inherited
+(no model fields) and workflow `agent()` with `hy4` were denied. Each extract's
+`## suffix` matches the live `suffix: |` byte-for-byte (four files).
+
+**Applies to new sessions.** Preset rows are composed at boot — a DSH restart
+is needed; existing sessions keep their old system prompt.
+
 ## 2026-11-25 — Subagent allowlist-enforcement plugins scouted; no setup change
 
 **What changed.** Added
