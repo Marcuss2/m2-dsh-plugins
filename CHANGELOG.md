@@ -9,6 +9,198 @@ record. Each entry states what changed, why, and the evidence — including
 what was found to be *unchanged*, so a later reader can tell "verified
 identical" from "not checked".
 
+## 2026-11-25 — Profile drift recorded: `dsh-opencode-go` replaces `mistral-vibe`, seven pins move
+
+**What changed.** The `web` profile inventory is refreshed to the live state
+and re-exported. `dsh-opencode-go` **0.4.9** was installed and
+`@khuraie/dsh-mistral-vibe-provider` uninstalled — one dependency and one
+bundle entry out, one of each in, so the counts stay **23 dependencies / 25
+bundles**. Seven pins moved in the same wave: `@linxin666/dsh-client-ui-task-board`
+0.4.8→**0.4.21**, `@michengai/dsh-skills-manager` 1.4.9→**1.5.4**,
+`dsh-better-sidebar` 0.32.1→**0.33.0**, `dsh-context` 0.84.1→**0.87.1**,
+`dsh-free-search` 0.9.51→**0.9.84** (43 engines, up from 39),
+`dsh-lsp-actions` 0.5.21→**0.5.24**, `mattpocock-skills-dsh` 0.1.8→**0.1.10**.
+The default route (`agent-default-model`) is now `dsh-opencode-go` /
+`deepseek-v4.1-flash` at `reasoningEffort: low`; the
+`subagent-model-selection-settings` allowlist lists seven OpenCode Go models;
+the `agent-team-model-pin` row carries four `dsh-opencode-go` sessions (two at
+`high`, two `modelDefault`, one `presetSessions` entry); and a new
+`opencode-go` patch row holds the plugin's UI settings
+(`sidebarEntry`, `goPlan`, `modelVisibility`, `usagePillStyle`).
+
+Docs updated with it: the setup table's default-model and route rows, the
+whole `## Plugins` inventory, the route section (now **OpenCode Go**), the
+Agent Teams pins, the "Where settings live now" row list, and the constraints
+about the removed provider and the sidebar line. `dsh-market/profile-backup.json`
+was re-exported (`createdAt 2026-11-25T09:59:34.358Z`, 6 files) with
+`createProfileBackup('web')` and the documented path-strip.
+`dsh-market/README.md` records the new export and what it adds.
+`COMPACTION-FIX.md`, previously untracked, is committed and listed in the
+Contents table.
+
+**Why.** A `dshmarket` install wave on 2026-11-24 (09:06Z) and the provider
+migration that followed it had drifted the live profile away from the
+2026-11-23 record. The 2026-11-24 compaction entry below records the
+`mistral-vibe` removal and its two shims in prose, but the inventory, counts,
+default model, route section and backup still described the Mistral route.
+This repository exists to record the live setup, so the stale rows had to be
+replaced rather than left to disagree with the backup.
+
+**Evidence.** `~/.dsh/profiles/web/package.json` carries the new dependency
+map and 25-entry `dsh.profile.bundles` list; every installed version above was
+read from the resolved `node_modules/<pkg>/package.json`. The market log
+records the wave: `2026-11-24T09:06:27Z install dsh-opencode-go … pinned to the
+registry's latest, 0.4.9`, then `update-start`/`update exit=0` rows for
+task-board, skills-manager, better-sidebar, context, free-search and
+lsp-actions, `09:06:51Z` for mattpocock-skills-dsh, and
+`dsh-subagent-workspace-ui → 1.12.0 exit=1` with `update-rollback … restored
+npm build v1.3.3` (the patch pin still holds). The re-export reads back 23
+dependencies, 25 bundles; its `createdAt` is `2026-11-25T09:59:34.358Z`; the
+privacy grep (`$(whoami)|/home/`) prints nothing. `dsh --profile web
+--dump-config` exits 0. The alias insert and its comment, the
+`agent-team-model-pin` session block and the `opencode-go` row are all in the
+recorded `cordis.patch.yml`; nothing else in the patch layer changed.
+
+**Unchanged / verified.** Presets and personas did not drift: the four
+`agent-presets/*.cordis.yml` and `*-preset.yml` are byte-identical to
+`~/dsh-custom-presets/legacy-agent-presets-pre-rc2/*`, the copied
+`generate-patch.cjs` regenerates `~/dsh-custom-presets/cordis.patch.yml`
+identically in a scratch directory, and each `prompts/*-persona.md` contains
+its live persona suffix verbatim, with the `run_code`-description,
+**Language** and **Ask before you guess** paragraphs present once per preset.
+The harness stays `0.2.2-rc.5`; bundle order, the `ui-git-graph` disable,
+the `dsh-subagent-workspace-ui` 1.3.3 pnpm patch, the unmounted Hindsight
+bundle and `agent-browser` 0.42.0 are unchanged.
+
+## 2026-11-25 — Personas teach the `run_code` `description` argument
+
+**What changed.** Added one shared paragraph to the `run_code` section of all
+four persona suffixes (`custom`, `coding`, `computeruse`, `orchestrator`):
+every `run_code` call needs its own `description` on the tool call itself,
+beside `code`; a `description` on a nested `tools.bash(...)` does not satisfy
+it. The paragraph names the exact rejection string and shows the call shape.
+Edited the four legacy sources under
+`~/dsh-custom-presets/legacy-agent-presets-pre-rc2/`, re-ran
+`generate-patch.cjs` to refreeze `cordis.patch.yml`, re-copied the four
+`agent-presets/*.cordis.yml` files, refreshed the four
+`prompts/*-persona.md` extracts, and updated the three READMEs. No tool row,
+preset card, or plan-mode text changed.
+
+**Why.** Some models were calling `run_code` with only the nested
+`description` they saw in the persona's hello-world example, or with none at
+all, and treating the rejection as a broken tool. The generated PTC SDK lists
+`description` as required, but the persona is where the call shape gets
+explained; the fix is a policy paragraph, not a config change. The wording says
+"on the tool call itself, beside `code`" rather than "top-level", because
+"top-level statements" in the paragraph above means something else.
+
+**Evidence.** Direct reproduction: `run_code` with no `description` returned
+`Error: invalid arguments: missing required property "description"`; the same
+error came back when only `tools.bash({ description: "...", ... })` was present
+inside the code. With a top-level `description` a trivial program ran and
+returned its value. The shared paragraph is byte-identical in all four
+legacy sources, all four repo copies, all four prompt extracts, and appears
+four times in the regenerated `cordis.patch.yml`.
+
+## 2026-11-24 — compaction fails after removing the `mistral-vibe` provider
+
+**What changed.** Added a compatibility alias plugin at
+`~/.dsh/plugins/dsh-provider-alias/index-v2.js` mounted by a top-level
+`insert` row (`provider-alias-mistral-vibe-v2`) in `cordis.patch.yml`: the
+removed `mistral-vibe` provider id now forwards to
+`dsh-opencode-go`/`hy4`. It was mounted live — no restart — via the GUI
+model selector, which drives `configEditor.edit()` →
+`reconcileProfilePatches()`; the selection was restored to `hy4`. Added a
+profile-local wrapper for `@deepseek-ai/dsh-compaction-basic` at
+`~/.dsh/profiles/web/node_modules/@deepseek-ai/dsh-compaction-basic/`
+(canonical copy `~/.dsh/plugins/dsh-compaction-basic-compat/`) as
+defense-in-depth: on `NO_ADAPTER` it retries summarization against the agent's
+live route. Removed the two dead `provider: mistral-vibe` teammate pins from
+`agent-team-model-pin.sessions`; no config references the removed package any
+more. Full diagnosis and verification: `COMPACTION-FIX.md`.
+
+**Why.** `/compact` failed four times in *Redesign website design language
+with subagents* with `Compaction could not produce a useful summary`. The
+session log shows the real cause on every `compaction/end`:
+`no adapter registered for provider "mistral-vibe"`.
+`summarizeWithLlm` uses the session's **last routed request header** as its
+provider/model, which still names the removed package; switching the model in
+the GUI does not refresh that header. `region.ts` then classifies every
+summary-stage error as `ManualCompactionError('summary')`, and
+`dsh-command-compact` hides the cause behind a fixed string. A plain
+`cordis.patch.yml` override cannot fix it: the live engines are nested inside
+preset `config.plugins` rows, which id-targeted patches do not reach (verified
+with `--dump-config --patch`).
+
+**Evidence.** Stock engine regression loop RED
+(`no adapter registered for provider "mistral-vibe"`); wrapper GREEN
+(`compacted via dsh-opencode-go/hy4`). `import.meta.resolve` from the profile
+`cordis.yml` URL now returns the wrapper; `dsh --profile web --dump-config`
+still exits 0. Most importantly, **end-to-end in the running GUI**: after the
+alias row reconciled, `command/done` at seq 4449 reports
+`kind=success, "Compacted 237 history items (~126661 tokens)"` and the GUI
+shows the same. Six failed `compact` rows preceded it. A host restart is
+**not** required for the alias; the wrapper loads on the next restart.
+
+## 2026-11-23 — `dsh-better-sidebar` 0.32.1 ends the Tasks-view crash on rc.5
+
+**What changed.** The `web` profile's `dsh-better-sidebar` dependency moved
+from `0.28.0` to **`0.32.1`** with `dsh plugin --profile web add
+dsh-better-sidebar@0.32.1`; pnpm reported `+ dsh-better-sidebar 0.32.1` and
+wrote the pin back to `package.json` as `"0.32.1"`. No pnpm patch was needed
+and the plugin's `better-sidebar` patch row is untouched. The client bundle
+is served from `node_modules`, so the running host's plugin graph
+(`client-hmr`) picked it up without a restart; the host half of 0.32.1 loads
+on the next `dsh --profile web` restart.
+
+**Why.** Opening the sidebar's **Tasks** view in a Team-enabled session
+rendered `dsh-better-sidebar: can't access property "map", team.members is
+undefined` with a **Retry** button. The host's `agentTeam` Session projection
+is now `{ enabled, tasks, failure? }`: DSH 0.2.2 removed `members` (upgrade
+guide v0.2.1-rc.2; the Team package moved the roster out of the projection).
+0.28.0 still built its roster with `team.members.map(...)` in
+`src/client/team-projection.ts`. 0.32.1 requires DSH `^0.2.2-rc.2` (its
+peers) and builds the roster from the Lead plus the Lead's `subagentCatalog`
+rows instead. The
+pin had stayed at 0.28.0 after the 2026-11-15 update attempt, when the host
+was `0.2.2-rc.1` and 0.32.1's `^0.2.2-rc.2` peer was refused; the 2026-11-21
+repair did not revisit it. The host is now `0.2.2-rc.5`, so the gate allows
+0.32.1.
+
+**Evidence.** `node_modules/dsh-better-sidebar/package.json` reads `0.32.1`;
+its `lib/client.js` contains **zero** `team.members` references and builds
+the roster from `subagentCatalog`. Running both published
+`team-projection.ts` builds against the rc.5 wire value
+`{ enabled: true, tasks: [] }`: 0.28.0 throws exactly `TypeError: Cannot read
+properties of undefined (reading 'map')`, while 0.32.1 returns the Lead row
+plus catalog teammates and returns `undefined` for `enabled: false`. The
+running server's `/plugins/events` graph lists `dsh-better-sidebar` at
+`rev 0de6b58959b9`, and that revision's served bundle has no `team.members`
+and six `subagentCatalog` references — the watcher, not a restart, published
+the new revision. In the live Web GUI the **Tasks** tab then opened as
+`Tasks — Fix sidebar with teammate subagents / No subagents` with no error
+banner and no **Retry**. `dsh --profile web --dump-config` exits 0 and still
+composes the `better-sidebar` row.
+
+**Unchanged / still known.** Every other dependency spec, bundle order, preset
+row and provider route is unchanged. The running process still holds the
+0.28.0 host half, so its `teams.taskCreate` / `teams.taskUpdate` routes still
+call the removed `ctx.agentTeams.tryMembership`; restart before exercising
+Team task mutations from the sidebar. The 0.32.1 host build uses the built-in
+`agentTeams` service for those two routes.
+
+**Record refreshed.** `dsh-market/profile-backup.json` re-exported
+(`createdAt 2026-11-23T18:19:25.259Z`, 6 files, **23 dependencies / 25
+bundles**) with the documented path-strip; the secret/path grep is empty. The
+export also captured drift that was already live but not yet recorded, and
+that is **not** part of this sidebar change:
+`@lolkda/dsh-agent-team-model-pin` `^1.8.4` (dependency, bundle entry, and an
+`agent-team-model-pin` patch row with two per-session pins; profile
+`package.json` mtime 2026-11-22), `agent-default-model.reasoningEffort`
+`low` → `high` (the README already said `high`), and the host-shipped
+`@deepseek-ai/dsh-experimental-plugin-market-bundle` entry. `README.md` and
+`dsh-market/README.md` now record those counts and rows.
+
 ## 2026-11-21 — DSH 0.2.2-rc.5: incompatible Agent Teams bundle removed; sessions restored
 
 **What changed.** `dsh-agent-team-model-selection` 0.7.0 is uninstalled from

@@ -27,8 +27,9 @@ reads the legacy directories, applies the rc.2 transforms listed below, and
 rewrites `cordis.patch.yml`. A copy of the generator is kept in this
 repository as `agent-presets/generate-patch.cjs` — byte-identical to the live
 one — so the sources here plus that script reproduce the installed bundle
-exactly (verified 2026-10-19 by regenerating in a scratch directory and
-diffing against `/home/vrbkam/dsh-custom-presets/cordis.patch.yml`).
+exactly (verified 2026-10-19 and re-verified 2026-11-25 by regenerating in a
+scratch directory and diffing against
+`/home/vrbkam/dsh-custom-presets/cordis.patch.yml`).
 
 ## The four in use
 
@@ -103,7 +104,9 @@ coding agent — carrying two deliberate changes:
 2. **The persona suffix.** A short instruction to prefer composing multi-step
    work into a single `run_code` program, a paragraph stating that the `code`
    argument is an async function **body** (no `main()` to declare, with a
-   hello-world example — see `../prompts/README.md`), the browser-access line
+   hello-world example — see `../prompts/README.md`) and that the call itself
+   needs its own `description` beside `code` (a nested `tools.bash(...)` one
+   does not count), the browser-access line
    (`agent-browser` is a CLI on PATH, not a mounted tool — the persona is how
    an agent learns it exists), and the **Ask before you guess** paragraph that
    names `ask_user_question` as the channel for user-owned decisions; `coding`
@@ -118,14 +121,17 @@ and the working directory arrives as required runtime context.
 `custom` rows untouched and changes only the persona. See `../prompts/` for the
 readable text.
 
-The `run_code`-is-a-function-body, **Language**, and **Ask before you guess**
-paragraphs are carried verbatim by all four presets. The latter exists because models were observed ignoring
-`ask_user_question` — answering in prose or guessing silently. The generated
-PTC SDK describes the call; the persona reinforces when to make it.
+The `run_code`-is-a-function-body, `run_code`-description, **Language**, and
+**Ask before you guess** paragraphs are carried verbatim by all four presets.
+The last exists because models were observed ignoring `ask_user_question` —
+answering in prose or guessing silently; the first two exist because models
+were observed wrapping the program in `main()` or omitting the envelope's
+`description`. The generated PTC SDK describes the calls; the persona reinforces
+their shape and when to make them.
 Keep the paragraph byte-identical across presets, and keep its wording aligned
 with `../prompts/plan-mode.md`, which governs asking while in plan mode.
 
-The `orchestrator` persona also carries the `run_code`, **Language**, and
+The `orchestrator` persona also carries the shared `run_code`, **Language**, and
 browser-access paragraphs verbatim; its own text is additive (the cost framing, a delegation
 ladder, the Lead/teammate split, brief-writing, coordination, and verification),
 never a rewrite of the shared rules. When editing those shared paragraphs,
@@ -179,10 +185,11 @@ new-session hero chip).
 
 These are copies of a preset the harness ships, so a DSH upgrade can leave
 them behind: shipped preset rows change between versions. Re-checked against
-`@deepseek-ai/dsh` **0.2.2-rc.1**, where the shipped presets live as patch
-files at
-`node_modules/@deepseek-ai/dsh-web-app/presets/{standard,ptc,minimal,cordis}.patch.yml`.
-Two divergences from that `standard`/`ptc` pair:
+`@deepseek-ai/dsh` **0.2.2-rc.5** (2026-11-25), where the shipped presets still
+live as patch files at
+`node_modules/@deepseek-ai/dsh-web-app/presets/{standard,ptc,minimal,cordis}.patch.yml`
+and `ptc.patch.yml` still mounts `tool-executor-ptc` followed by `present`.
+Two divergences from that `standard`/`ptc` pair remain:
 
 - **Tail rows.** Shipped `ptc` now mounts `@deepseek-ai/dsh-tool-executor-ptc`
   directly and ships a bare `present` row; the old `tool-presentation`

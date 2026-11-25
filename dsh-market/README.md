@@ -58,7 +58,7 @@ Restore format (`dsh-profile-backup`, version 0.2). It holds:
 - `cordis.yml`, `cordis.patch.yml`, `pnpm-workspace.yaml` — the profile's own config
 - `patches/` — each registered pnpm patch, verbatim
 
-Recorded `createdAt 2026-11-21T10:05:52.567Z`; 6 files. It was produced with
+Recorded `createdAt 2026-11-25T09:59:34.358Z`; 6 files. It was produced with
 `dshmarket`'s own `createProfileBackup('web')` — the same function behind the
 GUI's *Export backup* button — so it is a faithful capture of the live profile.
 The export shape shrank since the 2026-10-19 capture (101 files): 1.70.2
@@ -67,8 +67,10 @@ carries only the profile's config files — `compatibility.json`, `cordis.yml`,
 `patches/*.patch` — and no longer mirrors `.plugin-manager` operation logs or
 `pnpm-lock.yaml`. The path-strip applies to the whole file either way.
 
-**22 dependencies and 23 bundles**, back to the 2026-11-15 counts after the
-2026-11-21 removals (see below), and up from 16 and 18 on 2026-10-19. The
+**23 dependencies and 25 bundles**, up from 16 and 18 on 2026-10-19. The
+2026-11-21 export recorded 22 and 23 after the Team model-selection removal;
+the 2026-11-23 export adds the pin plugin (+1 dependency) and two bundle
+entries (the pin bundle and the host-shipped plugin-market bundle). The
 2026-11-11 re-export recorded
 `dsh-agent-team-model-selection` 0.7.0 (a
 commit-pinned GitHub bundle) plus the drift accumulated since October: added
@@ -106,6 +108,33 @@ allowlist, and starts with a YAML language-server modeline pointing at the
 recorded `patch.json` schema so editors stop matching this Cordis patch list
 to the JSON Patch schema. The modeline is a comment; the loader and
 `dsh --dump-config` ignore it.
+
+The 2026-11-23 re-export records the `dsh-better-sidebar` 0.28.0 →
+**0.32.1** move (the DSH 0.2.2-rc.2+ build; see `CHANGELOG.md`). It also
+carries drift that was already live but had not been recorded on 2026-11-21:
+`@lolkda/dsh-agent-team-model-pin` `^1.8.4` with its `agent-team-model-pin`
+patch row, `agent-default-model.reasoningEffort` `low` → `high`, and the
+host-shipped `@deepseek-ai/dsh-experimental-plugin-market-bundle` bundle
+entry.
+
+The 2026-11-25 re-export records the provider migration and the
+2026-11-24 install wave (see `CHANGELOG.md`): `@khuraie/dsh-mistral-vibe-provider`
+is gone from both `dependencies` and `dsh.profile.bundles`, while
+`dsh-opencode-go` 0.4.9 is added to both; seven pins moved
+(`@linxin666/dsh-client-ui-task-board` 0.4.8→0.4.21,
+`@michengai/dsh-skills-manager` 1.4.9→1.5.4, `dsh-better-sidebar`
+0.32.1→0.33.0, `dsh-context` 0.84.1→0.87.1, `dsh-free-search` 0.9.51→0.9.84,
+`dsh-lsp-actions` 0.5.21→0.5.24, `mattpocock-skills-dsh` 0.1.8→0.1.10); the
+patch layer's `agent-default-model` row moves to `dsh-opencode-go` /
+`deepseek-v4.1-flash` at `low`, the two allowlists list the new catalogue, the
+`agent-team-model-pin` row carries four `dsh-opencode-go` sessions (two at
+`high`, two `modelDefault`), a new `opencode-go` row holds that plugin's UI
+settings, and the `provider-alias-mistral-vibe-v2` insert keeps the removed
+provider id working for older sessions. `pnpm-workspace.yaml`'s
+`minimumReleaseAgeExclude` gains `dsh-opencode-go@0.4.9` and the newer
+`dsh-free-search` / `@michengai/dsh-skills-manager` versions. The counts stay
+at **23 dependencies and 25 bundles** because the Mistral package was replaced
+one-for-one.
 
 The export covers the profile directory only, so it carries **no credentials
 and no absolute paths**. The model-provider rows now live in the profile's

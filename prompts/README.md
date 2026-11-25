@@ -24,24 +24,36 @@ assembly before any model request.
 - **prefix** — the one-line identity statement.
 - **suffix** — the instruction to prefer composing multi-step work into a
   single `run_code` program, the paragraph pinning what a `run_code` program
-  *is* (an async function body, discussed below), the **Language** paragraph,
-  the browser-access line, **Ask before you guess** (the `ask_user_question`
-  paragraph), and (in `coding`) the engineering contract. `orchestrator` adds
-  its delegation policy around the same shared text.
+  *is* (an async function body, discussed below) and the `description` its tool
+  call needs, the **Language** paragraph, the browser-access line, **Ask before
+  you guess** (the `ask_user_question` paragraph), and (in `coding`) the
+  engineering contract. `orchestrator` adds its delegation policy around the
+  same shared text.
 
 ### `run_code` is a function body
 
 All four suffixes carry the same three-line paragraph plus a two-line example:
 the `code` argument is the **body** of an async function, so top-level
-statements, `await`, `return`, and `tools.*` are the whole surface.
+statements, `await`, `return`, and `tools.*` are the whole surface. A second
+paragraph covers the `description` argument on the tool call itself.
 
-It was added 2026-11-16 after a model wrapped its program in
+Its first paragraph was added 2026-11-16 after a model wrapped its program in
 `async function main() { ... }`, got `(run_code completed with no output)` three
 times, and concluded the tool was broken. A declared-and-never-called function
 runs nothing, and the empty result names no cause — so the paragraph names the
 wrapper, quotes the result as the signature to recognise, and shows the two lines
 that actually run. The rule is mechanical, not stylistic: it states the PTC
 transport's contract, so it stays verbatim across presets.
+
+The second paragraph was added 2026-11-25 after models called `run_code` with
+only the nested `description` visible in the hello-world example, or with none
+at all, and got `invalid arguments: missing required property "description"` —
+a schema rejection, so no program ran. Both failures were reproduced directly.
+The paragraph states the rule as "on the tool call itself, beside `code`" rather
+than "top-level", because "top-level statements" in the paragraph above already
+means something else, and it names the exact error so the signature is recognisable.
+The `tools.bash(...)` line in the example is called out explicitly: its
+`description` belongs to that inner call and cannot cover the outer one.
 
 ### Language
 
@@ -126,3 +138,7 @@ frozen patch is what the harness mounts. The copies in `../agent-presets/` are
 byte-identical to those live sources, and this directory is the readable
 extract of their persona rows. Edit a source there, re-run the generator, then
 re-copy the preset and refresh these files so all four stay in step.
+
+Re-verified 2026-11-25: each persona file contains its preset's live
+`persona.suffix` byte-for-byte, and the `run_code`-description, **Language**
+and **Ask before you guess** paragraphs each appear once in every file.

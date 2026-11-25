@@ -189,6 +189,12 @@ direct call for a single step or when the full result must be inspected.
 and `tools.*` all work. A `main()` you declare is never called — the program does nothing and
 the call reports `(run_code completed with no output)`; unwrap the body and retry.
 
+Every `run_code` call needs its own `description` argument on the tool call itself, beside
+`code` — e.g. `run_code({ description: "List files", code: "..." })`. The `description` on
+`tools.bash(...)` below belongs to that nested call and does not satisfy the outer one:
+without the outer `description` the call is rejected before any code runs, with
+`invalid arguments: missing required property "description"`.
+
 ```ts
 console.log("hello world"); // printed back to you
 return await tools.bash({ description: "List files", command: "ls" });

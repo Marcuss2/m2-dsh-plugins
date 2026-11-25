@@ -16,26 +16,28 @@ machine-readable copy.
 | --- | --- |
 | Harness | `@deepseek-ai/dsh` **0.2.2-rc.5** (global npm install) |
 | Launch | `dsh --profile web` — Web GUI, `DSH_HOME=~/.dsh` |
-| Profile | `web` — **22 dependencies, 23 ordered bundles** |
+| Profile | `web` — **23 dependencies, 25 ordered bundles** |
 | Default agent preset | `custom` — **Productivity Mode**, PTC tool presentation (`run_code` + generated SDK) |
-| Default model | `deepseek-v4-1-flash-1017` on provider `mistral-vibe`, reasoning effort `high` |
-| Mistral Vibe route | `@khuraie/dsh-mistral-vibe-provider` 0.1.29 (GitHub, unpinned) — Settings → **Mistral Vibe** |
+| Default model | `deepseek-v4.1-flash` on provider `dsh-opencode-go`, reasoning effort `low` |
+| OpenCode Go route | `dsh-opencode-go` 0.4.9 (npm, exact pin) — Settings → **OpenCode Go** plus a sidebar console |
 | Forge / worktree | `@deepseek-ai/dsh-experimental-forge-bundle` 0.2.2-rc.5 (host-shipped) — worktree option + change-request panel |
-| Web search | `dsh-free-search` 0.9.51, engine **`exa`**, keyless |
+| Web search | `dsh-free-search` 0.9.84, engine **`exa`**, keyless |
 | Plugin market | `dshmarket` **1.70.2** |
 | MCP 管理 | `dsh-mcp-setting` 0.2.0 — Settings → **MCP Servers** |
 | Agent Teams | host-shipped `agent-team` + `tool-agent-team` — shared task DAG; teammate control uses the standard subagent tools |
 
-Profile inventory last recorded **2026-11-21**, after DSH 0.2.2-rc.5 and the
-removal of the incompatible Agent Teams model-selection bundle; the 0.2.2-rc.1
-update before it had dropped the Hindsight bundle (see `CHANGELOG.md`). Preset
-prompts last compacted **2026-11-11**,
-with the additive `run_code` paragraph on 2026-11-16. What changed, and when,
-is in `CHANGELOG.md`.
+Profile inventory last recorded **2026-11-25**, after the `dsh-opencode-go`
+0.4.9 route replaced the removed `mistral-vibe` provider and seven plugin
+versions moved; the 0.2.2-rc.1 update before it had dropped the Hindsight
+bundle (see `CHANGELOG.md`). Preset prompts last compacted **2026-11-11**, with
+the additive `run_code` paragraph on 2026-11-16 and the
+`run_code`-`description` paragraph on 2026-11-25; all four presets and their
+prompt extracts were re-verified against the live sources on 2026-11-25. What
+changed, and when, is in `CHANGELOG.md`.
 
 ## Plugins
 
-The `web` profile as recorded **2026-11-18**. *Spec* is what
+The `web` profile as recorded **2026-11-25**. *Spec* is what
 `$DSH_HOME/profiles/web/package.json` records, *installed* is the version
 resolved in the profile's `node_modules`; `~` stands for `/home/vrbkam`. The
 machine-readable copy of every row is `dsh-market/profile-backup.json`.
@@ -44,31 +46,34 @@ machine-readable copy of every row is `dsh-market/profile-backup.json`.
 | --- | --- | --- | --- |
 | `@brucezhang1993/dsh-computer-use-linux` | `link:~/repos/dsh-computer-use-linux` | 0.1.1 | desktop computer use (`mcp__cul__*`), mounted **only** by the `computeruse` preset |
 | `@idealclover/dsh-session-title-studio` | `0.8.1` | 0.8.1 | session titles: recipes, refresh policy, topic-drift detection |
-| `@khuraie/dsh-mistral-vibe-provider` | `github:Khuraie/dsh-mistral-vibe-provider` | 0.1.29 | the `mistral-vibe` LLM route, PKCE sign-in and Vibe/Studio budget meters |
 | `@linxin666/dsh-client-ui-git-graph` | `^0.3.20` | 0.3.20 | git branch selector + graph — loader row **disabled** (see constraints) |
-| `@linxin666/dsh-client-ui-task-board` | `0.4.8` | 0.4.8 | Host-authoritative task board with real session runs and cron |
+| `@linxin666/dsh-client-ui-task-board` | `0.4.21` | 0.4.21 | Host-authoritative task board with real session runs and cron |
 | `@local/dsh-custom-presets` | `link:~/dsh-custom-presets` | 1.0.0 | the four agent presets — see `agent-presets/` |
-| `@michengai/dsh-skills-manager` | `1.4.9` | 1.4.9 | loads and toggles local skills (`~/.dsh/skills`) |
+| `@lolkda/dsh-agent-team-model-pin` | `^1.8.4` | 1.8.4 | per-session Team model, effort and creation-preset pinning, with native command menus |
+| `@michengai/dsh-skills-manager` | `1.5.4` | 1.5.4 | loads and toggles local skills (`~/.dsh/skills`) |
 | `@vectorize-io/hindsight-coding-agents` | `0.8.2` | 0.8.2 | Hindsight memory — **installed, bundle not mounted** |
 | `dsh-better-reasoning-effort` | `0.5.4` | 0.5.4 | per-model reasoning effort and input modalities |
-| `dsh-better-sidebar` | `0.28.0` | 0.28.0 | file tree, editor, changes, tasks and side chat in one sidebar |
-| `dsh-context` | `0.84.1` | 0.84.1 | context dashboard and `/context` command |
-| `dsh-free-search` | `0.9.51` | 0.9.51 | web search + fetch: 39 engines, engine `exa`, keyless |
-| `dsh-lsp-actions` | `0.5.21` | 0.5.21 | the `lsp_*` tools over language servers |
+| `dsh-better-sidebar` | `0.33.0` | 0.33.0 | file tree, editor, changes, tasks and side chat in one sidebar — the DSH 0.2.2-rc.2+ build |
+| `dsh-context` | `0.87.1` | 0.87.1 | context dashboard and `/context` command |
+| `dsh-free-search` | `0.9.84` | 0.9.84 | web search + fetch: 43 engines, engine `exa`, keyless |
+| `dsh-lsp-actions` | `0.5.24` | 0.5.24 | the `lsp_*` tools over language servers |
 | `dsh-mcp-connector` | `link:~/repos/dsh-mcp-connector` | 0.2.77 | MCP server connections, catalog and cross-server tool search |
 | `dsh-mcp-setting` | `0.2.0` | 0.2.0 | Settings → **MCP Servers** over the `dsh-mcp-client` rows |
+| `dsh-opencode-go` | `0.4.9` | 0.4.9 | the `dsh-opencode-go` LLM route (Go + Free gateways), usage meters, multi-account failover, sidebar console |
 | `dsh-subagent-workspace-ui` | `^1.3.3` | 1.3.3 | subagent manager UI — **patch-pinned**, cannot upgrade (see constraints) |
 | `dsh-tool-ast-grep` | `0.1.2` | 0.1.2 | AST structural search (`ast_search`) and outline (`ast_outline`) tools |
 | `dsh-workboard` | `link:~/Projects/dsh-workboard/workboard` | 0.1.0 | one merged, urgency-ordered workboard |
 | `dsh-workboard-gitlab` | `link:~/Projects/dsh-workboard/workboard-gitlab` | 0.1.0 | GitLab provider for the workboard |
 | `dsh-workboard-jira` | `link:~/Projects/dsh-workboard/workboard-jira` | 0.1.0 | Jira Cloud provider for the workboard |
 | `dshmarket` | `1.70.2` | 1.70.2 | Settings → **Plugin Market**, Browse/install/upgrade + Backup & Restore |
-| `mattpocock-skills-dsh` | `0.1.8` | 0.1.8 | Matt Pocock's skills bundle |
+| `mattpocock-skills-dsh` | `0.1.10` | 0.1.10 | Matt Pocock's skills bundle |
 
-One entry in `dsh.profile.bundles` has **no dependency row** because it ships
-inside the harness install: `@deepseek-ai/dsh-experimental-forge-bundle`
+Two entries in `dsh.profile.bundles` have **no dependency row** because they
+ship inside the harness install: `@deepseek-ai/dsh-experimental-forge-bundle`
 (0.2.2-rc.5 — `worktree`, `tool-worktree` and the `forge*` change-request
-rows). The list also opens with the host's own `@deepseek-ai/dsh-base` and
+rows) and `@deepseek-ai/dsh-experimental-plugin-market-bundle` (0.2.2-rc.5 —
+the `plugin-market` host service and the `ui-plugin-market` Discover tab).
+The list also opens with the host's own `@deepseek-ai/dsh-base` and
 `@deepseek-ai/dsh-web-app` layers. The older
 `@deepseek-ai/dsh-experimental-agent-team-profile` entry is gone: rc.5 no
 longer ships that package. Bundle order matters and is recorded in the backup,
@@ -86,10 +91,14 @@ including the `search-pool` block that belonged to the removed
 
 So the profile's patch layer is the settings file, and it also carries
 configuration for individual plugins — the Exa engine override on the
-`web-search-free` row, and the route rows themselves: `agent-default-model` and
-`subagent-model-selection-settings` carry the `mistral-vibe` routes. The
-`tool-agent-team-model-selection` row was removed with its plugin on
-2026-11-21; a comment in the patch file explains why. See
+`web-search-free` row, and the route rows themselves: `agent-default-model`,
+`subagent-model-selection-settings`, `agent-team-model-pin` and `opencode-go`
+carry the `dsh-opencode-go` routes. Two 2026-11-24 additions sit in this layer
+as well: the `provider-alias-mistral-vibe-v2` insert row, which maps the
+removed `mistral-vibe` provider id onto `dsh-opencode-go`/`hy4` for sessions
+whose durable request header still names it, and comments pointing at
+`COMPACTION-FIX.md`. The `tool-agent-team-model-selection` row was removed
+with its plugin on 2026-11-21; a comment in the patch file explains why. See
 `dsh-market/README.md` for the backup that records it.
 
 ## Machine tooling
@@ -200,39 +209,47 @@ an `agent/created` listener. That synchronous throw vetoed session creation,
 so **New session** failed with `ctx.agentTeams.tryMembership is not a function`
 and existing sessions reported **Session unavailable**.
 
-The profile now uses the host-shipped `agent-team` and `tool-agent-team` rows.
+The profile now uses the host-shipped `agent-team` and `tool-agent-team` rows
+plus `@lolkda/dsh-agent-team-model-pin` 1.8.4 (installed 2026-11-22), whose
+`agent-team-model-pin` patch row carries per-session model/effort pins — four
+sessions now carry `dsh-opencode-go/deepseek-v4.1-flash`, two pinned at `high`
+and two recorded as `modelDefault`.
 Team membership is derived from the standard subagent tree; teammate control
 uses `subagent`, `send_message({ agent_id, … })`, `list_agents` and
-`interrupt_agent({ agent_id })`. Per-member route pinning is no longer
-available from this profile; ordinary subagent model selection remains under
-Settings → **Subagent models**. Details and verification are in
+`interrupt_agent({ agent_id })`. Ordinary subagent model selection remains
+under Settings → **Subagent models**. Details and verification are in
 `CHANGELOG.md`.
 
-### Mistral Vibe route (Settings GUI)
+### OpenCode Go route (Settings GUI)
 
-`@khuraie/dsh-mistral-vibe-provider` **0.1.29** (installed 2026-11-16) registers
-the **`mistral-vibe`** LLM route against `https://api.mistral.ai/v1` and adds
-Settings → **Mistral Vibe**: PKCE browser sign-in through
-`console.mistral.ai/api/vibe/sign-in`, the live `/v1/models` catalogue with a
-price line and a tier badge per model, per-model thinking levels mapped onto
-`reasoning_effort`, and the two real allowance meters (Vibe Code and
-Studio/API) on the settings page and in the sidebar foot. It also puts an
-approximate Session cost on the composer's token-usage pill.
+`dsh-opencode-go` **0.4.9** (installed 2026-11-24, registry package pinned
+exactly) registers the **`dsh-opencode-go`** LLM route — two gateways, Go and
+Free — and its own Settings page, **OpenCode Go**: an opt-in sidebar console
+(Overview, usage board, accounts, models, appearance, advanced, about), live
+quota multipliers on the model list and in the model picker, five
+composer-pill shapes for the allowance meters, a daily usage board read from
+the official console CSV, up to 20 accounts with pre-output failover on
+`401/403`, `429` and quota exhaustion, and a session-level prompt-cache
+binding through `x-opencode-session`. It needs DSH `0.2.1-rc.5` or newer.
 
-- **One row, one provider.** The bundle's patch inserts only
-  `llm-mistral-vibe`; no shipped row is replaced. The key is read from the
-  credential record named by `apiKeyEnv` — `MISTRAL_API_KEY` — so it never
-  appears in YAML, and the profile backup carries no sign-in state;
-  re-authenticating after a restore is a GUI step.
-- **Installed from GitHub without a pin.** The package is not published on npm;
-  `dshmarket` installed `github:Khuraie/dsh-mistral-vibe-provider` at branch
-  head (market log `2026-11-16T12:10:56Z`, `exit=0 hot=true`). Updating
-  re-resolves the branch, and the market cannot offer updates for it.
-- **Where it shows up.** `agent-default-model` points at
-  `deepseek-v4-1-flash-1017` on this provider, and the subagent and Agent
-  Teams allowlists carry its two routes (`mistral-large-4`,
-  `deepseek-v4-1-flash-1017`). Model ids come from the live catalogue, so the
-  allowlist strings must match what `/v1/models` advertises.
+- **One row, one provider.** The bundle's patch inserts only `opencode-go`;
+  the profile patch's `opencode-go` row carries the UI settings
+  (`sidebarEntry`, `goPlan`, `modelVisibility`, `usagePillStyle`). Credentials
+  live in the credential store, not in YAML, so the profile backup carries no
+  sign-in state; re-authenticating after a restore is a GUI step.
+- **It replaced `@khuraie/dsh-mistral-vibe-provider`.** That GitHub-installed,
+  unpinned package (0.1.29) was uninstalled on 2026-11-24 and its
+  `mistral-vibe` routes went with it. `agent-default-model` now points at
+  `dsh-opencode-go`/`deepseek-v4.1-flash` with `reasoningEffort: low`; the
+  subagent and Agent Teams allowlists list the OpenCode Go catalogue. A
+  `provider-alias-mistral-vibe-v2` insert forwards the old provider id to
+  `dsh-opencode-go`/`hy4` for sessions whose durable request header still names
+  it, and the profile-local `dsh-compaction-basic` wrapper covers the same
+  stale route inside compaction — see `COMPACTION-FIX.md`.
+- **Where it shows up.** The composer's model picker, Settings →
+  **OpenCode Go**, the sidebar console when `sidebarEntry` is on, the
+  composer usage pill, and the subagent/Agent Teams allowlists. Model ids are
+  live-catalogue data from the gateway `/models`, not constants.
 
 ## Contents
 
@@ -242,6 +259,7 @@ approximate Session cost on the composer's token-usage pill.
 | `dsh-market/profile-backup.json` | Canonical record of the `web` profile — dependencies, bundle order, profile config files and pnpm patches — with private data stripped |
 | `agent-presets/` | The four presets in use, verbatim, plus the generator that freezes them into the live plugin |
 | `prompts/` | The prompt text those presets carry — personas and plan mode |
+| `COMPACTION-FIX.md` | Diagnosis and fix record for the 2026-11-24 `/compact` failure after the `mistral-vibe` removal |
 | `CHANGELOG.md` | Dated record of what changed in the live setup |
 | `.research/*.md` | Older research notes, kept for reference only; not part of the setup |
 
@@ -259,8 +277,8 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
 - **`dsh-subagent-workspace-ui` cannot be upgraded past 1.3.3** as-is. The
   profile carries a hand-derived English-labels patch pinned to 1.3.3, so any
   other version fails with `ERR_PNPM_UNUSED_PATCH` and rolls back. That has
-  now happened on 1.3.4, 1.4.0, 1.9.0 and 1.9.1; upstream is 1.9.1. Upgrading
-  means re-deriving the patch from the new `lib/client.js` first.
+  now happened on 1.3.4, 1.4.0, 1.9.0, 1.9.1 and 1.12.0; upstream is 1.12.0.
+  Upgrading means re-deriving the patch from the new `lib/client.js` first.
 - **`dsh-better-edit` is uninstalled, but its state directory remains.**
   `$DSH_HOME/plugins/dsh-better-edit/` still holds `config.yaml`, the
   `standard`/`code`/`minimal`/`cordis` prompt directories and a `runtime/`
@@ -283,18 +301,25 @@ Recorded because they are non-obvious and would otherwise be rediscovered:
   `ctx.agentTeams.tryMembership`. On rc.5 that call throws during agent
   creation. Its old patch row and the bundle's `tool-agent-team` disable went
   away with the uninstall; the shipped Team tool row is active again.
-- **`dsh-better-sidebar` 0.28.0 still carries old Team API calls.** Its
-  `teams.taskCreate` / `taskUpdate` routes call `ctx.agentTeams.tryMembership`,
-  so Team task mutations from that sidebar can still fail on rc.5. It is not
-  involved in session creation or restore. Upstream 0.32.1 was not installed
-  during this fix.
-- **The Mistral Vibe provider is an unpinned GitHub target.** The spec is
-  `github:Khuraie/dsh-mistral-vibe-provider` with no commit, so a reinstall
-  follows the branch head; **0.1.29** is what is installed. It is not published
-  on npm, so `dshmarket` will not offer updates — update with
-  `dsh plugin --profile web add github:Khuraie/dsh-mistral-vibe-provider` and a
-  restart. Its model ids are live-catalogue data, not constants: the allowlist
-  strings must match `/v1/models`.
+- **`dsh-better-sidebar` must match the host's line, not just its major
+  version.** The profile now runs **0.33.0** (peers `^0.2.2-rc.2`, cordis
+  `^4.1.0`); its `subagentCatalog` roster replaced the `agentTeam.members`
+  read that 0.28.0 still used (0.28.0 crashed the Tasks view on rc.5). A 0.x
+  caret never spans a minor version, so the market's `latest` pick can be wrong
+  for an older host: 0.2.2-rc.1 needs 0.32.0, and the 0.2.1 line needs 0.28.2.
+- **The `mistral-vibe` provider is gone, but its id still appears in old
+  sessions.** The unpinned GitHub package was uninstalled on 2026-11-24. Two
+  shims keep those sessions working: the `provider-alias-mistral-vibe-v2`
+  insert in the profile patch (a plain JS row at
+  `$DSH_HOME/plugins/dsh-provider-alias/index-v2.js`) and the profile-local
+  `@deepseek-ai/dsh-compaction-basic` wrapper at
+  `$DSH_HOME/profiles/web/node_modules/@deepseek-ai/dsh-compaction-basic/`
+  (canonical copy in `$DSH_HOME/plugins/dsh-compaction-basic-compat/`).
+  Neither is a plugin dependency, so the profile backup records the alias row
+  but not the wrapper; recreate it from `COMPACTION-FIX.md` after a restore.
+  `dsh-opencode-go` itself is a normal npm package pinned exactly at **0.4.9**,
+  but its model ids are live-catalogue data, not constants: the allowlist
+  strings must match the gateway `/models`.
 - **The forge bundle is host-shipped and experimental.**
   `@deepseek-ai/dsh-experimental-forge-bundle` sits in `dsh.profile.bundles` but has no
   dependency row — it resolves from the `@deepseek-ai/dsh` install, so its
